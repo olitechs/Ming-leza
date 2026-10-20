@@ -4,7 +4,7 @@ import { exchangeEmailMagicLink } from "@/lib/auth/server";
 
 export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
-    code: typeof search["code"] === "string" ? search.code : "",
+    code: typeof search["code"] === "string" ? search["code"] : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
