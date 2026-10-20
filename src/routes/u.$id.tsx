@@ -103,6 +103,7 @@ function Profile() {
           {isMe ? (
             <Link
               to="/welcome"
+              search={{ authComplete: false }}
               className="mt-8 block rounded-full border-2 border-primary py-3 text-center font-semibold text-primary"
             >
               Redo onboarding

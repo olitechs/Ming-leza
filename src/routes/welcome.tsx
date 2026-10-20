@@ -1,12 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { sendOtp, verifyOtp, verifyAdult, setMyIntent } from "@/lib/auth/server";
-import { ArrowLeft, Heart, Users, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Heart, Users, ShieldCheck, Mail } from "lucide-react";
 import p1 from "@/assets/p1.jpg";
 import p3 from "@/assets/p3.jpg";
 import p4 from "@/assets/p4.jpg";
 
 export const Route = createFileRoute("/welcome")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    authComplete: search["authComplete"] === true || search["authComplete"] === "true",
+  }),
   head: () => ({
     meta: [
       { title: "Welcome to Mingleza" },
@@ -23,11 +26,12 @@ export const Route = createFileRoute("/welcome")({
   component: Welcome,
 });
 
-const steps = ["welcome", "age", "phone", "otp", "intent"] as const;
+const steps = ["welcome", "age", "phone", "otp", "email-sent", "intent"] as const;
 
 function Welcome() {
   const nav = useNavigate();
-  const [step, setStep] = useState(0);
+  const { authComplete } = Route.useSearch();
+  const [step, setStep] = useState(() => (authComplete ? 1 : 0));
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -42,9 +46,26 @@ function Welcome() {
     setStep((s) => s + 1);
   };
 
-  const checkAge = () => {
+  const checkAge = async () => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
       setErr("Enter your date of birth.");
+      return;
+    }
+    if (authComplete) {
+      setIsBusy(true);
+      setErr("");
+      try {
+        const result = await verifyAdult({ data: { dateOfBirth: dob } });
+        if (!result.ok) {
+          setErr(result.message);
+          return;
+        }
+        setStep(5);
+      } catch {
+        setErr("We could not verify your age. Please try again.");
+      } finally {
+        setIsBusy(false);
+      }
       return;
     }
     next();
@@ -64,6 +85,10 @@ function Welcome() {
       setErr("Enter a valid Kenyan number, e.g. 712 345 678.");
       return;
     }
+    if (authMethod === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+      setErr("Enter a valid email address.");
+      return;
+    }
     setIsBusy(true);
     try {
       const result = await sendOtp({ data: { method: authMethod, identifier } });
@@ -71,11 +96,19 @@ function Welcome() {
         setErr(result.message);
         return;
       }
-      if (authMethod === "phone") setPhone(identifier);
-      else setEmail(identifier);
-      next();
+      if (authMethod === "phone") {
+        setPhone(identifier);
+        setStep(3);
+      } else {
+        setEmail(identifier);
+        setStep(4);
+      }
     } catch {
-      setErr("We could not send a code. Please try again.");
+      setErr(
+        authMethod === "email"
+          ? "We could not send your sign-in link. Please try again."
+          : "We could not send a code. Please try again.",
+      );
     } finally {
       setIsBusy(false);
     }
@@ -90,8 +123,7 @@ function Welcome() {
     setErr("");
     setIsBusy(true);
     try {
-      const identifier = authMethod === "phone" ? phone : email;
-      const authResult = await verifyOtp({ data: { method: authMethod, identifier, token } });
+      const authResult = await verifyOtp({ data: { method: "phone", identifier: phone, token } });
       if (!authResult.ok) {
         setErr(authResult.message);
         return;
@@ -101,7 +133,7 @@ function Welcome() {
         setErr(ageResult.message);
         return;
       }
-      next();
+      setStep(5);
     } catch {
       setErr("We could not verify your code. Please try again.");
     } finally {
@@ -185,7 +217,7 @@ function Welcome() {
               <button
                 onClick={() => {
                   setErr("");
-                  setStep((s) => s - 1);
+                  setStep((s) => (s === 5 ? (authComplete ? 1 : 2) : s === 4 ? 2 : s - 1));
                 }}
                 aria-label="Back"
                 className="grid size-10 place-items-center rounded-full border"
@@ -215,7 +247,9 @@ function Welcome() {
                   onChange={(e) => setDob(e.target.value)}
                   className="mt-6 w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
                 />
-                <Primary onClick={checkAge}>Continue</Primary>
+                <Primary disabled={isBusy} onClick={checkAge}>
+                  {isBusy ? "Checking…" : "Continue"}
+                </Primary>
               </>
             )}
 
@@ -223,7 +257,7 @@ function Welcome() {
               <>
                 <h1 className="text-2xl font-extrabold">Verify your account</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  We’ll send a one-time code. You can use SMS or email.
+                  Use a one-time SMS code or a sign-in link sent to your email.
                 </p>
                 <div className="mt-5 flex gap-2">
                   <button
@@ -238,7 +272,7 @@ function Welcome() {
                     onClick={() => setAuthMethod("email")}
                     className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "email" ? "border-primary bg-secondary" : ""}`}
                   >
-                    Email fallback
+                    Email link
                   </button>
                 </div>
                 {authMethod === "phone" ? (
@@ -268,7 +302,7 @@ function Welcome() {
                   />
                 )}
                 <Primary disabled={isBusy} onClick={checkPhone}>
-                  {isBusy ? "Sending code…" : "Send code"}
+                  {isBusy ? "Sending…" : authMethod === "email" ? "Send sign-in link" : "Send code"}
                 </Primary>
               </>
             )}
@@ -277,7 +311,7 @@ function Welcome() {
               <>
                 <h1 className="text-2xl font-extrabold">Enter verification code</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Code sent to {authMethod === "phone" ? phone : email}. Enter all 6 digits.
+                  Code sent to {phone}. Enter all 6 digits.
                 </p>
                 <div className="mt-6 flex justify-between gap-2">
                   {otp.map((v, k) => (
@@ -319,6 +353,33 @@ function Welcome() {
               </>
             )}
 
+            {id === "email-sent" && (
+              <>
+                <span className="grid size-14 place-items-center rounded-2xl bg-secondary text-primary">
+                  <Mail className="size-7" />
+                </span>
+                <h1 className="mt-4 text-2xl font-extrabold">Check your email</h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  We sent a secure sign-in link to{" "}
+                  <strong className="break-all text-foreground">{email}</strong>. Open that link to
+                  finish signing in. You do not need to enter a six-digit code.
+                </p>
+                <Primary disabled={isBusy} onClick={checkPhone}>
+                  {isBusy ? "Sending…" : "Resend sign-in link"}
+                </Primary>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErr("");
+                    setStep(2);
+                  }}
+                  className="mt-3 w-full py-2 text-sm font-semibold text-primary"
+                >
+                  Use a different email
+                </button>
+              </>
+            )}
+
             {id === "intent" && (
               <>
                 <h1 className="text-2xl font-extrabold">What are you here for?</h1>
@@ -353,6 +414,7 @@ function Welcome() {
                   })}
                 </div>
                 <Primary
+                  disabled={isBusy}
                   onClick={() => (intent.length ? finish() : setErr("Choose at least one."))}
                 >
                   Start exploring
@@ -360,7 +422,11 @@ function Welcome() {
               </>
             )}
 
-            {err && <p className="mt-4 text-sm font-medium text-destructive">{err}</p>}
+            {err && (
+              <p className="mt-4 text-sm font-medium text-destructive" role="alert">
+                {err}
+              </p>
+            )}
           </div>
         )}
       </div>

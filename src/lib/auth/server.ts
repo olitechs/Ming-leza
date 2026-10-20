@@ -11,7 +11,7 @@ const otpRequestSchema = z.discriminatedUnion("method", [
     identifier: z
       .string()
       .trim()
-      .regex(/^\+[1-9]\d{7,14}$/),
+      .regex(/^\\+[1-9]\\d{7,14}$/),
   }),
   z.object({ method: z.literal("email"), identifier: z.string().trim().email().max(254) }),
 ]);
@@ -21,7 +21,7 @@ const otpVerifySchema = z.object({
   token: z
     .string()
     .trim()
-    .regex(/^\d{6}$/),
+    .regex(/^\\d{6}$/),
 });
 
 export const sendOtp = createServerFn({ method: "POST" })
@@ -36,14 +36,18 @@ export const sendOtp = createServerFn({ method: "POST" })
               email: data.identifier,
               options: {
                 shouldCreateUser: true,
-                emailRedirectTo: "https://mingleza-peach.vercel.app/welcome",
+                emailRedirectTo: "https://mingleza-peach.vercel.app/auth-callback",
               },
             });
-      if (result.error)
+      if (result.error) {
         return {
           ok: false as const,
-          message: "We could not send a code. Check the details and try again.",
+          message:
+            data.method === "email"
+              ? "We could not send your sign-in link. Check the email address and try again."
+              : "We could not send a code. Check the details and try again.",
         };
+      }
       return { ok: true as const };
     } catch {
       return {
@@ -70,11 +74,12 @@ export const verifyOtp = createServerFn({ method: "POST" })
               token: data.token,
               type: "email",
             });
-      if (result.error || !result.data.user)
+      if (result.error || !result.data.user) {
         return {
           ok: false as const,
           message: "That code is invalid or expired. Request a new code and try again.",
         };
+      }
       const profile = await supabase.from("profiles").upsert(
         {
           id: result.data.user.id,
@@ -85,11 +90,12 @@ export const verifyOtp = createServerFn({ method: "POST" })
         },
         { onConflict: "id", ignoreDuplicates: true },
       );
-      if (profile.error)
+      if (profile.error) {
         return {
           ok: false as const,
           message: "Your account was verified, but setup could not finish. Please retry.",
         };
+      }
       return { ok: true as const };
     } catch {
       return {
@@ -99,8 +105,48 @@ export const verifyOtp = createServerFn({ method: "POST" })
     }
   });
 
+const magicLinkSchema = z.object({ code: z.string().trim().min(1).max(4096) });
+
+/** Exchange Supabase's one-time PKCE code on the server so the SSR cookie adapter saves the session. */
+export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
+  .validator(magicLinkSchema)
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getSupabaseServerClient();
+      const { data: authData, error } = await supabase.auth.exchangeCodeForSession(data.code);
+      if (error || !authData.user) {
+        return {
+          ok: false as const,
+          message: "This sign-in link is invalid, expired, or already used. Request a new link.",
+        };
+      }
+      const profile = await supabase.from("profiles").upsert(
+        {
+          id: authData.user.id,
+          display_name: "New member",
+          friends_enabled: true,
+          dating_enabled: false,
+          is_discoverable: true,
+        },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
+      if (profile.error) {
+        return {
+          ok: false as const,
+          message: "You are signed in, but profile setup could not finish. Please retry.",
+        };
+      }
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "We could not complete sign-in. Request a fresh link and try again.",
+      };
+    }
+  });
+
 export const verifyAdult = createServerFn({ method: "POST" })
-  .validator(z.object({ dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
+  .validator(z.object({ dateOfBirth: z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/) }))
   .handler(async ({ data }) => {
     try {
       const supabase = getSupabaseServerClient();
@@ -124,14 +170,12 @@ export const verifyAdult = createServerFn({ method: "POST" })
       }
       if (existing.data?.is_18_plus === true) return { ok: true as const };
       const eligible = isAtLeast18(data.dateOfBirth);
-      const saved = await admin.from("age_verifications").upsert(
-        {
-          user_id: userData.user.id,
-          is_18_plus: eligible,
-          checked_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+      const saved = await admin
+        .from("age_verifications")
+        .upsert(
+          { user_id: userData.user.id, is_18_plus: eligible, checked_at: new Date().toISOString() },
+          { onConflict: "user_id" },
+        );
       if (saved.error)
         return { ok: false as const, message: "Age verification is temporarily unavailable." };
       if (!eligible) {
@@ -202,5 +246,5 @@ export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   } catch {
     /* Do not log auth/session material. */
   }
-  throw redirect({ to: "/welcome" });
+  throw redirect({ to: "/welcome", search: { authComplete: false } });
 });

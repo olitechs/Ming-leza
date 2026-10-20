@@ -1,24 +1,21 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertCircle, Heart, MapPin, RotateCcw, Users } from "lucide-react";
+import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
+import { sendFriendRequest } from "@/lib/social/server";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) {
-      throw redirect({ to: "/welcome" });
-    }
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [
       { title: "Discover · Mingleza" },
-      {
-        name: "description",
-        content: "Discover real, age-verified people on Mingleza.",
-      },
+      { name: "description", content: "Discover real, age-verified people on Mingleza." },
     ],
   }),
   component: Discover,
@@ -52,6 +49,9 @@ function Discover() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const [requestingId, setRequestingId] = useState("");
+  const [requestedIds, setRequestedIds] = useState<string[]>([]);
+  const [requestError, setRequestError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -60,9 +60,8 @@ function Discover() {
     getDiscoverableProfiles({ data: { intent, limit: 30 } })
       .then((result) => {
         if (!active) return;
-        if (result.ok) {
-          setProfiles(result.profiles);
-        } else {
+        if (result.ok) setProfiles(result.profiles);
+        else {
           setProfiles([]);
           setError(result.reason !== "unauthenticated");
         }
@@ -81,13 +80,30 @@ function Discover() {
     };
   }, [intent, refresh]);
 
+  const requestFriendship = async (profile: Profile) => {
+    setRequestingId(profile.id);
+    setRequestError("");
+    try {
+      const result = await sendFriendRequest({ data: { userId: profile.id } });
+      if (!result.ok) {
+        setRequestError(result.message);
+        return;
+      }
+      setRequestedIds((current) =>
+        current.includes(profile.id) ? current : [...current, profile.id],
+      );
+    } catch {
+      setRequestError("We could not send the friend request. Please try again.");
+    } finally {
+      setRequestingId("");
+    }
+  };
+
   const intentButton = (value: Intent, label: string) => (
     <button
       onClick={() => setIntent(value)}
       aria-pressed={intent === value}
-      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
-        intent === value ? "bg-primary text-primary-foreground" : "border bg-card"
-      }`}
+      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${intent === value ? "bg-primary text-primary-foreground" : "border bg-card"}`}
     >
       {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}
       {label}
@@ -100,8 +116,7 @@ function Discover() {
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-              <MapPin className="size-3.5 text-primary" />
-              Kenya and beyond
+              <MapPin className="size-3.5 text-primary" /> Kenya and beyond
             </p>
             <h1 className="text-3xl font-extrabold">Discover</h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -114,6 +129,14 @@ function Discover() {
           </div>
         </header>
 
+        {requestError && (
+          <p
+            role="alert"
+            className="mb-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {requestError}
+          </p>
+        )}
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading profiles">
             {Array.from({ length: 6 }, (_, i) => (
@@ -156,6 +179,7 @@ function Discover() {
               const place = [profile.city, profile.region, profile.countryCode]
                 .filter(Boolean)
                 .join(", ");
+              const requested = requestedIds.includes(profile.id);
               return (
                 <article
                   key={profile.id}
@@ -181,9 +205,18 @@ function Discover() {
                       {profile.friendsEnabled && <Chip>Friends</Chip>}
                       {profile.datingEnabled && <Chip>Dating</Chip>}
                     </div>
-                    <p className="mt-5 text-center text-xs text-muted-foreground">
-                      Profile details and connections are coming next.
-                    </p>
+                    <button
+                      disabled={requested || requestingId === profile.id}
+                      onClick={() => void requestFriendship(profile)}
+                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <UserPlus className="size-4" />
+                      {requested
+                        ? "Request sent"
+                        : requestingId === profile.id
+                          ? "Sending…"
+                          : "Add friend"}
+                    </button>
                   </div>
                 </article>
               );
