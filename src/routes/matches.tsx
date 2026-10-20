@@ -1,10 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { people } from "@/lib/people";
+import { getMyAccess } from "@/lib/auth/server";
 
 export const Route = createFileRoute("/matches")({
+  beforeLoad: async () => {
+    const access = await getMyAccess();
+    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+  },
   head: () => ({
     meta: [
       { title: "Matches · Mingleza" },

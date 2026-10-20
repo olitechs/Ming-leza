@@ -1,10 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Heart, X, Star, MapPin, SlidersHorizontal, RotateCcw, ArrowLeft } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { people, me, DISTANCE_BANDS, type Person } from "@/lib/people";
+import { getMyAccess } from "@/lib/auth/server";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: async () => {
+    const access = await getMyAccess();
+    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+  },
   head: () => ({
     meta: [
       { title: "Discover · Mingleza" },
