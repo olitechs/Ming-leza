@@ -209,12 +209,11 @@ function Welcome() {
               </button>
               <button
                 onClick={() => {
-                  setErr("");
-                  setStep(1);
+                  window.location.href = "/login";
                 }}
                 className="mt-3 w-full py-2 text-sm font-semibold text-primary"
               >
-                I already have an account
+                I already have an account · Log in
               </button>
             </div>
           </div>
