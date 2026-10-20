@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Heart, MapPin, RotateCcw, Users, AlertCircle } from "lucide-react";
+import { AlertCircle, Heart, MapPin, RotateCcw, Users } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
@@ -8,12 +8,17 @@ import { getDiscoverableProfiles } from "@/lib/discovery/server";
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+    if (!access.authenticated || !access.adultVerified) {
+      throw redirect({ to: "/welcome" });
+    }
   },
   head: () => ({
     meta: [
       { title: "Discover · Mingleza" },
-      { name: "description", content: "Discover real, age-verified people on Mingleza." },
+      {
+        name: "description",
+        content: "Discover real, age-verified people on Mingleza.",
+      },
     ],
   }),
   component: Discover,
@@ -33,7 +38,12 @@ type Profile = {
 };
 
 function initials(name: string) {
-  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 function Discover() {
@@ -50,8 +60,9 @@ function Discover() {
     getDiscoverableProfiles({ data: { intent, limit: 30 } })
       .then((result) => {
         if (!active) return;
-        if (result.ok) setProfiles(result.profiles);
-        else {
+        if (result.ok) {
+          setProfiles(result.profiles);
+        } else {
           setProfiles([]);
           setError(result.reason !== "unauthenticated");
         }
@@ -65,8 +76,23 @@ function Discover() {
       .finally(() => {
         if (active) setLoading(false);
       });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [intent, refresh]);
+
+  const intentButton = (value: Intent, label: string) => (
+    <button
+      onClick={() => setIntent(value)}
+      aria-pressed={intent === value}
+      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
+        intent === value ? "bg-primary text-primary-foreground" : "border bg-card"
+      }`}
+    >
+      {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}
+      {label}
+    </button>
+  );
 
   return (
     <AppShell>
@@ -74,62 +100,90 @@ function Discover() {
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-              <MapPin className="size-3.5 text-primary" /> Kenya and beyond
+              <MapPin className="size-3.5 text-primary" />
+              Kenya and beyond
             </p>
             <h1 className="text-3xl font-extrabold">Discover</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Profiles are shown according to each member's discovery settings.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Profiles follow each member&apos;s discovery settings.
+            </p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setIntent("dating")} aria-pressed={intent === "dating"} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${intent === "dating" ? "bg-primary text-primary-foreground" : "border bg-card"}`}>
-              <Heart className="size-4" /> Dating
-            </button>
-            <button onClick={() => setIntent("friends")} aria-pressed={intent === "friends"} className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${intent === "friends" ? "bg-primary text-primary-foreground" : "border bg-card"}`}>
-              <Users className="size-4" /> Friends
-            </button>
+            {intentButton("dating", "Dating")}
+            {intentButton("friends", "Friends")}
           </div>
         </header>
 
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading profiles">
-            {Array.from({ length: 6 }, (_, i) => <div key={i} className="h-80 animate-pulse rounded-3xl bg-muted" />)}
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className="h-80 animate-pulse rounded-3xl bg-muted" />
+            ))}
           </div>
         ) : error ? (
           <div className="rounded-3xl border bg-card p-10 text-center">
             <AlertCircle className="mx-auto size-8 text-destructive" />
-            <h2 className="mt-3 text-xl font-bold">We couldn't load profiles</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Check your connection and try again.</p>
-            <button onClick={() => setRefresh((value) => value + 1)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"><RotateCcw className="size-4" /> Try again</button>
+            <h2 className="mt-3 text-xl font-bold">We couldn&apos;t load profiles</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Check your connection and try again.
+            </p>
+            <button
+              onClick={() => setRefresh((value) => value + 1)}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
+            >
+              <RotateCcw className="size-4" />
+              Try again
+            </button>
           </div>
         ) : profiles.length === 0 ? (
           <div className="rounded-3xl border-2 border-dashed bg-card p-10 text-center">
             <Users className="mx-auto size-8 text-primary" />
             <h2 className="mt-3 text-xl font-bold">No profiles to show yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Try again later. Members only appear when they are age-verified, discoverable, and have enabled this mode.</p>
-            <button onClick={() => setRefresh((value) => value + 1)} className="mt-5 inline-flex items-center gap-2 rounded-full border px-5 py-3 font-semibold"><RotateCcw className="size-4" /> Refresh</button>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Members appear when they are age-verified, discoverable, and have enabled this mode.
+            </p>
+            <button
+              onClick={() => setRefresh((value) => value + 1)}
+              className="mt-5 inline-flex items-center gap-2 rounded-full border px-5 py-3 font-semibold"
+            >
+              <RotateCcw className="size-4" />
+              Refresh
+            </button>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((profile) => {
-              const place = [profile.city, profile.region, profile.countryCode].filter(Boolean).join(", ");
+              const place = [profile.city, profile.region, profile.countryCode]
+                .filter(Boolean)
+                .join(", ");
               return (
-                <article key={profile.id} className="overflow-hidden rounded-3xl border bg-card shadow-soft">
+                <article
+                  key={profile.id}
+                  className="overflow-hidden rounded-3xl border bg-card shadow-soft"
+                >
                   <div className="grid aspect-[4/3] place-items-center bg-secondary text-primary">
-                    {profile.avatarPath ? (
-                      <div className="px-5 text-center">
-                        <div className="mx-auto grid size-24 place-items-center rounded-full bg-card text-3xl font-extrabold shadow-soft">{initials(profile.displayName)}</div>
-                        <p className="mt-3 text-xs text-muted-foreground">Profile photo is not available yet</p>
-                      </div>
-                    ) : <div className="grid size-24 place-items-center rounded-full bg-card text-3xl font-extrabold shadow-soft">{initials(profile.displayName)}</div>}
+                    <div className="grid size-24 place-items-center rounded-full bg-card text-3xl font-extrabold shadow-soft">
+                      {initials(profile.displayName)}
+                    </div>
                   </div>
                   <div className="p-5">
                     <h2 className="text-xl font-bold">{profile.displayName}</h2>
-                    {place && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4" />{place}</p>}
-                    <p className="mt-3 min-h-10 text-sm leading-relaxed text-muted-foreground">{profile.bio || "This member hasn't added a bio yet."}</p>
+                    {place && (
+                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                        <MapPin className="size-4" />
+                        {place}
+                      </p>
+                    )}
+                    <p className="mt-3 min-h-10 text-sm leading-relaxed text-muted-foreground">
+                      {profile.bio || "This member hasn&apos;t added a bio yet."}
+                    </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {profile.friendsEnabled && <Chip>Friends</Chip>}
                       {profile.datingEnabled && <Chip>Dating</Chip>}
                     </div>
-                    <p className="mt-5 text-center text-xs text-muted-foreground">Profile details and connections are coming next.</p>
+                    <p className="mt-5 text-center text-xs text-muted-foreground">
+                      Profile details and connections are coming next.
+                    </p>
                   </div>
                 </article>
               );
