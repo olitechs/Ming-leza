@@ -1,11 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { ArrowLeft, Heart, Users, Sparkles as _s, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Heart, Users, ShieldCheck } from "lucide-react";
 import p1 from "@/assets/p1.jpg";
 import p3 from "@/assets/p3.jpg";
 import p4 from "@/assets/p4.jpg";
 
-void _s;
 export const Route = createFileRoute("/welcome")({
   head: () => ({
     meta: [

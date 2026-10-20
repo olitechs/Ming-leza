@@ -10,12 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as UIdRouteImport } from './routes/u.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchesRoute = MatchesRouteImport.update({
@@ -28,35 +36,64 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UIdRoute = UIdRouteImport.update({
+  id: '/u/$id',
+  path: '/u/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/welcome': typeof WelcomeRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/welcome': typeof WelcomeRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/welcome': typeof WelcomeRoute
+  '/u/$id': typeof UIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/matches' | '/messages'
+  fullPaths: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/matches' | '/messages'
-  id: '__root__' | '/' | '/matches' | '/messages'
+  to: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/explore'
+    | '/matches'
+    | '/messages'
+    | '/welcome'
+    | '/u/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExploreRoute: typeof ExploreRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
+  WelcomeRoute: typeof WelcomeRoute
+  UIdRoute: typeof UIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matches': {
@@ -82,13 +126,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$id': {
+      id: '/u/$id'
+      path: '/u/$id'
+      fullPath: '/u/$id'
+      preLoaderRoute: typeof UIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExploreRoute: ExploreRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
+  WelcomeRoute: WelcomeRoute,
+  UIdRoute: UIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
