@@ -88,7 +88,7 @@ function Discover() {
   const [filters, setFilters] = useState<Filters>({ distance: 50, minAge: 18, maxAge: 60, sort: "Online" });
   const [showFilter, setShowFilter] = useState(false);
   const deck = useMemo(() => {
-    const list = people.filter((p) => p.intent === "Dating" || true).filter((p) => bandKm(p.band) <= filters.distance && p.age >= filters.minAge && p.age <= filters.maxAge);
+    const list = people.filter((p) => p.intent === "Dating").filter((p) => bandKm(p.band) <= filters.distance && p.age >= filters.minAge && p.age <= filters.maxAge);
     return [...list].sort((a, b) => filters.sort === "Online" ? Number(b.online) - Number(a.online) : b.match - a.match);
   }, [filters]);
   const [i, setI] = useState(0);

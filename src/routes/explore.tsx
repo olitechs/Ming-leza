@@ -41,7 +41,7 @@ function Explore() {
             <button onClick={() => setVisible(!visible)} title={visible ? "You're visible on the map" : "You're hidden"} className={`grid size-12 place-items-center rounded-full shadow-soft ${visible ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}>{visible ? <Eye className="size-5" /> : <EyeOff className="size-5" />}</button>
           </div>
           {people.map((x) => (
-            <button key={x.id} onClick={() => setSel(x.id)} style={{ left: `${x.map.x}%`, top: `${x.map.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2">
+            <button key={x.id} type="button" aria-label={`View ${x.name}, age ${x.age}, on map`} title={`View ${x.name}`} onClick={() => setSel(x.id)} style={{ left: `${x.map.x}%`, top: `${x.map.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2">
               <span className={`absolute inset-0 -m-6 rounded-full bg-primary/15 ${sel === x.id ? "animate-pulse" : ""}`} />
               <img src={x.photo} alt={x.name} className={`relative size-12 rounded-full border-4 object-cover shadow-card transition ${sel === x.id ? "scale-125 border-primary" : "border-card"}`} />
             </button>

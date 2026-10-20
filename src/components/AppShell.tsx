@@ -19,7 +19,7 @@ export function AppShell({ children, aside, hideTabs }: { children: ReactNode; a
   return (
     <div className="min-h-screen bg-background lg:flex">
       <nav className="hidden lg:flex sticky top-0 h-screen w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5">
-        <Link to="/welcome" className="mb-4 grid size-11 place-items-center rounded-2xl bg-brand font-display text-lg font-extrabold text-primary-foreground">M</Link>
+        <Link to="/" aria-label="Mingleza home" className="mb-4 grid size-11 place-items-center rounded-2xl bg-brand font-display text-lg font-extrabold text-primary-foreground">M</Link>
         {main.map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to} title={label} activeOptions={{ exact: true }}
             className="grid size-11 place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
