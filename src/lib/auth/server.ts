@@ -74,7 +74,7 @@ export const signInWithPassword = createServerFn({ method: "POST" })
       if (result.error || !result.data.user) {
         return {
           ok: false as const,
-          message: "Email or password is incorrect. Check your details or reset your password.",
+          message: "Email or password is incorrect. Check your details and try again.",
         };
       }
       const profile = await supabase.from("profiles").upsert(
