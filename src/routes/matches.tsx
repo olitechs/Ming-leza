@@ -4,7 +4,7 @@ import { Check, Clock3, MessageCircle, UserRound, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { cancelFriendRequest, respondToFriendRequest } from "@/lib/social/server";
-import { listFriendRequests } from "@/lib/social/requests.server";
+import { listFriendRequests } from "@/lib/social/requests";
 
 export const Route = createFileRoute("/matches")({
   beforeLoad: async () => {
