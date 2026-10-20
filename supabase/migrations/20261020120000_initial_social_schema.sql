@@ -189,7 +189,7 @@ create policy connections_update_participant on public.connections for update to
   );
 
 create policy conversations_read_member on public.conversations for select to authenticated using (
-  public.is_conversation_member(id, (select auth.uid()))
+  created_by = (select auth.uid()) or public.is_conversation_member(id, (select auth.uid()))
 );
 create policy conversations_insert_creator on public.conversations for insert to authenticated with check (
   created_by = (select auth.uid()) and public.is_adult_verified((select auth.uid()))

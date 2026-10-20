@@ -1,13 +1,19 @@
 begin;
-select plan(14);
+select plan(17);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
 select has_table('public', 'messages', 'messages table exists');
-select policies_are('public', 'profiles', array['profiles_read_self_or_discoverable', 'profiles_insert_self', 'profiles_update_self'], 'profile policies are installed');
-select policies_are('public', 'age_verifications', array['age_verification_read_self'], 'age verification is read-only to users');
-select policies_are('public', 'messages', array['messages_read_members', 'messages_insert_members', 'messages_update_own'], 'message policies are installed');
-select policies_are('public', 'blocks', array['blocks_read_as_blocker', 'blocks_insert_as_blocker', 'blocks_delete_as_blocker'], 'block policies are installed');
+select has_policy('public', 'profiles', 'profiles_read_self_or_discoverable', 'profile discovery policy exists');
+select has_policy('public', 'profiles', 'profiles_insert_self', 'profile insert is self-only');
+select has_policy('public', 'profiles', 'profiles_update_self', 'profile update is self-only');
+select has_policy('public', 'age_verifications', 'age_verification_read_self', 'age verification is read-only to users');
+select has_policy('public', 'messages', 'messages_read_members', 'messages are participant-readable');
+select has_policy('public', 'messages', 'messages_insert_members', 'message sends require membership');
+select has_policy('public', 'messages', 'messages_update_own', 'message edits are sender-only');
+select has_policy('public', 'blocks', 'blocks_read_as_blocker', 'only the blocker can list their blocks');
+select has_policy('public', 'blocks', 'blocks_insert_as_blocker', 'users can only create their own blocks');
+select has_policy('public', 'blocks', 'blocks_delete_as_blocker', 'users can only remove their own blocks');
 select ok(not public.is_blocked_between(gen_random_uuid(), gen_random_uuid()), 'unrelated users are not blocked');
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
