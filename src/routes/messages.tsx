@@ -13,7 +13,7 @@ import {
 export const Route = createFileRoute("/messages")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [
@@ -101,8 +101,9 @@ function Messages() {
         }
         const list = result.friends as Friend[];
         setFriends(list);
-        if (list.length === 0) setLoading(false);
-        else await openFriend(list[0]);
+        const firstFriend = list[0];
+        if (firstFriend) await openFriend(firstFriend);
+        else setLoading(false);
       })
       .catch(() => {
         if (active) {
