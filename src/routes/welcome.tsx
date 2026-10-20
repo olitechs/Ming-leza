@@ -52,9 +52,14 @@ function Welcome() {
 
   const checkPhone = async () => {
     setErr("");
-    const identifier = authMethod === "phone"
-      ? "+254" + phone.replace(/^\\+254/, "").replace(/\\D/g, "").replace(/^0/, "")
-      : email.trim();
+    const identifier =
+      authMethod === "phone"
+        ? "+254" +
+          phone
+            .replace(/^\\+254/, "")
+            .replace(/\\D/g, "")
+            .replace(/^0/, "")
+        : email.trim();
     if (authMethod === "phone" && !/^\\+254[17]\\d{8}$/.test(identifier)) {
       setErr("Enter a valid Kenyan number, e.g. 712 345 678.");
       return;
@@ -62,7 +67,10 @@ function Welcome() {
     setIsBusy(true);
     try {
       const result = await sendOtp({ data: { method: authMethod, identifier } });
-      if (!result.ok) { setErr(result.message); return; }
+      if (!result.ok) {
+        setErr(result.message);
+        return;
+      }
       if (authMethod === "phone") setPhone(identifier);
       else setEmail(identifier);
       next();
@@ -75,15 +83,24 @@ function Welcome() {
 
   const checkOtp = async () => {
     const token = otp.join("");
-    if (token.length !== 6) { setErr("Enter the 6-digit code."); return; }
+    if (token.length !== 6) {
+      setErr("Enter the 6-digit code.");
+      return;
+    }
     setErr("");
     setIsBusy(true);
     try {
       const identifier = authMethod === "phone" ? phone : email;
       const authResult = await verifyOtp({ data: { method: authMethod, identifier, token } });
-      if (!authResult.ok) { setErr(authResult.message); return; }
+      if (!authResult.ok) {
+        setErr(authResult.message);
+        return;
+      }
       const ageResult = await verifyAdult({ data: { dateOfBirth: dob } });
-      if (!ageResult.ok) { setErr(ageResult.message); return; }
+      if (!ageResult.ok) {
+        setErr(ageResult.message);
+        return;
+      }
       next();
     } catch {
       setErr("We could not verify your code. Please try again.");
@@ -97,9 +114,15 @@ function Welcome() {
     setIsBusy(true);
     try {
       const result = await setMyIntent({
-        data: { friendsEnabled: intent.includes("Friends"), datingEnabled: intent.includes("Dating") },
+        data: {
+          friendsEnabled: intent.includes("Friends"),
+          datingEnabled: intent.includes("Dating"),
+        },
       });
-      if (!result.ok) { setErr(result.message); return; }
+      if (!result.ok) {
+        setErr(result.message);
+        return;
+      }
       await nav({ to: "/" });
     } catch {
       setErr("We could not finish your profile. Please try again.");
@@ -146,7 +169,10 @@ function Welcome() {
                 Get started
               </button>
               <button
-                onClick={() => { setErr(""); setStep(1); }}
+                onClick={() => {
+                  setErr("");
+                  setStep(1);
+                }}
                 className="mt-3 w-full py-2 text-sm font-semibold text-primary"
               >
                 I already have an account
@@ -196,40 +222,100 @@ function Welcome() {
             {id === "phone" && (
               <>
                 <h1 className="text-2xl font-extrabold">Verify your account</h1>
-                <p className="mt-2 text-sm text-muted-foreground">We’ll send a one-time code. You can use SMS or email.</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  We’ll send a one-time code. You can use SMS or email.
+                </p>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setAuthMethod("phone")} className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "phone" ? "border-primary bg-secondary" : ""}`}>Phone / SMS</button>
-                  <button type="button" onClick={() => setAuthMethod("email")} className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "email" ? "border-primary bg-secondary" : ""}`}>Email fallback</button>
+                  <button
+                    type="button"
+                    onClick={() => setAuthMethod("phone")}
+                    className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "phone" ? "border-primary bg-secondary" : ""}`}
+                  >
+                    Phone / SMS
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAuthMethod("email")}
+                    className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "email" ? "border-primary bg-secondary" : ""}`}
+                  >
+                    Email fallback
+                  </button>
                 </div>
                 {authMethod === "phone" ? (
                   <div className="mt-6 flex gap-2">
-                    <span className="grid place-items-center rounded-2xl border bg-muted px-4 font-semibold">🇰🇪 +254</span>
-                    <input aria-label="Kenyan phone number" inputMode="tel" autoComplete="tel-national" value={phone.replace(/^\\+254/, "")} onChange={(e) => setPhone(e.target.value)} placeholder="712 345 678" className="min-w-0 flex-1 rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring" />
+                    <span className="grid place-items-center rounded-2xl border bg-muted px-4 font-semibold">
+                      🇰🇪 +254
+                    </span>
+                    <input
+                      aria-label="Kenyan phone number"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      value={phone.replace(/^\\+254/, "")}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="712 345 678"
+                      className="min-w-0 flex-1 rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
+                    />
                   </div>
                 ) : (
-                  <input aria-label="Email address" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="mt-6 w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring" />
+                  <input
+                    aria-label="Email address"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="mt-6 w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
+                  />
                 )}
-                <Primary disabled={isBusy} onClick={checkPhone}>{isBusy ? "Sending code…" : "Send code"}</Primary>
+                <Primary disabled={isBusy} onClick={checkPhone}>
+                  {isBusy ? "Sending code…" : "Send code"}
+                </Primary>
               </>
             )}
 
             {id === "otp" && (
               <>
                 <h1 className="text-2xl font-extrabold">Enter verification code</h1>
-                <p className="mt-2 text-sm text-muted-foreground">Code sent to {authMethod === "phone" ? phone : email}. Enter all 6 digits.</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Code sent to {authMethod === "phone" ? phone : email}. Enter all 6 digits.
+                </p>
                 <div className="mt-6 flex justify-between gap-2">
                   {otp.map((v, k) => (
-                    <input key={k} ref={(el) => { refs.current[k] = el; }} aria-label={`Verification digit ${k + 1}`} value={v} inputMode="numeric" autoComplete={k === 0 ? "one-time-code" : "off"} maxLength={1}
+                    <input
+                      key={k}
+                      ref={(el) => {
+                        refs.current[k] = el;
+                      }}
+                      aria-label={`Verification digit ${k + 1}`}
+                      value={v}
+                      inputMode="numeric"
+                      autoComplete={k === 0 ? "one-time-code" : "off"}
+                      maxLength={1}
                       onChange={(e) => {
                         const d = e.target.value.replace(/\\D/g, "").slice(-1);
-                        const n = [...otp]; n[k] = d; setOtp(n);
+                        const n = [...otp];
+                        n[k] = d;
+                        setOtp(n);
                         if (d && k < 5) refs.current[k + 1]?.focus();
                       }}
-                      className={`min-w-0 size-12 rounded-xl border-2 text-center font-display text-xl font-bold outline-none focus:border-primary sm:size-14 ${v ? "border-primary bg-secondary" : "bg-background"}`} />
+                      className={`min-w-0 size-12 rounded-xl border-2 text-center font-display text-xl font-bold outline-none focus:border-primary sm:size-14 ${v ? "border-primary bg-secondary" : "bg-background"}`}
+                    />
                   ))}
                 </div>
-                <Primary disabled={isBusy} onClick={checkOtp}>{isBusy ? "Verifying…" : "Verify code"}</Primary>
-                <button type="button" disabled={isBusy} onClick={() => { setOtp(["", "", "", "", "", ""]); void checkPhone(); }} className="mt-3 w-full text-sm font-semibold text-primary disabled:opacity-50">Resend code</button>
+                <Primary disabled={isBusy} onClick={checkOtp}>
+                  {isBusy ? "Verifying…" : "Verify code"}
+                </Primary>
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => {
+                    setOtp(["", "", "", "", "", ""]);
+                    void checkPhone();
+                  }}
+                  className="mt-3 w-full text-sm font-semibold text-primary disabled:opacity-50"
+                >
+                  Resend code
+                </button>
               </>
             )}
 
@@ -282,11 +368,21 @@ function Welcome() {
   );
 }
 
-function Primary({ onClick, children, disabled = false }: { onClick: () => void | Promise<void>; children: string; disabled?: boolean }) {
+function Primary({
+  onClick,
+  children,
+  disabled = false,
+}: {
+  onClick: () => void | Promise<void>;
+  children: string;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
-      onClick={() => { void onClick(); }}
+      onClick={() => {
+        void onClick();
+      }}
       disabled={disabled}
       className="mt-8 w-full rounded-full bg-primary py-4 font-semibold text-primary-foreground hover:bg-primary-pressed disabled:cursor-not-allowed disabled:opacity-60"
     >
