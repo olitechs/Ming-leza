@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Heart, MapPin, RotateCcw, Users, AlertCircle } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
@@ -129,7 +129,7 @@ function Discover() {
                       {profile.friendsEnabled && <Chip>Friends</Chip>}
                       {profile.datingEnabled && <Chip>Dating</Chip>}
                     </div>
-                    <Link to="/u/$id" params={{ id: profile.id }} className="mt-5 block rounded-full border-2 border-primary py-2.5 text-center text-sm font-semibold text-primary">View profile</Link>
+                    <p className="mt-5 text-center text-xs text-muted-foreground">Profile details and connections are coming next.</p>
                   </div>
                 </article>
               );
