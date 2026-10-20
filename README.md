@@ -1,14 +1,18 @@
-# Welcome to your Lovable project
+# Violet Coral Meet Cute
+
+Primary#6C47FFPrimary pressed#5233E0Primary tint (backgrounds, chips)#F0ECFFAccent (like, match, promo)#FF6B5ASuccess#1FA971Danger#D92D20Text / surface (light)#14121F / #FFFFFF
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://violet-coral-meet-cute.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/587f03a8-6e68-412f-8778-e20ae95d3a3c).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +24,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
