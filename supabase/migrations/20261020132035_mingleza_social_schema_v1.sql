@@ -36,7 +36,6 @@ create table public.blocks (
   primary key (blocker_id, blocked_id),
   check (blocker_id <> blocked_id)
 );
-create type public.connection_status as enum ('pending', 'accepted', 'declined');
 create table public.friendships (
   id uuid primary key default gen_random_uuid(),
   requester_id uuid not null references auth.users(id) on delete cascade,
