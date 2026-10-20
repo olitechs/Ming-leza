@@ -8,10 +8,17 @@ export function isAtLeast18(dateOfBirth: string, now = new Date()): boolean {
   const day = Number(parts[2]);
   if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return false;
   const date = new Date(Date.UTC(year, month - 1, day));
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return false;
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return false;
+  }
   if (date.getTime() > now.getTime()) return false;
   let age = now.getUTCFullYear() - year;
-  const birthdayNotReached = now.getUTCMonth() + 1 < month ||
+  const birthdayNotReached =
+    now.getUTCMonth() + 1 < month ||
     (now.getUTCMonth() + 1 === month && now.getUTCDate() < day);
   if (birthdayNotReached) age -= 1;
   return age >= 18;

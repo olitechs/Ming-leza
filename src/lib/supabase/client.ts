@@ -5,7 +5,9 @@ let browserClient: ReturnType<typeof createBrowserClient> | undefined;
 export function getSupabaseBrowserClient() {
   const url = import.meta.env["VITE_SUPABASE_URL"];
   const key = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
-  if (!url || !key) throw new Error("Supabase is not configured. Set the public project URL and publishable key.");
+  if (!url || !key) {
+    throw new Error("Supabase is not configured. Set the public project URL and publishable key.");
+  }
   browserClient ??= createBrowserClient(url, key);
   return browserClient;
 }
