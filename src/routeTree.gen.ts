@@ -91,9 +91,9 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
+  fullPaths: '/auth-callback' | '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
+  to: '/auth-callback' | '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
   id:
     | '__root__'
     | '/auth-callback'
