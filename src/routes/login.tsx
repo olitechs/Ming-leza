@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { signInWithPassword } from "@/lib/auth/server";
+import { getMyAccess, signInWithPassword } from "@/lib/auth/server";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -30,7 +30,10 @@ function LoginPage() {
         setError(result.message);
         return;
       }
-      window.location.replace("/welcome?authComplete=true");
+      const access = await getMyAccess();
+      window.location.replace(
+        access.authenticated && access.adultVerified ? "/" : "/welcome?authComplete=true",
+      );
     } catch {
       setError("We could not sign you in right now. Please try again.");
     } finally {
