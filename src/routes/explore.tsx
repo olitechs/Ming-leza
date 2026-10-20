@@ -38,7 +38,7 @@ function Explore() {
         <section className="relative flex-1 overflow-hidden bg-map">
           <div className="absolute inset-x-4 top-4 z-10 flex gap-2">
             <div className="flex flex-1 items-center gap-2 rounded-full bg-card px-4 py-3 shadow-soft"><Search className="size-4 text-muted-foreground" /><input placeholder="Search an area, e.g. Kilimani" className="flex-1 bg-transparent text-sm outline-none" /></div>
-            <button onClick={() => setVisible(!visible)} title={visible ? "You're visible on the map" : "You're hidden"} className={`grid size-12 place-items-center rounded-full shadow-soft ${visible ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}>{visible ? <Eye className="size-5" /> : <EyeOff className="size-5" />}</button>
+            <button type="button" aria-label={visible ? "Hide me on the map" : "Show me on the map"} onClick={() => setVisible(!visible)} title={visible ? "You're visible on the map" : "You're hidden"} className={`grid size-12 place-items-center rounded-full shadow-soft ${visible ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}>{visible ? <Eye className="size-5" /> : <EyeOff className="size-5" />}</button>
           </div>
           {people.map((x) => (
             <button key={x.id} type="button" aria-label={`View ${x.name}, age ${x.age}, on map`} title={`View ${x.name}`} onClick={() => setSel(x.id)} style={{ left: `${x.map.x}%`, top: `${x.map.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2">

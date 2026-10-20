@@ -6,5 +6,11 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), tsConfigPaths(), tanstackStart({ server: { entry: "./server.ts" } }), nitro(), viteReact()],
+  plugins: [
+    tailwindcss(),
+    tsConfigPaths(),
+    tanstackStart({ server: { entry: "server" } }),
+    nitro(),
+    viteReact(),
+  ],
 });
