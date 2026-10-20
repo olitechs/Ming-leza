@@ -3,16 +3,12 @@ import { z } from "zod";
 import { getSupabaseServerClient } from "../supabase/server";
 
 const profileInput = z.object({
-  displayName: z
+  displayName: z.string().trim().min(2).max(40),
+  bio: z.string().trim().max(300),
+  city: z
     .string()
     .trim()
-    .min(2)
-    .max(40),
-  bio: z
-    .string()
-    .trim()
-    .max(300),
-  city: z.string().trim().max(80),
+    .max(80),
   region: z.string().trim().max(80),
   countryCode: z.string().trim().regex(/^[A-Za-z]{2}$/),
 });
