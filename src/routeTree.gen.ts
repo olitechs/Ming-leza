@@ -15,6 +15,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as UIdRouteImport } from './routes/u.$id'
+import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const UIdRoute = UIdRouteImport.update({
   path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/profile-edit',
+  path: '/profile-edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
+  '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
+  '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -74,9 +82,9 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id'
+  fullPaths: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id'
+  to: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
   id:
     | '__root__'
     | '/'
@@ -85,6 +93,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/welcome'
     | '/u/$id'
+    | '/profile-edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +103,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   WelcomeRoute: typeof WelcomeRoute
   UIdRoute: typeof UIdRoute
+  ProfileEditRoute: typeof ProfileEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile-edit': {
+      id: '/profile-edit'
+      path: '/profile-edit'
+      fullPath: '/profile-edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,6 +167,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   WelcomeRoute: WelcomeRoute,
   UIdRoute: UIdRoute,
+  ProfileEditRoute: ProfileEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
