@@ -43,6 +43,8 @@
   --color-destructive: var(--destructive);
   --color-primary-pressed: var(--primary-pressed);
   --color-success: var(--success);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
   --color-success-foreground: var(--success-foreground);
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
@@ -103,6 +105,8 @@
   --sidebar-accent-foreground: oklch(0.48 0.24 280);
   --sidebar-border: oklch(0.92 0.015 290);
   --sidebar-ring: oklch(0.55 0.25 285);
+  --ink: oklch(0.19 0.025 290);
+  --ink-foreground: oklch(1 0 0);
   --gradient-brand: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   --gradient-scrim: linear-gradient(180deg, transparent 45%, oklch(0.19 0.025 290 / 0.85) 100%);
   --shadow-card: 0 24px 60px -24px oklch(0.48 0.24 280 / 0.35);
@@ -127,3 +131,8 @@
 @utility bg-scrim { background-image: var(--gradient-scrim); }
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility bg-map {
+  background-color: oklch(0.96 0.01 290);
+  background-image: linear-gradient(oklch(1 0 0) 2px, transparent 2px), linear-gradient(90deg, oklch(1 0 0) 2px, transparent 2px), linear-gradient(30deg, transparent 48%, oklch(1 0 0) 48%, oklch(1 0 0) 52%, transparent 52%);
+  background-size: 64px 64px, 64px 64px, 220px 220px;
+}
