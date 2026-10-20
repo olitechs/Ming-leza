@@ -29,7 +29,10 @@ export const listAcceptedFriendProfiles = createServerFn({ method: "GET" }).hand
   return {
     ok: true as const,
     friends: (friendships ?? []).flatMap((friendship) => {
-      const id = friendship.requester_id === auth.user.id ? friendship.addressee_id : friendship.requester_id;
+      const id =
+        friendship.requester_id === auth.user.id
+          ? friendship.addressee_id
+          : friendship.requester_id;
       const profile = profileById.get(id);
       return profile ? [{ friendshipId: friendship.id, ...profile }] : [];
     }),

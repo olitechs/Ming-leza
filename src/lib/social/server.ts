@@ -56,7 +56,8 @@ export const respondToFriendRequest = createServerFn({ method: "POST" })
       p_request_id: data.requestId,
       p_accept: data.accept,
     });
-    if (error) return { ok: false as const, message: "That friend request is no longer available." };
+    if (error)
+      return { ok: false as const, message: "That friend request is no longer available." };
     return { ok: true as const };
   });
 
@@ -68,7 +69,8 @@ export const cancelFriendRequest = createServerFn({ method: "POST" })
     const { error } = await supabase.rpc("cancel_friend_request", {
       p_request_id: data.requestId,
     });
-    if (error) return { ok: false as const, message: "That pending request could not be cancelled." };
+    if (error)
+      return { ok: false as const, message: "That pending request could not be cancelled." };
     return { ok: true as const };
   });
 
@@ -80,7 +82,8 @@ export const openFriendConversation = createServerFn({ method: "POST" })
     const { data: conversationId, error } = await supabase.rpc("open_friend_conversation", {
       p_other_user_id: data.otherUserId,
     });
-    if (error) return { ok: false as const, message: "Messaging is available to accepted friends only." };
+    if (error)
+      return { ok: false as const, message: "Messaging is available to accepted friends only." };
     return { ok: true as const, conversationId };
   });
 
@@ -121,6 +124,9 @@ export const sendConversationMessage = createServerFn({ method: "POST" })
       .select("id, conversation_id, sender_id, body, created_at")
       .single();
     if (error || !message)
-      return { ok: false as const, message: "This message could not be sent. Check the conversation and try again." };
+      return {
+        ok: false as const,
+        message: "This message could not be sent. Check the conversation and try again.",
+      };
     return { ok: true as const, message: { ...message, mine: true } };
   });

@@ -14,9 +14,13 @@ export const listFriendRequests = createServerFn({ method: "GET" }).handler(asyn
     .order("created_at", { ascending: false });
   if (error) return { ok: false as const, reason: "unavailable" as const };
 
-  const otherIds = [...new Set((rows ?? []).map((row) =>
-    row.requester_id === auth.user.id ? row.addressee_id : row.requester_id,
-  ))];
+  const otherIds = [
+    ...new Set(
+      (rows ?? []).map((row) =>
+        row.requester_id === auth.user.id ? row.addressee_id : row.requester_id,
+      ),
+    ),
+  ];
   if (otherIds.length === 0) return { ok: true as const, requests: [] };
 
   const { data: profiles, error: profileError } = await supabase
