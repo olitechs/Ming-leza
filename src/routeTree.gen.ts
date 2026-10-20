@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as MatchesRouteImport } from './routes/matches'
@@ -17,6 +18,11 @@ import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -54,6 +60,7 @@ const ProfileEditRoute = ProfileEditRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/auth-callback': typeof AuthCallbackRoute
   '/': typeof IndexRoute
   '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesByTo {
+  '/auth-callback': typeof AuthCallbackRoute
   '/': typeof IndexRoute
   '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
@@ -72,6 +80,7 @@ export interface FileRoutesByTo {
   '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesById {
+  '/auth-callback': typeof AuthCallbackRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/explore': typeof ExploreRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
   to: '/' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
   id:
     | '__root__'
+    | '/auth-callback'
     | '/'
     | '/explore'
     | '/matches'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
   IndexRoute: typeof IndexRoute
   ExploreRoute: typeof ExploreRoute
   MatchesRoute: typeof MatchesRoute
@@ -108,6 +119,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -161,6 +179,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
   IndexRoute: IndexRoute,
   ExploreRoute: ExploreRoute,
   MatchesRoute: MatchesRoute,
