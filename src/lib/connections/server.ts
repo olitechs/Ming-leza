@@ -16,8 +16,9 @@ const messageInput = z.object({
 async function session() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user)
+  if (error || !data.user) {
     return { supabase, user: null, message: "Sign in to continue." };
+  }
 
   const { data: age, error: ageError } = await supabase
     .from("age_verifications")
@@ -25,12 +26,13 @@ async function session() {
     .eq("user_id", data.user.id)
     .maybeSingle();
 
-  if (ageError || age?.is_18_plus !== true)
+  if (ageError || age?.is_18_plus !== true) {
     return {
       supabase,
       user: null,
       message: "Complete adult verification first.",
     };
+  }
 
   return { supabase, user: data.user, message: "" };
 }
@@ -47,8 +49,9 @@ export const listFriendships = createServerFn({ method: "GET" }).handler(
       .order("created_at", { ascending: false })
       .limit(100);
 
-    if (error)
+    if (error) {
       return { ok: false as const, message: "Requests could not be loaded." };
+    }
 
     return { ok: true as const, userId: s.user.id, requests: data ?? [] };
   },
