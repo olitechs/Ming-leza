@@ -4,16 +4,16 @@ select plan(22);
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
 select has_table('public', 'messages', 'messages table exists');
-select has_policy('public', 'profiles', 'profiles_read_self_or_discoverable', 'profile discovery policy exists');
-select has_policy('public', 'profiles', 'profiles_insert_self', 'profile insert is self-only');
-select has_policy('public', 'profiles', 'profiles_update_self', 'profile update is self-only');
-select has_policy('public', 'age_verifications', 'age_verification_read_self', 'age verification is read-only to users');
-select has_policy('public', 'messages', 'messages_read_members', 'messages are participant-readable');
-select has_policy('public', 'messages', 'messages_insert_members', 'message sends require membership');
-select has_policy('public', 'messages', 'messages_update_own', 'message edits are sender-only');
-select has_policy('public', 'blocks', 'blocks_read_as_blocker', 'only the blocker can list their blocks');
-select has_policy('public', 'blocks', 'blocks_insert_as_blocker', 'users can only create their own blocks');
-select has_policy('public', 'blocks', 'blocks_delete_as_blocker', 'users can only remove their own blocks');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_read_self_or_discoverable'), 'profile discovery policy exists');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_insert_self'), 'profile insert is self-only');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_update_self'), 'profile update is self-only');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'age_verifications' and policyname = 'age_verification_read_self'), 'age verification is read-only to users');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_read_members'), 'messages are participant-readable');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_insert_members'), 'message sends require membership');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_update_own'), 'message edits are sender-only');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'blocks' and policyname = 'blocks_read_as_blocker'), 'only the blocker can list their blocks');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'blocks' and policyname = 'blocks_insert_as_blocker'), 'users can only create their own blocks');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'blocks' and policyname = 'blocks_delete_as_blocker'), 'users can only remove their own blocks');
 select ok(not public.is_blocked_between(gen_random_uuid(), gen_random_uuid()), 'unrelated users are not blocked');
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
