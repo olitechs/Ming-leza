@@ -19,7 +19,7 @@ export const Route = createFileRoute("/messages")({
 });
 
 function Messages() {
-  const [active, setActive] = useState(conversations[0].id);
+  const [active, setActive] = useState("wanjiru");
   const [msgs, setMsgs] = useState<Record<string, { me: boolean; text: string }[]>>({
     wanjiru: [{ me: false, text: "Hey! Saw you also love hiking 🥾" }, { me: true, text: "Yes! Karura or Ngong Hills?" }, { me: false, text: "Haha sawa, Saturday at Karura then?" }],
   });
