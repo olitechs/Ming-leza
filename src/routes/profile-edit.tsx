@@ -109,8 +109,7 @@ function EditProfile() {
     }
     setUploading(true);
     try {
-      const ext =
-        file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+      const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
       const path = userId + "/avatar." + ext;
       const supabase = getSupabaseBrowserClient();
       const uploaded = await supabase.storage.from("profile-avatars").upload(path, file, {
