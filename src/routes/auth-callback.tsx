@@ -7,9 +7,9 @@ export const Route = createFileRoute("/auth-callback")({
     code: typeof search["code"] === "string" ? search.code : "",
     error:
       typeof search["error_description"] === "string"
-        ? search["error"]_description
-        : typeof search.error === "string"
-          ? search.error
+        ? search["error_description"]
+        : typeof search["error"] === "string"
+          ? search["error"]
           : "",
   }),
   head: () => ({ meta: [{ title: "Signing in · Mingleza" }] }),
