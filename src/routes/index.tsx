@@ -9,7 +9,8 @@ import { sendFriendRequest } from "@/lib/social/server";
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome", search: { authComplete: false } });
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [

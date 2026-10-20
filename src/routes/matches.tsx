@@ -9,7 +9,8 @@ import { listFriendRequests } from "@/lib/social/requests";
 export const Route = createFileRoute("/matches")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome", search: { authComplete: false } });
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [

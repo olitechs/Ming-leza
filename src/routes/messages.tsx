@@ -13,7 +13,8 @@ import {
 export const Route = createFileRoute("/messages")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome", search: { authComplete: false } });
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [
