@@ -69,7 +69,6 @@ export interface FileRoutesByFullPath {
   '/auth-callback': typeof AuthCallbackRoute
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/login': typeof LoginRoute
   '/explore': typeof ExploreRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
