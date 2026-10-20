@@ -11,7 +11,7 @@ const otpRequestSchema = z.discriminatedUnion("method", [
     identifier: z
       .string()
       .trim()
-      .regex(/^\\+[1-9]\\d{7,14}$/),
+      .regex(/^\+[1-9]\d{7,14}$/),
   }),
   z.object({ method: z.literal("email"), identifier: z.string().trim().email().max(254) }),
 ]);
@@ -21,7 +21,7 @@ const otpVerifySchema = z.object({
   token: z
     .string()
     .trim()
-    .regex(/^\\d{6}$/),
+    .regex(/^\d{6}$/),
 });
 
 export const sendOtp = createServerFn({ method: "POST" })
@@ -146,7 +146,7 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
   });
 
 export const verifyAdult = createServerFn({ method: "POST" })
-  .validator(z.object({ dateOfBirth: z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/) }))
+  .validator(z.object({ dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
   .handler(async ({ data }) => {
     try {
       const supabase = getSupabaseServerClient();
