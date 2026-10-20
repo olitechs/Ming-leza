@@ -17,9 +17,9 @@ export function isAtLeast18(dateOfBirth: string, now = new Date()): boolean {
   }
   if (date.getTime() > now.getTime()) return false;
   let age = now.getUTCFullYear() - year;
+  const currentMonth = now.getUTCMonth() + 1;
   const birthdayNotReached =
-    now.getUTCMonth() + 1 < month ||
-    (now.getUTCMonth() + 1 === month && now.getUTCDate() < day);
+    currentMonth < month || (currentMonth === month && now.getUTCDate() < day);
   if (birthdayNotReached) age -= 1;
   return age >= 18;
 }
