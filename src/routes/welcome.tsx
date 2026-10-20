@@ -8,7 +8,7 @@ import p4 from "@/assets/p4.jpg";
 
 export const Route = createFileRoute("/welcome")({
   validateSearch: (search: Record<string, unknown>) => ({
-    authComplete: search.authComplete === true || search.authComplete === "true",
+    authComplete: search["authComplete"] === true || search.authComplete === "true",
   }),
   head: () => ({
     meta: [
