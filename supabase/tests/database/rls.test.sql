@@ -1,5 +1,5 @@
 begin;
-select plan(17);
+select plan(21);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
@@ -48,6 +48,9 @@ select is((select count(*) from public.age_verifications where user_id = '100000
 select is((select count(*) from public.user_preferences where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'other users cannot read private preferences');
 select is((select count(*) from public.messages), 1::bigint, 'user sees only messages in conversations they belong to');
 insert into public.blocks (blocker_id, blocked_id) values ('10000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002');
-select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'blocking hides profile in both directions');
+select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'blocker no longer sees blocked profile');
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000001'), 0::bigint, 'blocked user also cannot see the blocker profile');
+select ok(public.is_blocked_between('10000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001'), 'block lookup is symmetric for the blocked user');
 select * from finish();
 rollback;
