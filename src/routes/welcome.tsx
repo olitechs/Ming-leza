@@ -43,7 +43,7 @@ function Welcome() {
   };
 
   const checkAge = () => {
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(dob)) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
       setErr("Enter your date of birth.");
       return;
     }
@@ -56,11 +56,11 @@ function Welcome() {
       authMethod === "phone"
         ? "+254" +
           phone
-            .replace(/^\\+254/, "")
-            .replace(/\\D/g, "")
+            .replace(/^\+254/, "")
+            .replace(/\D/g, "")
             .replace(/^0/, "")
         : email.trim();
-    if (authMethod === "phone" && !/^\\+254[17]\\d{8}$/.test(identifier)) {
+    if (authMethod === "phone" && !/^\+254[17]\d{8}$/.test(identifier)) {
       setErr("Enter a valid Kenyan number, e.g. 712 345 678.");
       return;
     }
@@ -250,7 +250,7 @@ function Welcome() {
                       aria-label="Kenyan phone number"
                       inputMode="tel"
                       autoComplete="tel-national"
-                      value={phone.replace(/^\\+254/, "")}
+                      value={phone.replace(/^\+254/, "")}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="712 345 678"
                       className="min-w-0 flex-1 rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
@@ -292,7 +292,7 @@ function Welcome() {
                       autoComplete={k === 0 ? "one-time-code" : "off"}
                       maxLength={1}
                       onChange={(e) => {
-                        const d = e.target.value.replace(/\\D/g, "").slice(-1);
+                        const d = e.target.value.replace(/\D/g, "").slice(-1);
                         const n = [...otp];
                         n[k] = d;
                         setOtp(n);
