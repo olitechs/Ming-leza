@@ -36,9 +36,7 @@ function Welcome() {
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [authMethod, setAuthMethod] = useState<"phone" | "email">(
-    authError ? "email" : "phone",
-  );
+  const [authMethod, setAuthMethod] = useState<"phone" | "email">(authError ? "email" : "phone");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isBusy, setIsBusy] = useState(false);
   const [intent, setIntent] = useState<string[]>(["Friends"]);
