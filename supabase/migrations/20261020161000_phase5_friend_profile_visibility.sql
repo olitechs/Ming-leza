@@ -13,7 +13,7 @@ using (
       is_discoverable
       or exists (
         select 1 from public.friendships f
-        where f.status = 'accepted'
+        where f.status in ('pending', 'accepted')
           and (
             (f.requester_id = (select auth.uid()) and f.addressee_id = profiles.id)
             or (f.addressee_id = (select auth.uid()) and f.requester_id = profiles.id)
