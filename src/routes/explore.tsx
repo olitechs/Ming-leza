@@ -8,7 +8,7 @@ import { getMyAccess } from "@/lib/auth/server";
 export const Route = createFileRoute("/explore")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome", search: { authComplete: false } });
   },
   head: () => ({
     meta: [
