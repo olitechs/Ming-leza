@@ -246,5 +246,5 @@ export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   } catch {
     /* Do not log auth/session material. */
   }
-  throw redirect({ to: "/welcome" });
+  throw redirect({ to: "/welcome", search: { authComplete: false } });
 });
