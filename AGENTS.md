@@ -1,10 +1,11 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Mingleza engineering rules
+
+- Keep changes small, reviewable and behavior-preserving unless explicitly requested.
+- Never rewrite published Git history or force-push shared branches.
+- Never commit secrets, credentials, tokens, personal data or real message bodies.
+- Treat client input as untrusted; privileged operations require server-side validation.
+- Verify dependency and import usage before deleting packages or UI components.
+- Never claim lint, typecheck, tests, builds or deployments passed unless they were run.
+- Use database migrations for schema changes; do not manually edit production schemas.
+- Document incomplete work in `docs/DEFERRED.md`.
+- Preserve the visual identity documented in `docs/design-tokens.md`.
