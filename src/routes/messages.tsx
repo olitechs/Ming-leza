@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
-import { listAcceptedFriendProfiles } from "@/lib/social/friends.server";
+import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import {
   listConversationMessages,
   openFriendConversation,
