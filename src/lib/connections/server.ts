@@ -63,10 +63,9 @@ export const sendFriendRequest = createServerFn({ method: "POST" })
     const s = await session();
     if (!s.user) return { ok: false as const, message: s.message };
 
-    const { data: requestId, error } = await s.supabase.rpc(
-      "request_friendship",
-      { p_addressee_id: data.userId },
-    );
+    const { data: requestId, error } = await s.supabase.rpc("request_friendship", {
+    p_addressee_id: data.userId,
+  });
 
     return error
       ? {
@@ -116,10 +115,9 @@ export const startDirectConversation = createServerFn({ method: "POST" })
     const s = await session();
     if (!s.user) return { ok: false as const, message: s.message };
 
-    const { data: conversationId, error } = await s.supabase.rpc(
-      "start_direct_conversation",
-      { p_other_user: data.userId },
-    );
+    const { data: conversationId, error } = await s.supabase.rpc("start_direct_conversation", {
+    p_other_user: data.userId,
+  });
 
     return error
       ? {
@@ -156,13 +154,10 @@ export const sendMessage = createServerFn({ method: "POST" })
     const s = await session();
     if (!s.user) return { ok: false as const, message: s.message };
 
-    const { data: messageId, error } = await s.supabase.rpc(
-      "send_direct_message",
-      {
-        p_conversation_id: data.conversationId,
-        p_body: data.body,
-      },
-    );
+    const { data: messageId, error } = await s.supabase.rpc("send_direct_message", {
+    p_conversation_id: data.conversationId,
+    p_body: data.body,
+  });
 
     return error
       ? {
