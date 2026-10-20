@@ -26,7 +26,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
 select is((select count(*)::int from public.discover_profiles('dating',20)), 1, 'dating discovery only returns matching eligible profiles');
 select is((select count(*)::int from public.discover_profiles('friends',20)), 2, 'friends discovery returns profiles with friendship intent enabled');
-select is((select count(*)::int from public.discover_profiles('invalid',20)), 0, 'invalid intent is rejected');
+select throws_ok($select * from public.discover_profiles('invalid',20)$, '22023', null, 'invalid discovery intent is rejected');
 
 reset role;
 insert into public.blocks (blocker_id,blocked_id)
