@@ -9,6 +9,7 @@ import p4 from "@/assets/p4.jpg";
 export const Route = createFileRoute("/welcome")({
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
+    authError: typeof search["authError"] === "string" ? search["authError"] : "",
   }),
   head: () => ({
     meta: [
@@ -30,16 +31,22 @@ const steps = ["welcome", "age", "phone", "otp", "email-sent", "intent"] as cons
 
 function Welcome() {
   const nav = useNavigate();
-  const { authComplete } = Route.useSearch();
-  const [step, setStep] = useState(() => (authComplete ? 1 : 0));
+  const { authComplete, authError } = Route.useSearch();
+  const [step, setStep] = useState(() => (authError ? 2 : authComplete ? 1 : 0));
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [authMethod, setAuthMethod] = useState<"phone" | "email">("phone");
+  const [authMethod, setAuthMethod] = useState<"phone" | "email">(
+    authError ? "email" : "phone",
+  );
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isBusy, setIsBusy] = useState(false);
   const [intent, setIntent] = useState<string[]>(["Friends"]);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState(() =>
+    authError === "link_expired"
+      ? "That sign-in link has expired or was already used. Enter your email below and request a new link. For your security, an expired link cannot sign you in."
+      : "",
+  );
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const next = () => {
     setErr("");
