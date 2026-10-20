@@ -34,7 +34,10 @@ export const sendOtp = createServerFn({ method: "POST" })
           ? await supabase.auth.signInWithOtp({ phone: data.identifier })
           : await supabase.auth.signInWithOtp({
               email: data.identifier,
-              options: { shouldCreateUser: true },
+              options: {
+                shouldCreateUser: true,
+                emailRedirectTo: "https://mingleza-peach.vercel.app/welcome",
+              },
             });
       if (result.error)
         return {
