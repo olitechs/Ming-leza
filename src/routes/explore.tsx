@@ -19,7 +19,7 @@ export const Route = createFileRoute("/explore")({
 });
 
 function Explore() {
-  const [sel, setSel] = useState(people[0].id);
+  const [sel, setSel] = useState("wanjiru");
   const [visible, setVisible] = useState(true);
   const p = people.find((x) => x.id === sel)!;
   return (
