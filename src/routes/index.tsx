@@ -175,7 +175,7 @@ function Discover() {
                       </p>
                     )}
                     <p className="mt-3 min-h-10 text-sm leading-relaxed text-muted-foreground">
-                      {profile.bio || "This member hasn&apos;t added a bio yet."}
+                      {profile.bio || "This member has not added a bio yet."}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {profile.friendsEnabled && <Chip>Friends</Chip>}
