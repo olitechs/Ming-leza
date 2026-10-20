@@ -5,6 +5,9 @@ import { exchangeEmailMagicLink } from "@/lib/auth/server";
 export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     code: typeof search["code"] === "string" ? search["code"] : "",
+    tokenHash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
+    type:
+      typeof search["type"] === "string" ? search["type"] : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
@@ -17,44 +20,54 @@ export const Route = createFileRoute("/auth-callback")({
 });
 
 function AuthCallback() {
-  const { code, error } = Route.useSearch();
+  const { code, tokenHash, type, error } = Route.useSearch();
   const [message, setMessage] = useState("Completing your secure sign-in…");
 
   useEffect(() => {
     let active = true;
+    const returnToSignIn = () => {
+      window.location.replace("/welcome?authError=link_expired");
+    };
+
     if (error) {
-      setMessage(
-        "This sign-in link could not be used. It may have expired or already been used. Return to Mingleza and request a new link.",
-      );
-      return () => {
-        active = false;
-      };
-    }
-    if (!code) {
-      setMessage("The sign-in link is incomplete. Return to Mingleza and request a new link.");
+      returnToSignIn();
       return () => {
         active = false;
       };
     }
 
-    exchangeEmailMagicLink({ data: { code } })
+    if (!code && !(tokenHash && ["magiclink", "email", "signup"].includes(type))) {
+      returnToSignIn();
+      return () => {
+        active = false;
+      };
+    }
+
+    exchangeEmailMagicLink({
+      data: code
+        ? { code }
+        : { tokenHash, type: type as "magiclink" | "email" | "signup" },
+    })
       .then((result) => {
         if (!active) return;
         if (!result.ok) {
           setMessage(result.message);
+          returnToSignIn();
           return;
         }
         window.location.replace("/welcome?authComplete=true");
       })
       .catch(() => {
-        if (active)
-          setMessage("We could not complete sign-in. Return to Mingleza and request a fresh link.");
+        if (active) {
+          setMessage("We could not complete sign-in. Please request a fresh link.");
+          returnToSignIn();
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [code, error]);
+  }, [code, tokenHash, type, error]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
@@ -64,7 +77,7 @@ function AuthCallback() {
           {message}
         </p>
         <a
-          href="/welcome"
+          href="/welcome?authError=link_expired"
           className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
         >
           Return to Mingleza

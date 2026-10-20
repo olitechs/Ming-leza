@@ -105,15 +105,29 @@ export const verifyOtp = createServerFn({ method: "POST" })
     }
   });
 
-const magicLinkSchema = z.object({ code: z.string().trim().min(1).max(4096) });
+const magicLinkSchema = z.union([
+  z.object({ code: z.string().trim().min(1).max(4096) }),
+  z.object({
+    tokenHash: z.string().trim().min(1).max(4096),
+    type: z.enum(["magiclink", "email", "signup"]),
+  }),
+]);
 
-/** Exchange Supabase's one-time PKCE code on the server so the SSR cookie adapter saves the session. */
+/** Accept both Supabase PKCE codes and token_hash confirmation links. */
 export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
   .validator(magicLinkSchema)
   .handler(async ({ data }) => {
     try {
       const supabase = getSupabaseServerClient();
-      const { data: authData, error } = await supabase.auth.exchangeCodeForSession(data.code);
+      const result =
+        "code" in data
+          ? await supabase.auth.exchangeCodeForSession(data.code)
+          : await supabase.auth.verifyOtp({
+              token_hash: data.tokenHash,
+              type: data.type,
+            });
+      const authData = result.data;
+      const error = result.error;
       if (error || !authData.user) {
         return {
           ok: false as const,
