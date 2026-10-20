@@ -8,6 +8,8 @@ create unique index if not exists friendships_one_pair_idx
 alter table public.friendships
   drop constraint if exists friendships_not_self_check;
 alter table public.friendships
+  drop constraint if exists friendships_check;
+alter table public.friendships
   add constraint friendships_not_self_check check (requester_id <> addressee_id);
 
 -- Clients must not mutate friendship status directly; state transitions go through RPCs.
