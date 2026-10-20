@@ -1,6 +1,37 @@
 -- Phase 5: secure friend-request transitions and persistent 1:1 messaging.
--- The live schema already contains friendships, blocks, conversations, conversation_members,
--- and messages. This migration hardens those existing tables rather than recreating them.
+-- The production project already has friendships; create the same table in fresh local databases.
+
+do $$
+begin
+  create type public.connection_status as enum ('pending', 'accepted', 'declined');
+exception
+  when duplicate_object then null;
+end;
+$$;
+
+create table if not exists public.friendships (
+  id uuid primary key default gen_random_uuid(),
+  requester_id uuid not null references auth.users(id) on delete cascade,
+  addressee_id uuid not null references auth.users(id) on delete cascade,
+  status public.connection_status not null default 'pending',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint friendships_not_self_check check (requester_id <> addressee_id)
+);
+
+alter table public.friendships enable row level security;
+revoke insert, update, delete on public.friendships from anon, authenticated;
+grant select on public.friendships to authenticated;
+
+drop policy if exists friendships_read_participant on public.friendships;
+create policy friendships_read_participant
+on public.friendships
+for select
+to authenticated
+using (
+  requester_id = (select auth.uid())
+  or addressee_id = (select auth.uid())
+);
 
 create unique index if not exists friendships_one_pair_idx
   on public.friendships (least(requester_id, addressee_id), greatest(requester_id, addressee_id));
