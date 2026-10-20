@@ -1,5 +1,5 @@
 begin;
-select plan(21);
+select plan(22);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
