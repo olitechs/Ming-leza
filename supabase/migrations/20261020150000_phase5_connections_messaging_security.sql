@@ -83,8 +83,10 @@ with check (addressee_id=(select auth.uid()) and status in ('accepted'::public.c
 
 drop policy if exists conversation_members_insert_self_or_creator on public.conversation_members;
 drop policy if exists conversation_members_insert_self on public.conversation_members;
+drop policy if exists conversation_members_insert_by_creator on public.conversation_members;
 revoke insert, delete on public.conversation_members from authenticated;
 revoke insert, update, delete on public.conversations from authenticated;
+revoke insert, update, delete on public.friendships from authenticated;
 revoke insert, update on public.messages from authenticated;
 grant select on public.conversations, public.conversation_members, public.messages, public.friendships to authenticated;
 
