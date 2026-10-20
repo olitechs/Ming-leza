@@ -6,8 +6,7 @@ export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     code: typeof search["code"] === "string" ? search["code"] : "",
     tokenHash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
-    type:
-      typeof search["type"] === "string" ? search["type"] : "",
+    type: typeof search["type"] === "string" ? search["type"] : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
@@ -44,9 +43,7 @@ function AuthCallback() {
     }
 
     exchangeEmailMagicLink({
-      data: code
-        ? { code }
-        : { tokenHash, type: type as "magiclink" | "email" | "signup" },
+      data: code ? { code } : { tokenHash, type: type as "magiclink" | "email" | "signup" },
     })
       .then((result) => {
         if (!active) return;

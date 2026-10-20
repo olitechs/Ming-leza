@@ -57,6 +57,51 @@ export const sendOtp = createServerFn({ method: "POST" })
     }
   });
 
+const passwordLoginSchema = z.object({
+  email: z.string().trim().email().max(254),
+  password: z.string().min(1).max(128),
+});
+
+export const signInWithPassword = createServerFn({ method: "POST" })
+  .validator(passwordLoginSchema)
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getSupabaseServerClient();
+      const result = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (result.error || !result.data.user) {
+        return {
+          ok: false as const,
+          message: "Email or password is incorrect. Check your details and try again.",
+        };
+      }
+      const profile = await supabase.from("profiles").upsert(
+        {
+          id: result.data.user.id,
+          display_name: "New member",
+          friends_enabled: true,
+          dating_enabled: false,
+          is_discoverable: true,
+        },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
+      if (profile.error) {
+        return {
+          ok: false as const,
+          message: "You are signed in, but we could not load your profile. Please try again.",
+        };
+      }
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "We could not sign you in right now. Please try again.",
+      };
+    }
+  });
+
 export const verifyOtp = createServerFn({ method: "POST" })
   .validator(otpVerifySchema)
   .handler(async ({ data }) => {
@@ -260,5 +305,5 @@ export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   } catch {
     /* Do not log auth/session material. */
   }
-  throw redirect({ to: "/welcome", search: { authComplete: false } });
+  throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
 });

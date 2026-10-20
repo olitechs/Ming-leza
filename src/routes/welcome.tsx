@@ -36,9 +36,7 @@ function Welcome() {
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [authMethod, setAuthMethod] = useState<"phone" | "email">(
-    authError ? "email" : "phone",
-  );
+  const [authMethod, setAuthMethod] = useState<"phone" | "email">(authError ? "email" : "phone");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isBusy, setIsBusy] = useState(false);
   const [intent, setIntent] = useState<string[]>(["Friends"]);
@@ -209,12 +207,11 @@ function Welcome() {
               </button>
               <button
                 onClick={() => {
-                  setErr("");
-                  setStep(1);
+                  window.location.href = "/login";
                 }}
                 className="mt-3 w-full py-2 text-sm font-semibold text-primary"
               >
-                I already have an account
+                I already have an account · Log in
               </button>
             </div>
           </div>

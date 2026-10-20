@@ -10,7 +10,7 @@ export const Route = createFileRoute("/matches")({
   beforeLoad: async () => {
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
-      throw redirect({ to: "/welcome", search: { authComplete: false } });
+      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
   },
   head: () => ({
     meta: [
