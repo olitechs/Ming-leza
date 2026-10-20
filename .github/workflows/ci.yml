@@ -9,50 +9,10 @@ permissions:
   contents: read
 
 jobs:
-  format:
-    if: >-
-      ${{ github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'phase-5-auth-messaging' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: phase-5-auth-messaging
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.12.4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Apply Prettier formatting
-        run: pnpm format
-      - name: Commit formatting changes
-        run: |
-          if git diff --quiet; then
-            echo "No formatting changes needed."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -u
-          git commit -m "chore: apply Prettier formatting"
-          git push origin HEAD:phase-5-auth-messaging
-
   verify:
-    needs: format
-    if: ${{ always() && (needs.format.result == 'success' || needs.format.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
       - uses: pnpm/action-setup@v4
         with:
           version: 10.12.4
