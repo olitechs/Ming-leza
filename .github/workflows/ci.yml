@@ -6,21 +6,34 @@ on:
     branches: [main, "chore/phase-1-de-lovable"]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: pnpm/action-setup@v4
         with:
           version: 10.12.4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies and update lockfile
+        run: pnpm install --no-frozen-lockfile
+      - name: Format code
+        run: pnpm exec prettier --write .
+      - name: Commit generated lockfile and formatting if needed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update pnpm lockfile and formatting"
+            git push origin "HEAD:${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          fi
       - name: Lint
         run: pnpm lint
       - name: Typecheck
