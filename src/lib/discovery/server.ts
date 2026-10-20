@@ -43,9 +43,7 @@ export const getDiscoverableProfiles = createServerFn({ method: "GET" })
       if (error) {
         // Do not expose database details, query text, or policy information to clients.
         const reason =
-          error.code === "42501"
-            ? "age_verification_required"
-            : "temporarily_unavailable";
+          error.code === "42501" ? "age_verification_required" : "temporarily_unavailable";
         return { ok: false as const, reason, profiles: [] };
       }
 
