@@ -6,11 +6,11 @@ const profileInput = z.object({
   displayName: z.string().trim().min(2).max(40),
   bio: z.string().trim().max(300),
   city: z.string().trim().max(80),
-  region: z
+  region: z.string().trim().max(80),
+  countryCode: z
     .string()
     .trim()
-    .max(80),
-  countryCode: z.string().trim().regex(/^[A-Za-z]{2}$/),
+    .regex(/^[A-Za-z]{2}$/),
 });
 
 const avatarPathInput = z.object({
