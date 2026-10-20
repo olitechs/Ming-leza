@@ -13,7 +13,7 @@ import {
 import type { ReactNode } from "react";
 
 type NavItem = {
-  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id";
+  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id" | "/profile-edit";
   label: string;
   icon: LucideIcon;
 };
@@ -61,9 +61,8 @@ export function AppShell({
           </Link>
         ))}
         <Link
-          to="/u/$id"
-          params={{ id: "me" }}
-          title="Profile"
+          to="/profile-edit"
+          title="Edit profile"
           className="grid size-11 place-items-center rounded-2xl text-muted-foreground hover:bg-secondary"
         >
           <User className="size-5" />
@@ -103,9 +102,8 @@ export function AppShell({
             </Link>
           ))}
           <Link
-            to="/u/$id"
-            params={{ id: "me" }}
-            aria-label="Profile"
+            to="/profile-edit"
+            aria-label="Edit profile"
             className="grid size-12 place-items-center rounded-full text-ink-foreground/60"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
