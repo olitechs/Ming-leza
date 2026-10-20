@@ -125,14 +125,33 @@
 }
 
 @layer base {
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
-@utility bg-brand { background-image: var(--gradient-brand); }
-@utility bg-scrim { background-image: var(--gradient-scrim); }
-@utility shadow-card { box-shadow: var(--shadow-card); }
-@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility bg-brand {
+  background-image: var(--gradient-brand);
+}
+@utility bg-scrim {
+  background-image: var(--gradient-scrim);
+}
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
 @utility bg-map {
   background-color: oklch(0.96 0.01 290);
-  background-image: linear-gradient(oklch(1 0 0) 2px, transparent 2px), linear-gradient(90deg, oklch(1 0 0) 2px, transparent 2px), linear-gradient(30deg, transparent 48%, oklch(1 0 0) 48%, oklch(1 0 0) 52%, transparent 52%);
-  background-size: 64px 64px, 64px 64px, 220px 220px;
+  background-image:
+    linear-gradient(oklch(1 0 0) 2px, transparent 2px),
+    linear-gradient(90deg, oklch(1 0 0) 2px, transparent 2px),
+    linear-gradient(30deg, transparent 48%, oklch(1 0 0) 48%, oklch(1 0 0) 52%, transparent 52%);
+  background-size:
+    64px 64px,
+    64px 64px,
+    220px 220px;
 }
