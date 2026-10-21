@@ -71,7 +71,7 @@ function AuthCallback() {
   }, [code, tokenHash, type, error]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-6">
+    <main className="flex min-h-dvh items-center justify-center bg-background p-6">
       <section className="w-full max-w-md rounded-3xl border bg-card p-8 text-center shadow-card">
         <h1 className="text-2xl font-extrabold">Sign in to Mingleza</h1>
         <p className="mt-4 text-sm leading-6 text-muted-foreground" role="status">

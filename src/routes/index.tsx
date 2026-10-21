@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
+import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
 import { sendFriendRequest } from "@/lib/social/server";
@@ -100,43 +101,38 @@ function Discover() {
   };
 
   const intentButton = (value: Intent, label: string) => (
-    <button
+    <Button
+      type="button"
       onClick={() => setIntent(value)}
       aria-pressed={intent === value}
-      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${intent === value ? "bg-primary text-primary-foreground" : "border bg-card"}`}
+      className={`rounded-full px-4 text-sm ${intent === value ? "bg-primary text-primary-foreground" : "border bg-card"}`}
     >
       {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}
       {label}
-    </button>
+    </Button>
   );
 
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-              <MapPin className="size-3.5 text-primary" /> Kenya and beyond
-            </p>
-            <h1 className="text-3xl font-extrabold">Discover</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Profiles follow each member&apos;s discovery settings.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {intentButton("dating", "Dating")}
-            {intentButton("friends", "Friends")}
-          </div>
-        </header>
+        <PageHeader
+          className="mb-6"
+          eyebrow={
+            <span className="flex items-center gap-1">
+              <MapPin aria-hidden="true" className="size-3.5 text-primary" /> Kenya and beyond
+            </span>
+          }
+          title="Discover"
+          description="Profiles follow each member's discovery settings."
+          actions={
+            <>
+              {intentButton("dating", "Dating")}
+              {intentButton("friends", "Friends")}
+            </>
+          }
+        />
 
-        {requestError && (
-          <p
-            role="alert"
-            className="mb-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive"
-          >
-            {requestError}
-          </p>
-        )}
+        {requestError && <ErrorBanner className="mb-4">{requestError}</ErrorBanner>}
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading profiles">
             {Array.from({ length: 6 }, (_, i) => (
@@ -144,35 +140,36 @@ function Discover() {
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-3xl border bg-card p-10 text-center">
-            <AlertCircle className="mx-auto size-8 text-destructive" />
+          <Card className="p-10 text-center">
+            <AlertCircle aria-hidden="true" className="mx-auto size-8 text-destructive-text" />
             <h2 className="mt-3 text-xl font-bold">We couldn&apos;t load profiles</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Check your connection and try again.
             </p>
-            <button
+            <Button
+              type="button"
               onClick={() => setRefresh((value) => value + 1)}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
+              className="mt-5 rounded-full px-5"
             >
-              <RotateCcw className="size-4" />
-              Try again
-            </button>
-          </div>
+              <RotateCcw aria-hidden="true" className="size-4" /> Try again
+            </Button>
+          </Card>
         ) : profiles.length === 0 ? (
-          <div className="rounded-3xl border-2 border-dashed bg-card p-10 text-center">
-            <Users className="mx-auto size-8 text-primary" />
-            <h2 className="mt-3 text-xl font-bold">No profiles to show yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Members appear when they are age-verified, discoverable, and have enabled this mode.
-            </p>
-            <button
-              onClick={() => setRefresh((value) => value + 1)}
-              className="mt-5 inline-flex items-center gap-2 rounded-full border px-5 py-3 font-semibold"
-            >
-              <RotateCcw className="size-4" />
-              Refresh
-            </button>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="No profiles to show yet"
+            description="Members appear when they are age-verified, discoverable, and have enabled this mode."
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setRefresh((value) => value + 1)}
+                className="rounded-full px-5"
+              >
+                <RotateCcw aria-hidden="true" className="size-4" /> Refresh
+              </Button>
+            }
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((profile) => {

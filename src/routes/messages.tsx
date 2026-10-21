@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { Avatar, AvatarFallback, Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import {
@@ -149,7 +150,7 @@ function Messages() {
 
   return (
     <AppShell hideTabs={mobileThreadOpen}>
-      <div className="mx-auto flex h-[calc(100vh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100vh-5rem)] md:rounded-3xl md:border">
+      <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100dvh-5rem)] md:rounded-3xl md:border">
         <aside
           className={`w-full flex-col md:flex md:w-80 md:shrink-0 md:border-r ${mobileThreadOpen ? "hidden" : "flex"}`}
         >
@@ -164,9 +165,12 @@ function Messages() {
                 onClick={() => void openFriend(friend)}
                 className={`flex w-full items-center gap-3 border-b px-4 py-4 text-left hover:bg-muted ${activeFriend?.id === friend.id ? "bg-secondary" : ""}`}
               >
-                <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 font-bold text-primary">
-                  {initials(friend.display_name)}
-                </span>
+                <Avatar
+                  aria-label={`${friend.display_name} avatar`}
+                  className="size-12 shrink-0 bg-primary/10 font-bold text-primary"
+                >
+                  <AvatarFallback>{initials(friend.display_name)}</AvatarFallback>
+                </Avatar>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">{friend.display_name}</span>
                   <span className="block truncate text-xs text-muted-foreground">
@@ -202,9 +206,12 @@ function Messages() {
                 >
                   <ArrowLeft className="size-5" />
                 </button>
-                <span className="grid size-10 place-items-center rounded-full bg-primary/10 font-bold text-primary">
-                  {initials(activeFriend.display_name)}
-                </span>
+                <Avatar
+                  aria-label={`${activeFriend.display_name} avatar`}
+                  className="size-10 bg-primary/10 font-bold text-primary"
+                >
+                  <AvatarFallback>{initials(activeFriend.display_name)}</AvatarFallback>
+                </Avatar>
                 <div className="min-w-0">
                   <h2 className="truncate font-bold">{activeFriend.display_name}</h2>
                   <p className="text-xs text-muted-foreground">Private conversation</p>
@@ -228,7 +235,7 @@ function Messages() {
                       >
                         <p className="whitespace-pre-wrap break-words">{message.body}</p>
                         <time
-                          className={`mt-1 block text-right text-[10px] ${message.mine ? "opacity-75" : "text-muted-foreground"}`}
+                          className={`mt-1 block text-right text-[10px] ${message.mine ? "text-primary-foreground" : "text-muted-foreground"}`}
                           dateTime={message.created_at}
                         >
                           {new Date(message.created_at).toLocaleTimeString([], {
@@ -242,12 +249,13 @@ function Messages() {
                 )}
               </div>
               <form onSubmit={send} className="flex gap-2 border-t bg-card p-3 sm:p-4">
-                <input
+                <BrandInput
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   maxLength={5000}
                   placeholder="Write a message…"
                   aria-label="Message"
+                  aria-describedby={error ? "message-error" : undefined}
                   disabled={!conversationId || loading || sending}
                   className="min-w-0 flex-1 rounded-full border bg-background px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
                 />
@@ -274,8 +282,9 @@ function Messages() {
           )}
           {error && (
             <p
+              id="message-error"
               role="alert"
-              className="border-t bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="border-t bg-destructive/10 px-4 py-3 text-sm text-destructive-text"
             >
               {error}
             </p>

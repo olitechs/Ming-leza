@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Clock3, MessageCircle, UserRound, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { Avatar, AvatarFallback, Button, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { cancelFriendRequest, respondToFriendRequest } from "@/lib/social/server";
 import { listFriendRequests } from "@/lib/social/requests";
@@ -106,26 +107,22 @@ function Matches() {
   return (
     <AppShell>
       <main className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-extrabold">Friend requests</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Accept requests to unlock private messaging. You can decline or cancel requests at any
-              time.
-            </p>
-          </div>
-          <Link
-            to="/messages"
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold"
-          >
-            <MessageCircle className="size-4" /> Messages
-          </Link>
-        </header>
+        <PageHeader
+          title="Friend requests"
+          description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
+          actions={
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/messages">
+                <MessageCircle aria-hidden="true" className="size-4" /> Messages
+              </Link>
+            </Button>
+          }
+        />
 
         {error && (
           <p
             role="alert"
-            className="mt-5 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive"
+            className="mt-5 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive-text"
           >
             {error}
           </p>
@@ -165,9 +162,12 @@ function Matches() {
                   key={request.id}
                   className="flex flex-wrap items-center gap-4 rounded-2xl border bg-card p-4 shadow-soft"
                 >
-                  <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                    {initials(request.profile.display_name)}
-                  </span>
+                  <Avatar
+                    aria-label={`${request.profile.display_name} avatar`}
+                    className="size-14 shrink-0 bg-primary/10 text-lg font-bold text-primary"
+                  >
+                    <AvatarFallback>{initials(request.profile.display_name)}</AvatarFallback>
+                  </Avatar>
                   <div className="min-w-0 flex-1">
                     <h2 className="font-bold">{request.profile.display_name}</h2>
                     <p className="text-sm text-muted-foreground">{place || "Mingleza member"}</p>

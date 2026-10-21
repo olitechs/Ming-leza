@@ -34,7 +34,7 @@ function Explore() {
   const p = people.find((x) => x.id === sel)!;
   return (
     <AppShell>
-      <div className="flex h-[calc(100vh-7rem)] flex-col lg:h-screen lg:flex-row">
+      <div className="flex h-[calc(100dvh-7rem)] flex-col lg:h-dvh lg:flex-row">
         <section className="hidden w-80 shrink-0 overflow-y-auto border-r bg-card lg:block">
           <h1 className="px-5 pb-2 pt-6 text-3xl font-extrabold">Explore</h1>
           <p className="px-5 pb-4 text-xs text-muted-foreground">
@@ -47,7 +47,13 @@ function Explore() {
               onClick={() => setSel(x.id)}
               className={`flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-muted ${sel === x.id ? "bg-secondary" : ""}`}
             >
-              <img src={x.photo} alt="" className="size-12 rounded-full object-cover" />
+              <img
+                src={x.photo}
+                alt={`${x.name} profile`}
+                width={768}
+                height={1024}
+                className="size-12 rounded-full object-cover"
+              />
               <div>
                 <p className="font-semibold">
                   {x.name}, {x.age}
@@ -64,6 +70,7 @@ function Explore() {
             <div className="flex flex-1 items-center gap-2 rounded-full bg-card px-4 py-3 shadow-soft">
               <Search className="size-4 text-muted-foreground" />
               <input
+                aria-label="Search an area"
                 placeholder="Search an area, e.g. Kilimani"
                 className="flex-1 bg-transparent text-sm outline-none"
               />
@@ -94,6 +101,8 @@ function Explore() {
               <img
                 src={x.photo}
                 alt={x.name}
+                width={768}
+                height={1024}
                 className={`relative size-12 rounded-full border-4 object-cover shadow-card transition ${sel === x.id ? "scale-125 border-primary" : "border-card"}`}
               />
             </button>
@@ -106,7 +115,13 @@ function Explore() {
           )}
           <div className="absolute inset-x-4 bottom-4 mx-auto flex max-w-sm items-center gap-3 rounded-3xl bg-card p-3 shadow-card">
             <Link to="/u/$id" params={{ id: p.id }} className="flex flex-1 items-center gap-3">
-              <img src={p.photo} alt="" className="size-14 rounded-2xl object-cover" />
+              <img
+                src={p.photo}
+                alt={`${p.name} profile`}
+                width={768}
+                height={1024}
+                className="size-14 rounded-2xl object-cover"
+              />
               <div>
                 <p className="font-display font-bold">
                   {p.name}, {p.age}

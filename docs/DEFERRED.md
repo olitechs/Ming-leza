@@ -1,13 +1,18 @@
 # Deferred work
 
-## Phase 1 — De-Lovable
+## Batch 2 status
 
-- Generate and commit `pnpm-lock.yaml` using pnpm 10.12.4 in a network-enabled environment. This editing environment cannot run package-manager installs.
-- Run frozen install, lint, typecheck, tests, build and a repository-wide case-insensitive search for `lovable`. No runtime test results are claimed yet.
-- Inspect all files in `src/components/ui/` and run a dependency checker before deleting unused components or dependencies. No UI components have been deleted.
-- Verify the Vercel production build and SSR error recovery in a real runtime.
-- Confirm application environment variables when backend work begins; do not add secrets to `.env.example`.
+The design-system and accessibility improvements are implemented on `feat/batch2-design-accessibility`; they are not live until the PR is merged and deployed. Batch 3 and later remain deferred until requested.
+
+## Verification gaps
+
+- Docker/live-Supabase migration, RLS, Storage, and authentication verification remain outstanding.
+- Production SSR/runtime verification remains outstanding.
 
 ## Later product phases not started
 
-Authentication, Supabase, age verification, RLS, real profiles, persistent messaging, moderation, premium payments, live Explore Map and Android/Expo are out of scope until Phase 1 is reviewed and accepted.
+- Real-time messaging and notifications.
+- Block and report UI, settings, account deletion, private avatars, rate limits, and legal pages.
+- Dating likes and matches.
+- Explore map and location discovery.
+- Premium features, M-Pesa payments, and PWA support.

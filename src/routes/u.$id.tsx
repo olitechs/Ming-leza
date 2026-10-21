@@ -59,7 +59,13 @@ function Profile() {
                 onClick={() => setPhoto(k)}
                 className={`h-14 flex-1 overflow-hidden rounded-xl border-2 ${k === photo ? "border-card" : "border-transparent opacity-70"}`}
               >
-                <img src={g} alt="" className="size-full object-cover" />
+                <img
+                  src={g}
+                  alt={`${p.name} photo ${k + 1}`}
+                  width={768}
+                  height={1024}
+                  className="size-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -141,7 +147,10 @@ function Profile() {
                   <MessageCircle className="size-4" />
                   Message
                 </Link>
-                <button className="flex items-center gap-1.5 text-muted-foreground">
+                <button
+                  aria-label="Report or block"
+                  className="flex min-h-11 items-center gap-1.5 text-muted-foreground"
+                >
                   <Flag className="size-4" />
                   Report or block
                 </button>
