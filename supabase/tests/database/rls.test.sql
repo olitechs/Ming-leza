@@ -20,9 +20,9 @@ insert into auth.users (id, aud, role, email, encrypted_password, email_confirme
 values
  ('10000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'rls-a@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
  ('10000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'rls-b@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
-insert into public.profiles (id, display_name) values
- ('10000000-0000-4000-8000-000000000001', 'Test A'),
- ('10000000-0000-4000-8000-000000000002', 'Test B');
+insert into public.profiles (id, display_name, city, is_discoverable) values
+ ('10000000-0000-4000-8000-000000000001', 'Test A', 'Nairobi', true),
+ ('10000000-0000-4000-8000-000000000002', 'Test B', 'Nairobi', true);
 insert into public.age_verifications (user_id, is_18_plus) values
  ('10000000-0000-4000-8000-000000000001', true),
  ('10000000-0000-4000-8000-000000000002', true);
