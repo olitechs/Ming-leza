@@ -24,7 +24,7 @@ export const Route = createFileRoute("/explore")({
 function Explore() {
   return (
     <AppShell>
-      <section className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-3xl flex-col justify-center px-4 py-10 sm:px-6 lg:min-h-screen">
+      <section className="mx-auto flex min-h-[calc(100dvh-7rem)] max-w-3xl flex-col justify-center px-4 py-10 sm:px-6 lg:min-h-dvh">
         <h1 className="mb-6 text-3xl font-extrabold">Explore</h1>
         <div className="rounded-3xl border-2 border-dashed bg-card p-8 text-center shadow-soft sm:p-12">
           <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-secondary text-primary">

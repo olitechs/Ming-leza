@@ -5,9 +5,9 @@ import { completeMyProfileSetup, getMyProfile, setMyAvatarPath } from "@/lib/pro
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { ArrowLeft, Heart, Users, ShieldCheck, Mail } from "lucide-react";
-import p1 from "@/assets/p1.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
+import p1 from "@/assets/p1.webp";
+import p3 from "@/assets/p3.webp";
+import p4 from "@/assets/p4.webp";
 
 export const Route = createFileRoute("/welcome")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -297,24 +297,30 @@ function Welcome() {
           .join("/")}`
       : "";
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background p-4">
       <div className="w-full max-w-md overflow-hidden rounded-[32px] bg-card shadow-card">
         {id === "welcome" ? (
           <div>
             <div className="relative h-80 bg-brand">
               <img
                 src={p1}
-                alt=""
+                alt="Mingleza member in Nairobi"
+                width={768}
+                height={1024}
                 className="absolute left-8 top-10 h-48 w-36 -rotate-6 rounded-3xl border-4 border-card object-cover shadow-card"
               />
               <img
                 src={p3}
-                alt=""
+                alt="Mingleza member portrait"
+                width={768}
+                height={1024}
                 className="absolute right-8 top-6 h-48 w-36 rotate-6 rounded-3xl border-4 border-card object-cover shadow-card"
               />
               <img
                 src={p4}
-                alt=""
+                alt="Mingleza member portrait"
+                width={768}
+                height={1024}
                 className="absolute bottom-6 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full border-4 border-card object-cover shadow-card"
               />
               <span className="absolute bottom-10 right-16 grid size-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-card">
@@ -381,6 +387,8 @@ function Welcome() {
                   <span>Date of birth</span>
                   <input
                     type="date"
+                    aria-describedby={err ? "welcome-error" : undefined}
+                    aria-invalid={Boolean(err)}
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
                     className="w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
@@ -403,6 +411,7 @@ function Welcome() {
                 <div className="mt-5 flex gap-2">
                   <button
                     type="button"
+                    aria-pressed={authMethod === "phone"}
                     onClick={() => setAuthMethod("phone")}
                     className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "phone" ? "border-primary bg-secondary" : ""}`}
                   >
@@ -410,6 +419,7 @@ function Welcome() {
                   </button>
                   <button
                     type="button"
+                    aria-pressed={authMethod === "email"}
                     onClick={() => setAuthMethod("email")}
                     className={`flex-1 rounded-full border px-4 py-2 text-sm font-semibold ${authMethod === "email" ? "border-primary bg-secondary" : ""}`}
                   >
@@ -419,10 +429,12 @@ function Welcome() {
                 {authMethod === "phone" ? (
                   <div className="mt-6 flex gap-2">
                     <span className="grid place-items-center rounded-2xl border bg-muted px-4 font-semibold">
-                      🇰🇪 +254
+                      <span aria-hidden="true">KE</span> <span>+254</span>
                     </span>
                     <input
                       aria-label="Kenyan phone number"
+                      aria-describedby={err ? "welcome-error" : undefined}
+                      aria-invalid={Boolean(err)}
                       inputMode="tel"
                       autoComplete="tel-national"
                       value={phone.replace(/^\+254/, "")}
@@ -434,6 +446,8 @@ function Welcome() {
                 ) : (
                   <input
                     aria-label="Email address"
+                    aria-describedby={err ? "welcome-error" : undefined}
+                    aria-invalid={Boolean(err)}
                     type="email"
                     autoComplete="email"
                     value={email}
@@ -463,6 +477,8 @@ function Welcome() {
                   pattern="^[0-9]*$"
                   autoComplete="one-time-code"
                   aria-label="6-digit verification code"
+                  aria-describedby={err ? "welcome-error" : undefined}
+                  aria-invalid={Boolean(err)}
                   disabled={isBusy}
                   autoFocus
                   containerClassName="mt-6 justify-between gap-2"
@@ -595,7 +611,12 @@ function Welcome() {
                 <p className="mt-2 text-sm text-muted-foreground">
                   Pick one or both. Dating stays off until you turn it on.
                 </p>
-                <div className="mt-6 space-y-3">
+                <div
+                  role="group"
+                  aria-label="Choose your interests"
+                  aria-describedby={err ? "welcome-error" : undefined}
+                  className="mt-6 space-y-3"
+                >
                   {[
                     { k: "Friends", icon: Users, d: "Meet people who share your interests" },
                     { k: "Dating", icon: Heart, d: "Swipe and match with people nearby" },
@@ -604,6 +625,7 @@ function Welcome() {
                     return (
                       <button
                         key={k}
+                        aria-pressed={on}
                         onClick={() =>
                           setIntent(on ? intent.filter((x) => x !== k) : [...intent, k])
                         }
@@ -632,7 +654,11 @@ function Welcome() {
             )}
 
             {err && (
-              <p className="mt-4 text-sm font-medium text-destructive" role="alert">
+              <p
+                id="welcome-error"
+                className="mt-4 text-sm font-medium text-destructive"
+                role="alert"
+              >
                 {err}
               </p>
             )}

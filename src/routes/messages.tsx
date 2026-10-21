@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
+import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import {
@@ -180,7 +181,7 @@ function Messages() {
 
   return (
     <AppShell hideTabs={mobileThreadOpen}>
-      <div className="mx-auto flex h-[calc(100vh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100vh-5rem)] md:rounded-3xl md:border">
+      <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100dvh-5rem)] md:rounded-3xl md:border">
         <aside
           className={`w-full flex-col md:flex md:w-80 md:shrink-0 md:border-r ${mobileThreadOpen ? "hidden" : "flex"}`}
         >
@@ -261,7 +262,7 @@ function Messages() {
                           onClick={() => void loadEarlier()}
                           disabled={loadingEarlier}
                           aria-label="Load earlier messages"
-                          className="rounded-full border px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:cursor-wait disabled:opacity-60"
+                          className="min-h-11 rounded-full border px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:cursor-wait disabled:opacity-60"
                         >
                           {loadingEarlier ? "Loading earlier…" : "Load earlier"}
                         </button>
@@ -292,12 +293,13 @@ function Messages() {
                 )}
               </div>
               <form onSubmit={send} className="flex gap-2 border-t bg-card p-3 sm:p-4">
-                <input
+                <BrandInput
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   maxLength={5000}
                   placeholder="Write a message…"
                   aria-label="Message"
+                  aria-describedby={error ? "message-error" : undefined}
                   disabled={!conversationId || loading || sending}
                   className="min-w-0 flex-1 rounded-full border bg-background px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
                 />
@@ -324,8 +326,9 @@ function Messages() {
           )}
           {error && (
             <p
+              id="message-error"
               role="alert"
-              className="border-t bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="border-t bg-destructive/10 px-4 py-3 text-sm text-destructive-text"
             >
               {error}
             </p>

@@ -1,7 +1,7 @@
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
+import p1 from "@/assets/p1.webp";
+import p2 from "@/assets/p2.webp";
+import p3 from "@/assets/p3.webp";
+import p4 from "@/assets/p4.webp";
 
 export type Person = {
   id: string;

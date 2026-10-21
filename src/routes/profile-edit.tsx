@@ -1,9 +1,10 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, ImagePlus, LoaderCircle, LogOut, Save } from "lucide-react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { getMyAccess } from "@/lib/auth/server";
 import { AppShell } from "@/components/AppShell";
+import { Field as BrandField, Input as BrandInput } from "@/components/brand";
 import {
   getMyProfile,
   listSupportedCountries,
@@ -181,6 +182,8 @@ function EditProfile() {
                   <img
                     src={avatarUrl}
                     alt="Your profile"
+                    width={768}
+                    height={1024}
                     className="size-24 rounded-2xl object-cover"
                   />
                 ) : (
@@ -208,9 +211,14 @@ function EditProfile() {
                   </p>
                 </div>
               </div>
-              <form onSubmit={(event) => void save(event)} className="mt-8 space-y-5">
-                <Field label="Display name">
-                  <input
+              <form
+                onSubmit={(event) => void save(event)}
+                aria-describedby={error ? "profile-form-error" : undefined}
+                className="mt-8 space-y-5"
+              >
+                <BrandField label="Display name" htmlFor="display-name">
+                  <BrandInput
+                    id="display-name"
                     required
                     minLength={2}
                     maxLength={40}
@@ -218,9 +226,10 @@ function EditProfile() {
                     onChange={(e) => setForm({ ...form, displayName: e.target.value })}
                     className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
                   />
-                </Field>
-                <Field label="About you">
+                </BrandField>
+                <BrandField label="About you" htmlFor="bio">
                   <textarea
+                    id="bio"
                     maxLength={300}
                     rows={4}
                     value={form.bio}
@@ -229,35 +238,38 @@ function EditProfile() {
                     className="w-full resize-y rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
                   />
                   <span className="text-xs text-muted-foreground">{form.bio.length}/300</span>
-                </Field>
+                </BrandField>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <Field label="Town or city">
-                    <input
+                  <BrandField label="Town or city" htmlFor="city">
+                    <BrandInput
+                      id="city"
                       maxLength={80}
                       value={form.city}
                       onChange={(e) => setForm({ ...form, city: e.target.value })}
                       placeholder="e.g. Watamu"
                       className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
                     />
-                  </Field>
-                  <Field label="County or region">
-                    <input
+                  </BrandField>
+                  <BrandField label="County or region" htmlFor="region">
+                    <BrandInput
+                      id="region"
                       maxLength={80}
                       value={form.region}
                       onChange={(e) => setForm({ ...form, region: e.target.value })}
                       placeholder="e.g. Kilifi"
                       className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
                     />
-                  </Field>
+                  </BrandField>
                 </div>
-                <Field label="Country">
+                <BrandField label="Country" htmlFor="country-code">
                   <select
+                    id="country-code"
                     required
                     value={form.countryCode}
                     onChange={(e) =>
                       setForm({ ...form, countryCode: e.target.value.toUpperCase() })
                     }
-                    className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
+                    className="min-h-11 w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
                   >
                     {countries.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -265,17 +277,21 @@ function EditProfile() {
                       </option>
                     ))}
                   </select>
-                </Field>
+                </BrandField>
                 {error && (
                   <p
+                    id="profile-form-error"
                     role="alert"
-                    className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive"
+                    className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
                   >
                     {error}
                   </p>
                 )}
                 {notice && (
-                  <p role="status" className="rounded-xl bg-success/10 p-3 text-sm text-success">
+                  <p
+                    role="status"
+                    className="rounded-xl bg-success/10 p-3 text-sm text-success-text"
+                  >
                     {notice}
                   </p>
                 )}
@@ -299,14 +315,5 @@ function EditProfile() {
         </button>
       </div>
     </AppShell>
-  );
-}
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block space-y-2 text-sm font-semibold">
-      <span>{label}</span>
-      {children}
-    </label>
   );
 }
