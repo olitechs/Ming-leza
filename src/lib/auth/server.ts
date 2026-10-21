@@ -97,7 +97,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
           display_name: "New member",
           friends_enabled: true,
           dating_enabled: false,
-          is_discoverable: true,
+          is_discoverable: false,
         },
         { onConflict: "id", ignoreDuplicates: true },
       );
@@ -151,7 +151,7 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
           display_name: "New member",
           friends_enabled: true,
           dating_enabled: false,
-          is_discoverable: true,
+          is_discoverable: false,
         },
         { onConflict: "id", ignoreDuplicates: true },
       );
@@ -234,6 +234,20 @@ export const setMyIntent = createServerFn({ method: "POST" })
       .maybeSingle();
     if (age.error || age.data?.is_18_plus !== true)
       return { ok: false as const, message: "Complete age verification before continuing." };
+    const profile = await supabase
+      .from("profiles")
+      .select("display_name,city")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (
+      profile.error ||
+      !profile.data ||
+      !profile.data.display_name.trim() ||
+      profile.data.display_name.trim().toLowerCase() === "new member" ||
+      !profile.data.city?.trim()
+    ) {
+      return { ok: false as const, message: "Complete your profile before choosing an intent." };
+    }
     const updated = await supabase
       .from("profiles")
       .update({
