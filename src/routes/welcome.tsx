@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { sendOtp, verifyOtp, verifyAdult, setMyIntent, getMyAccess } from "@/lib/auth/server";
+import { completeMyProfileSetup, getMyProfile, setMyAvatarPath } from "@/lib/profile/server";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { ArrowLeft, Heart, Users, ShieldCheck, Mail } from "lucide-react";
 import p1 from "@/assets/p1.webp";
 import p3 from "@/assets/p3.webp";
@@ -11,7 +13,9 @@ export const Route = createFileRoute("/welcome")({
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
     authError: typeof search["authError"] === "string" ? search["authError"] : "",
-    ...(search["mode"] === "signin" ? { mode: "signin" as const } : {}),
+    ...(search["mode"] === "signin" || search["mode"] === "profile"
+      ? { mode: search["mode"] as "signin" | "profile" }
+      : {}),
   }),
   head: () => ({
     meta: [
@@ -29,20 +33,23 @@ export const Route = createFileRoute("/welcome")({
   component: Welcome,
 });
 
-const steps = ["welcome", "age", "phone", "otp", "email-sent", "intent"] as const;
+const steps = ["welcome", "age", "phone", "otp", "email-sent", "profile", "intent"] as const;
 
 function Welcome() {
   const nav = useNavigate();
   const { authComplete, authError, mode } = Route.useSearch();
   const [signingIn, setSigningIn] = useState(mode === "signin");
   // True once the person has a valid session and only the age check remains.
-  const [authed, setAuthed] = useState(authComplete);
+  const [authed, setAuthed] = useState(authComplete || mode === "profile");
   const [step, setStep] = useState(() =>
-    authError ? 2 : authComplete ? 1 : mode === "signin" ? 2 : 0,
+    authError ? 2 : mode === "profile" ? 5 : authComplete ? 1 : mode === "signin" ? 2 : 0,
   );
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [city, setCity] = useState("");
+  const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [authMethod, setAuthMethod] = useState<"phone" | "email">(authError ? "email" : "phone");
   const [otp, setOtp] = useState("");
   const [cooldown, setCooldown] = useState(0);
@@ -58,6 +65,21 @@ function Welcome() {
     const timer = window.setTimeout(() => setCooldown((value) => value - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [cooldown]);
+  useEffect(() => {
+    if (mode !== "profile") return;
+    let active = true;
+    void getMyProfile().then((result) => {
+      if (!active || !result.ok) return;
+      setDisplayName(
+        result.profile.display_name === "New member" ? "" : result.profile.display_name,
+      );
+      setCity(result.profile.city ?? "");
+      setAvatarPath(result.profile.avatar_path);
+    });
+    return () => {
+      active = false;
+    };
+  }, [mode]);
   const next = () => {
     setErr("");
     setStep((s) => s + 1);
@@ -170,6 +192,79 @@ function Welcome() {
     }
   };
 
+  const uploadProfilePhoto = async (file?: File) => {
+    if (!file) return;
+    setErr("");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setErr("Choose a JPG, PNG or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setErr("The photo must be 5 MB or smaller.");
+      return;
+    }
+    setIsBusy(true);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError || !auth.user) {
+        setErr("Sign in again before adding a photo.");
+        return;
+      }
+      const extension =
+        file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+      const path = `${auth.user.id}/avatar.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("profile-avatars")
+        .upload(path, file, {
+          upsert: true,
+          contentType: file.type,
+          cacheControl: "3600",
+        });
+      if (uploadError) {
+        setErr("Photo upload failed. Check your connection and retry.");
+        return;
+      }
+      const saved = await setMyAvatarPath({ data: { path } });
+      if (!saved.ok) {
+        setErr(saved.message);
+        return;
+      }
+      setAvatarPath(path);
+    } catch {
+      setErr("Photo upload failed. Please retry.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const completeProfile = async () => {
+    setErr("");
+    if (displayName.trim().length < 2 || displayName.trim().toLowerCase() === "new member") {
+      setErr("Enter a real display name with at least 2 characters.");
+      return;
+    }
+    if (city.trim().length < 2) {
+      setErr("Enter your town or city.");
+      return;
+    }
+    setIsBusy(true);
+    try {
+      const result = await completeMyProfileSetup({
+        data: { displayName: displayName.trim(), city: city.trim() },
+      });
+      if (!result.ok) {
+        setErr(result.message);
+        return;
+      }
+      setStep(6);
+    } catch {
+      setErr("Profile setup could not be saved. Please try again.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   const finish = async () => {
     setErr("");
     setIsBusy(true);
@@ -193,6 +288,14 @@ function Welcome() {
   };
 
   const id = steps[step];
+  const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
+  const avatarUrl =
+    avatarPath && supabaseUrl
+      ? `${supabaseUrl.replace(/\/+$/, "")}/storage/v1/object/public/profile-avatars/${avatarPath
+          .split("/")
+          .map(encodeURIComponent)
+          .join("/")}`
+      : "";
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background p-4">
       <div className="w-full max-w-md overflow-hidden rounded-[32px] bg-card shadow-card">
@@ -254,7 +357,7 @@ function Welcome() {
                 onClick={() => {
                   setErr("");
                   setStep((s) =>
-                    s === 5 ? (authed ? 1 : 2) : s === 4 ? 2 : s === 2 && signingIn ? 0 : s - 1,
+                    s === 6 ? 5 : s === 5 ? 1 : s === 4 ? 2 : s === 2 && signingIn ? 0 : s - 1,
                   );
                 }}
                 aria-label="Back"
@@ -277,18 +380,20 @@ function Welcome() {
                 <ShieldCheck className="size-10 text-primary" />
                 <h1 className="mt-4 text-2xl font-extrabold">Confirm you're 18+</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Mingleza is adults only. Your birthday is used only to confirm adulthood; it is
-                  not stored or displayed.
+                  Mingleza is adults only. This is used only to confirm adulthood; we do not store
+                  your birth date or display your age on your profile.
                 </p>
-                <input
-                  type="date"
-                  aria-label="Date of birth"
-                  aria-describedby={err ? "welcome-error" : undefined}
-                  aria-invalid={Boolean(err)}
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="mt-6 w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
-                />
+                <label className="mt-6 block space-y-2 text-sm font-semibold">
+                  <span>Date of birth</span>
+                  <input
+                    type="date"
+                    aria-describedby={err ? "welcome-error" : undefined}
+                    aria-invalid={Boolean(err)}
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full rounded-2xl border bg-background px-4 py-4 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </label>
                 <Primary disabled={isBusy} onClick={checkAge}>
                   {isBusy ? "Checking…" : "Continue"}
                 </Primary>
@@ -433,6 +538,70 @@ function Welcome() {
                 >
                   Use a different email
                 </button>
+              </>
+            )}
+
+            {id === "profile" && (
+              <>
+                <h1 className="text-2xl font-extrabold">Set up your profile</h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Add a display name and town or city before people can discover you. A photo is
+                  optional.
+                </p>
+                <div className="mt-6 flex items-center gap-4">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Your profile photo"
+                      className="size-20 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="grid size-20 place-items-center rounded-full bg-secondary text-2xl font-bold text-primary">
+                      {displayName.trim().slice(0, 1).toUpperCase() || "M"}
+                    </span>
+                  )}
+                  <label className="inline-flex min-h-11 cursor-pointer items-center rounded-full border px-4 py-2 text-sm font-semibold">
+                    {isBusy ? "Working…" : avatarPath ? "Change photo" : "Add photo (optional)"}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={isBusy}
+                      className="sr-only"
+                      onChange={(event) => {
+                        void uploadProfilePhoto(event.currentTarget.files?.[0]);
+                        event.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+                <label className="mt-6 block space-y-2 text-sm font-semibold">
+                  <span>Display name</span>
+                  <input
+                    required
+                    minLength={2}
+                    maxLength={40}
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    autoComplete="name"
+                    className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </label>
+                <label className="mt-4 block space-y-2 text-sm font-semibold">
+                  <span>Town or city</span>
+                  <input
+                    required
+                    minLength={2}
+                    maxLength={80}
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    autoComplete="address-level2"
+                    placeholder="e.g. Nairobi"
+                    className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </label>
+                <Primary disabled={isBusy} onClick={completeProfile}>
+                  {isBusy ? "Saving…" : "Continue"}
+                </Primary>
               </>
             )}
 

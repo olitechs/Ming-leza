@@ -2,7 +2,8 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { Avatar, AvatarFallback, Input as BrandInput } from "@/components/brand";
+import { Avatar } from "@/components/Avatar";
+import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import {
@@ -47,6 +48,10 @@ type Message = {
   created_at: string;
   mine: boolean;
 };
+type MessageCursor = {
+  createdAt: string;
+  id: string;
+};
 
 function Messages() {
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -58,6 +63,9 @@ function Messages() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [mobileThreadOpen, setMobileThreadOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingEarlier, setLoadingEarlier] = useState(false);
+  const [messageCursor, setMessageCursor] = useState<MessageCursor | null>(null);
 
   const openFriend = useCallback(async (friend: Friend) => {
     setError("");
@@ -66,6 +74,8 @@ function Messages() {
     setMobileThreadOpen(true);
     setMessages([]);
     setConversationId(null);
+    setHasMore(false);
+    setMessageCursor(null);
     try {
       const opened = await openFriendConversation({ data: { otherUserId: friend.id } });
       if (!opened.ok) {
@@ -81,6 +91,8 @@ function Messages() {
         return;
       }
       setMessages(result.messages as Message[]);
+      setHasMore(result.hasMore);
+      setMessageCursor(result.nextCursor);
     } catch {
       setError("Messaging is temporarily unavailable. Please try again.");
     } finally {
@@ -104,7 +116,12 @@ function Messages() {
         const list = result.friends as Friend[];
         setFriends(list);
         const firstFriend = list[0];
-        if (firstFriend) await openFriend(firstFriend);
+        const isDesktop =
+          typeof window !== "undefined" &&
+          (typeof window.matchMedia === "function"
+            ? window.matchMedia("(min-width: 768px)").matches
+            : window.innerWidth >= 768);
+        if (isDesktop && firstFriend) await openFriend(firstFriend);
         else setLoading(false);
       })
       .catch(() => {
@@ -117,6 +134,28 @@ function Messages() {
       active = false;
     };
   }, [openFriend]);
+
+  const loadEarlier = useCallback(async () => {
+    if (!conversationId || !hasMore || loadingEarlier || !messageCursor) return;
+    setLoadingEarlier(true);
+    setError("");
+    try {
+      const result = await listConversationMessages({
+        data: { conversationId, limit: 100, cursor: messageCursor },
+      });
+      if (!result.ok) {
+        setError("We could not load earlier messages. Please try again.");
+        return;
+      }
+      setMessages((current) => [...(result.messages as Message[]), ...current]);
+      setHasMore(result.hasMore);
+      setMessageCursor(result.nextCursor);
+    } catch {
+      setError("We could not load earlier messages. Please try again.");
+    } finally {
+      setLoadingEarlier(false);
+    }
+  }, [conversationId, hasMore, loadingEarlier, messageCursor]);
 
   const send = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -140,14 +179,6 @@ function Messages() {
     }
   };
 
-  const initials = (name: string) =>
-    name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
-
   return (
     <AppShell hideTabs={mobileThreadOpen}>
       <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100dvh-5rem)] md:rounded-3xl md:border">
@@ -166,11 +197,10 @@ function Messages() {
                 className={`flex w-full items-center gap-3 border-b px-4 py-4 text-left hover:bg-muted ${activeFriend?.id === friend.id ? "bg-secondary" : ""}`}
               >
                 <Avatar
-                  aria-label={`${friend.display_name} avatar`}
-                  className="size-12 shrink-0 bg-primary/10 font-bold text-primary"
-                >
-                  <AvatarFallback>{initials(friend.display_name)}</AvatarFallback>
-                </Avatar>
+                  name={friend.display_name}
+                  avatarPath={friend.avatar_path}
+                  className="size-12"
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">{friend.display_name}</span>
                   <span className="block truncate text-xs text-muted-foreground">
@@ -207,11 +237,10 @@ function Messages() {
                   <ArrowLeft className="size-5" />
                 </button>
                 <Avatar
-                  aria-label={`${activeFriend.display_name} avatar`}
-                  className="size-10 bg-primary/10 font-bold text-primary"
-                >
-                  <AvatarFallback>{initials(activeFriend.display_name)}</AvatarFallback>
-                </Avatar>
+                  name={activeFriend.display_name}
+                  avatarPath={activeFriend.avatar_path}
+                  className="size-10"
+                />
                 <div className="min-w-0">
                   <h2 className="truncate font-bold">{activeFriend.display_name}</h2>
                   <p className="text-xs text-muted-foreground">Private conversation</p>
@@ -225,27 +254,42 @@ function Messages() {
                     Say hello and start the conversation.
                   </p>
                 ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.mine ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm sm:max-w-md ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}
-                      >
-                        <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                        <time
-                          className={`mt-1 block text-right text-[10px] ${message.mine ? "text-primary-foreground" : "text-muted-foreground"}`}
-                          dateTime={message.created_at}
+                  <>
+                    {hasMore && (
+                      <div className="flex justify-center pb-1">
+                        <button
+                          type="button"
+                          onClick={() => void loadEarlier()}
+                          disabled={loadingEarlier}
+                          aria-label="Load earlier messages"
+                          className="min-h-11 rounded-full border px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:cursor-wait disabled:opacity-60"
                         >
-                          {new Date(message.created_at).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </time>
+                          {loadingEarlier ? "Loading earlier…" : "Load earlier"}
+                        </button>
                       </div>
-                    </div>
-                  ))
+                    )}
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.mine ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm sm:max-w-md ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}
+                        >
+                          <p className="whitespace-pre-wrap break-words">{message.body}</p>
+                          <time
+                            className={`mt-1 block text-right text-[10px] ${message.mine ? "opacity-75" : "text-muted-foreground"}`}
+                            dateTime={message.created_at}
+                          >
+                            {new Date(message.created_at).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </time>
+                        </div>
+                      </div>
+                    ))}
+                  </>
                 )}
               </div>
               <form onSubmit={send} className="flex gap-2 border-t bg-card p-3 sm:p-4">

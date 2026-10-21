@@ -2,9 +2,11 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
+import { Avatar } from "@/components/Avatar";
 import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
+import { getMyProfile } from "@/lib/profile/server";
 import { sendFriendRequest } from "@/lib/social/server";
 
 export const Route = createFileRoute("/")({
@@ -12,6 +14,24 @@ export const Route = createFileRoute("/")({
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
       throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+    let profile;
+    try {
+      profile = await getMyProfile();
+    } catch (error) {
+      return { profile: null };
+    }
+    if (profile.ok) {
+      const displayName = profile.profile.display_name?.trim() ?? "";
+      const city = profile.profile.city?.trim() ?? "";
+      if (!displayName || displayName.toLowerCase() === "new member" || !city) {
+        throw redirect({
+          to: "/welcome",
+          search: { authComplete: true, authError: "", mode: "profile" },
+        });
+      }
+      return { profile: profile.profile };
+    }
+    return { profile: null };
   },
   head: () => ({
     meta: [
@@ -35,17 +55,11 @@ type Profile = {
   datingEnabled: boolean;
 };
 
-function initials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
 function Discover() {
-  const [intent, setIntent] = useState<Intent>("dating");
+  const { profile: loadedProfile } = Route.useRouteContext();
+  const [intent, setIntent] = useState<Intent | null>(() =>
+    loadedProfile ? (loadedProfile.friends_enabled ? "friends" : "dating") : null,
+  );
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -56,26 +70,38 @@ function Discover() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
-    getDiscoverableProfiles({ data: { intent, limit: 30 } })
-      .then((result) => {
+    const load = async () => {
+      setLoading(true);
+      setError(false);
+      try {
+        if (!intent) {
+          const profile = await getMyProfile();
+          if (!active) return;
+          if (!profile.ok) {
+            setProfiles([]);
+            setError(true);
+            return;
+          }
+          setIntent(profile.profile.friends_enabled ? "friends" : "dating");
+          return;
+        }
+        const result = await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
         if (result.ok) setProfiles(result.profiles);
         else {
           setProfiles([]);
           setError(result.reason !== "unauthenticated");
         }
-      })
-      .catch(() => {
+      } catch {
         if (active) {
           setProfiles([]);
           setError(true);
         }
-      })
-      .finally(() => {
+      } finally {
         if (active) setLoading(false);
-      });
+      }
+    };
+    void load();
     return () => {
       active = false;
     };
@@ -183,9 +209,11 @@ function Discover() {
                   className="overflow-hidden rounded-3xl border bg-card shadow-soft"
                 >
                   <div className="grid aspect-[4/3] place-items-center bg-secondary text-primary">
-                    <div className="grid size-24 place-items-center rounded-full bg-card text-3xl font-extrabold shadow-soft">
-                      {initials(profile.displayName)}
-                    </div>
+                    <Avatar
+                      name={profile.displayName}
+                      avatarPath={profile.avatarPath}
+                      className="size-24 bg-card text-3xl font-extrabold shadow-soft"
+                    />
                   </div>
                   <div className="p-5">
                     <h2 className="text-xl font-bold">{profile.displayName}</h2>

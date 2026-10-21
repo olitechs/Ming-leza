@@ -21,6 +21,18 @@ const avatarPathInput = z.object({
     .regex(/^[0-9a-f-]{36}\/avatar\.(jpg|png|webp)$/i),
 });
 
+const profileSetupInput = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .refine((value) => value.toLowerCase() !== "new member", "Choose a real display name."),
+  city: z.string().trim().min(2).max(80),
+});
+
+const publicProfileInput = z.object({ id: z.string().uuid() });
+
 async function getVerifiedUser() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
@@ -68,12 +80,101 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(async () =
   }
 });
 
+export const listSupportedCountries = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { supabase, user, message } = await getVerifiedUser();
+    if (!user) return { ok: false as const, message, countries: [] };
+    const { data, error } = await supabase
+      .from("supported_countries")
+      .select("code,name")
+      .eq("is_active", true)
+      .order("name");
+    if (error)
+      return { ok: false as const, message: "Countries could not be loaded.", countries: [] };
+    return { ok: true as const, countries: data ?? [] };
+  } catch {
+    return { ok: false as const, message: "Countries could not be loaded.", countries: [] };
+  }
+});
+
+export const getVisibleProfile = createServerFn({ method: "GET" })
+  .validator(publicProfileInput)
+  .handler(async ({ data }) => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message };
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select(
+          "id,display_name,bio,avatar_path,country_code,region,city,friends_enabled,dating_enabled",
+        )
+        .eq("id", data.id)
+        .maybeSingle();
+      if (
+        error ||
+        !profile ||
+        !profile.display_name.trim() ||
+        profile.display_name.trim().toLowerCase() === "new member"
+      ) {
+        return { ok: false as const, message: "This profile is not available." };
+      }
+      return {
+        ok: true as const,
+        profile: {
+          id: profile.id,
+          displayName: profile.display_name,
+          bio: profile.bio,
+          avatarPath: profile.avatar_path,
+          countryCode: profile.country_code,
+          region: profile.region,
+          city: profile.city,
+          friendsEnabled: profile.friends_enabled,
+          datingEnabled: profile.dating_enabled,
+        },
+      };
+    } catch {
+      return { ok: false as const, message: "This profile is not available." };
+    }
+  });
+
+export const completeMyProfileSetup = createServerFn({ method: "POST" })
+  .validator(profileSetupInput)
+  .handler(async ({ data }) => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message };
+      const { error } = await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          display_name: data.displayName,
+          city: data.city,
+          is_discoverable: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" },
+      );
+      if (error)
+        return { ok: false as const, message: "Profile setup could not be saved. Please retry." };
+      return { ok: true as const };
+    } catch {
+      return { ok: false as const, message: "Profile service is temporarily unavailable." };
+    }
+  });
+
 export const updateMyProfile = createServerFn({ method: "POST" })
   .validator(profileInput)
   .handler(async ({ data }) => {
     try {
       const { supabase, user, message } = await getVerifiedUser();
       if (!user) return { ok: false as const, message };
+      const { data: country, error: countryError } = await supabase
+        .from("supported_countries")
+        .select("code")
+        .eq("code", data.countryCode.toUpperCase())
+        .eq("is_active", true)
+        .maybeSingle();
+      if (countryError || !country)
+        return { ok: false as const, message: "Choose an available country." };
       const { error } = await supabase
         .from("profiles")
         .update({

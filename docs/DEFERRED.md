@@ -1,18 +1,19 @@
 # Deferred work
 
-## Batch 2 status
+## Implemented through Batch 2
 
-The design-system and accessibility improvements are implemented on `feat/batch2-design-accessibility`; they are not live until the PR is merged and deployed. Batch 3 and later remain deferred until requested.
+The app now includes passwordless SMS-code and email-link sign-in, adult verification, validated profile setup, Supabase-backed profiles and discovery, friend requests, and direct messages between accepted friends. Incomplete profiles remain out of Discover; friend and pending-request relationships are excluded. Profile photos use the existing avatar bucket with an initials fallback. Explore is a privacy-safe coming-soon state rather than a demo map. Batch 2 adds the shared design system, accessible controls, self-hosted fonts, mobile-safe layouts, and contrast improvements.
 
-## Verification gaps
+The app stores only an adult-verification flag; it does not store birth dates or birth years and does not display member ages. Do not add age storage or display until the open product decision is resolved.
 
-- Docker/live-Supabase migration, RLS, Storage, and authentication verification remain outstanding.
-- Production SSR/runtime verification remains outstanding.
+## Verification and deployment gaps
 
-## Later product phases not started
+GitHub Actions passed for the current feature heads, including dependency installation, lint, typecheck, unit tests, production build, formatting, local Supabase reset, and database/RLS tests. Vercel preview deployments for the application PRs were blocked by the provider's build-rate limit, so those previews could not be inspected. Production deployment, live SMS/email authentication, and migrations against the production Supabase project have not been verified. Before production use, configure the phone provider and passwordless email template, allow `<SITE_URL>/auth-callback` in Supabase Auth redirects, and confirm the supported-country seed data.
+
+## Remaining product work
+
+Keep the following for later batches; do not start them until requested:
 
 - Real-time messaging and notifications.
-- Block and report UI, settings, account deletion, private avatars, rate limits, and legal pages.
+- Block/report UI, settings, account deletion, private avatars, rate limits, and legal pages.
 - Dating likes and matches.
-- Explore map and location discovery.
-- Premium features, M-Pesa payments, and PWA support.

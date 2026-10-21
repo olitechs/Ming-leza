@@ -7,9 +7,14 @@ const requestSchema = z.object({ userId: userIdSchema });
 const respondSchema = z.object({ requestId: userIdSchema, accept: z.boolean() });
 const cancelSchema = z.object({ requestId: userIdSchema });
 const conversationSchema = z.object({ otherUserId: userIdSchema });
+const messageCursorSchema = z.object({
+  createdAt: z.string().datetime({ offset: true }),
+  id: userIdSchema,
+});
 const listMessagesSchema = z.object({
   conversationId: userIdSchema,
   limit: z.number().int().min(1).max(100).default(50),
+  cursor: messageCursorSchema.optional(),
 });
 const sendMessageSchema = z.object({
   conversationId: userIdSchema,
@@ -43,7 +48,16 @@ export const sendFriendRequest = createServerFn({ method: "POST" })
     const { data: requestId, error } = await supabase.rpc("send_friend_request", {
       p_addressee_id: data.userId,
     });
-    if (error) return { ok: false as const, message: "This friend request could not be sent." };
+    if (error) {
+      const rpcMessage = error.message.toLowerCase();
+      if (rpcMessage.includes("request already pending")) {
+        return { ok: false as const, message: "A friend request is already pending." };
+      }
+      if (rpcMessage.includes("already connected")) {
+        return { ok: false as const, message: "You are already connected with this member." };
+      }
+      return { ok: false as const, message: "This friend request could not be sent." };
+    }
     return { ok: true as const, requestId };
   });
 
@@ -92,20 +106,33 @@ export const listConversationMessages = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabase, user } = await authenticatedClient();
     if (!user) return { ok: false as const, reason: "unauthenticated" as const };
-    const { data: messages, error } = await supabase
+    let query = supabase
       .from("messages")
       .select("id, conversation_id, sender_id, body, created_at, edited_at, deleted_at")
       .eq("conversation_id", data.conversationId)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: true })
-      .limit(data.limit);
+      .is("deleted_at", null);
+    if (data.cursor) {
+      query = query.or(
+        `created_at.lt.${data.cursor.createdAt},and(created_at.eq.${data.cursor.createdAt},id.lt.${data.cursor.id})`,
+      );
+    }
+    const { data: messages, error } = await query
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(data.limit + 1);
     if (error) return { ok: false as const, reason: "unavailable" as const };
+    const page = (messages ?? []).slice(0, data.limit).reverse();
+    const oldestMessage = page[0];
     return {
       ok: true as const,
-      messages: (messages ?? []).map((message) => ({
+      messages: page.map((message) => ({
         ...message,
         mine: message.sender_id === user.id,
       })),
+      hasMore: (messages ?? []).length > data.limit,
+      nextCursor: oldestMessage
+        ? { createdAt: oldestMessage.created_at, id: oldestMessage.id }
+        : null,
     };
   });
 
