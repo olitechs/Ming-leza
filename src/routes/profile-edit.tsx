@@ -1,12 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ImagePlus, LoaderCircle, LogOut, Save } from "lucide-react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
+import { getMyAccess } from "@/lib/auth/server";
 import { AppShell } from "@/components/AppShell";
-import { getMyProfile, setMyAvatarPath, updateMyProfile } from "@/lib/profile/server";
+import {
+  getMyProfile,
+  listSupportedCountries,
+  setMyAvatarPath,
+  updateMyProfile,
+} from "@/lib/profile/server";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export const Route = createFileRoute("/profile-edit")({
+  beforeLoad: async () => {
+    const access = await getMyAccess();
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+  },
   head: () => ({ meta: [{ title: "Edit profile · Mingleza" }] }),
   component: EditProfile,
 });
@@ -18,6 +29,8 @@ type FormState = {
   region: string;
   countryCode: string;
 };
+
+type Country = { code: string; name: string };
 
 const emptyForm: FormState = {
   displayName: "",
@@ -31,6 +44,7 @@ function EditProfile() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [userId, setUserId] = useState("");
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -39,9 +53,15 @@ function EditProfile() {
 
   useEffect(() => {
     let active = true;
-    void getMyProfile()
-      .then(async (result) => {
+    void Promise.all([getMyProfile(), listSupportedCountries()])
+      .then(async ([result, countryResult]) => {
         if (!active) return;
+        if (!countryResult.ok) {
+          setError(countryResult.message);
+          setLoading(false);
+          return;
+        }
+        setCountries(countryResult.countries as Country[]);
         if (!result.ok) {
           setError(result.message);
           setLoading(false);
@@ -138,7 +158,7 @@ function EditProfile() {
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
         <Link
           to="/"
           className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-primary"
@@ -230,18 +250,21 @@ function EditProfile() {
                     />
                   </Field>
                 </div>
-                <Field label="Country code">
-                  <input
+                <Field label="Country">
+                  <select
                     required
-                    minLength={2}
-                    maxLength={2}
-                    pattern="[A-Za-z]{2}"
                     value={form.countryCode}
                     onChange={(e) =>
                       setForm({ ...form, countryCode: e.target.value.toUpperCase() })
                     }
-                    className="w-28 rounded-2xl border bg-background px-4 py-3 uppercase outline-none focus:ring-2 focus:ring-ring"
-                  />
+                    className="w-full rounded-2xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name} ({country.code})
+                      </option>
+                    ))}
+                  </select>
                 </Field>
                 {error && (
                   <p
@@ -274,7 +297,7 @@ function EditProfile() {
         >
           <LogOut className="size-4" /> Sign out
         </button>
-      </main>
+      </div>
     </AppShell>
   );
 }

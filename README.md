@@ -1,6 +1,8 @@
 # Mingleza
 
-Mingleza is a Kenya-first, adults-only social networking prototype for friendship, opt-in dating and local discovery. Profile and conversation data are currently hardcoded. Authentication, persistence, server-enforced age verification, messaging authorization, privacy-safe live location discovery and payments are not implemented.
+Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members sign in with an SMS verification code or an emailed passwordless link. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
+
+Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, moderation tools, premium payments, and M-Pesa are not implemented.
 
 ## Stack
 
@@ -8,6 +10,7 @@ Mingleza is a Kenya-first, adults-only social networking prototype for friendshi
 - React 19, TypeScript and Vite
 - Tailwind CSS 4, shadcn/Radix UI and Lucide
 - TanStack Query and Vitest
+- Supabase Auth, Postgres and Storage
 - Nitro for Vercel deployment
 
 ## Requirements
@@ -18,11 +21,14 @@ Mingleza is a Kenya-first, adults-only social networking prototype for friendshi
 ## Setup
 
 ```sh
-git clone https://github.com/olitechs/violet-coral-meet-cute.git
-cd violet-coral-meet-cute
-pnpm install
+git clone https://github.com/olitechs/Ming-leza.git
+cd Ming-leza
+pnpm install --frozen-lockfile
+cp .env.example .env.local
 pnpm dev
 ```
+
+Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional; when configured, it is used as the origin for email sign-in links and must be included in the Supabase Auth redirect allowlist. Configure Supabase Auth for phone OTP and passwordless email links, and apply database migrations before testing signed-in flows.
 
 ## Scripts
 
@@ -37,19 +43,14 @@ pnpm dev
 | `pnpm format`       | Format files with Prettier            |
 | `pnpm format:check` | Check formatting                      |
 
-## Environment variables
-
-Mingleza is passwordless: members sign in with an SMS code or an emailed link. Set `SITE_URL` to your public origin (it must also be in the Supabase Auth redirect allowlist); if empty, the current request origin is used.
-
-Copy `.env.example` to `.env.local` when needed. Never commit credentials. `VITE_` variables are exposed to browser code and must not contain secrets. Keep server credentials in deployment settings.
-
 ## Project structure
 
 - `src/routes/` — file-based routes
-- `src/components/` — shared components
+- `src/components/` — shared application components
 - `src/components/ui/` — UI primitives
-- `src/lib/` — data and utilities
-- `src/styles.css` — global styles
+- `src/lib/` — server functions and utilities
+- `supabase/migrations/` — database migrations
+- `src/styles.css` — global styles and design tokens
 - `docs/design-tokens.md` — visual reference
 - `docs/DEFERRED.md` — incomplete work and verification gaps
 
@@ -58,10 +59,10 @@ Copy `.env.example` to `.env.local` when needed. Never commit credentials. `VITE
 - Keep changes small and reviewable; never rewrite published history.
 - Do not add secrets, credentials or personal data to source, logs or analytics.
 - Verify dependency and import usage before removing packages or components.
-- Use migrations for future database schema changes.
-- Run lint, typecheck, tests and build before claiming a change is verified.
+- Use migrations for database schema and policy changes.
+- Run lint, typecheck, tests, build and formatting checks before claiming a change is verified.
 - Preserve the established Mingleza visual identity.
 
 ## Deployment
 
-The project uses TanStack Start and Nitro for Vercel. Import the repository in Vercel and use detected framework settings. Add required environment variables through project settings. The current prototype has no required application secrets.
+The project uses TanStack Start and Nitro for Vercel. Configure the public Supabase URL and publishable key, the server-only service-role key, and the public `SITE_URL` through Vercel environment settings. Add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist and confirm that the SMS provider and email sign-in template are configured. Do not put service-role credentials in `VITE_` variables.

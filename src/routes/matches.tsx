@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Clock3, MessageCircle, UserRound, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { Avatar } from "@/components/Avatar";
 import { getMyAccess } from "@/lib/auth/server";
 import { cancelFriendRequest, respondToFriendRequest } from "@/lib/social/server";
 import { listFriendRequests } from "@/lib/social/requests";
@@ -95,17 +96,9 @@ function Matches() {
     }
   };
 
-  const initials = (name: string) =>
-    name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
-
   return (
     <AppShell>
-      <main className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
+      <div className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl font-extrabold">Friend requests</h1>
@@ -165,9 +158,11 @@ function Matches() {
                   key={request.id}
                   className="flex flex-wrap items-center gap-4 rounded-2xl border bg-card p-4 shadow-soft"
                 >
-                  <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                    {initials(request.profile.display_name)}
-                  </span>
+                  <Avatar
+                    name={request.profile.display_name}
+                    avatarPath={request.profile.avatar_path}
+                    className="size-14 text-lg"
+                  />
                   <div className="min-w-0 flex-1">
                     <h2 className="font-bold">{request.profile.display_name}</h2>
                     <p className="text-sm text-muted-foreground">{place || "Mingleza member"}</p>
@@ -209,7 +204,7 @@ function Matches() {
             })}
           </div>
         )}
-      </main>
+      </div>
     </AppShell>
   );
 }
