@@ -39,6 +39,8 @@ pnpm dev
 
 ## Environment variables
 
+Mingleza is passwordless: members sign in with an SMS code or an emailed link. Set `SITE_URL` to your public origin (it must also be in the Supabase Auth redirect allowlist); if empty, the current request origin is used.
+
 Copy `.env.example` to `.env.local` when needed. Never commit credentials. `VITE_` variables are exposed to browser code and must not contain secrets. Keep server credentials in deployment settings.
 
 ## Project structure

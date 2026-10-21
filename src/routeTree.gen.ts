@@ -9,34 +9,34 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as UIdRouteImport } from './routes/u.$id'
-import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth-callback',
-  path: '/auth-callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchesRoute = MatchesRouteImport.update({
@@ -49,6 +49,11 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/profile-edit',
+  path: '/profile-edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
@@ -59,84 +64,91 @@ const UIdRoute = UIdRouteImport.update({
   path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileEditRoute = ProfileEditRouteImport.update({
-  id: '/profile-edit',
-  path: '/profile-edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/auth-callback': typeof AuthCallbackRoute
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
-  '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesByTo {
-  '/auth-callback': typeof AuthCallbackRoute
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
-  '/profile-edit': typeof ProfileEditRoute
 }
 export interface FileRoutesById {
-  '/auth-callback': typeof AuthCallbackRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/auth-callback' | '/' | '/login' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/auth-callback' | '/' | '/login' | '/explore' | '/matches' | '/messages' | '/welcome' | '/u/$id' | '/profile-edit'
-  id:
-    | '__root__'
-    | '/auth-callback'
+  fullPaths:
     | '/'
-    | '/login'
+    | '/auth-callback'
     | '/explore'
+    | '/login'
     | '/matches'
     | '/messages'
+    | '/profile-edit'
     | '/welcome'
     | '/u/$id'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/auth-callback'
+    | '/explore'
+    | '/login'
+    | '/matches'
+    | '/messages'
     | '/profile-edit'
+    | '/welcome'
+    | '/u/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth-callback'
+    | '/explore'
+    | '/login'
+    | '/matches'
+    | '/messages'
+    | '/profile-edit'
+    | '/welcome'
+    | '/u/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthCallbackRoute: typeof AuthCallbackRoute
   IndexRoute: typeof IndexRoute
-  LoginRoute: typeof LoginRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   ExploreRoute: typeof ExploreRoute
+  LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
+  ProfileEditRoute: typeof ProfileEditRoute
   WelcomeRoute: typeof WelcomeRoute
   UIdRoute: typeof UIdRoute
-  ProfileEditRoute: typeof ProfileEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth-callback': {
-      id: '/auth-callback'
-      path: '/auth-callback'
-      fullPath: '/auth-callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -144,11 +156,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -156,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matches': {
@@ -172,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile-edit': {
+      id: '/profile-edit'
+      path: '/profile-edit'
+      fullPath: '/profile-edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/welcome': {
       id: '/welcome'
       path: '/welcome'
@@ -186,26 +212,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile-edit': {
-      id: '/profile-edit'
-      path: '/profile-edit'
-      fullPath: '/profile-edit'
-      preLoaderRoute: typeof ProfileEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthCallbackRoute: AuthCallbackRoute,
   IndexRoute: IndexRoute,
-  LoginRoute: LoginRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   ExploreRoute: ExploreRoute,
+  LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
+  ProfileEditRoute: ProfileEditRoute,
   WelcomeRoute: WelcomeRoute,
   UIdRoute: UIdRoute,
-  ProfileEditRoute: ProfileEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
