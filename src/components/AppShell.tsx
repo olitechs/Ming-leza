@@ -8,9 +8,11 @@ import {
   Bell,
   Crown,
   Settings,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { signOutAndLeave } from "@/lib/auth/sign-out";
 
 type NavItem = {
   to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id" | "/profile-edit";
@@ -77,6 +79,15 @@ export function AppShell({
               <Icon className="size-5" />
             </span>
           ))}
+          <button
+            type="button"
+            aria-label="Sign out"
+            title="Sign out"
+            onClick={() => void signOutAndLeave()}
+            className="grid size-11 cursor-pointer place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+          >
+            <LogOut className="size-5" />
+          </button>
         </div>
       </nav>
 
