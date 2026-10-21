@@ -12,7 +12,7 @@ for update
 to authenticated
 using (
   sender_id = (select auth.uid())
-  and private.is_conversation_member(conversation_id, (select auth.uid()))
+  and public.is_conversation_member(conversation_id, (select auth.uid()))
   and not exists (
     select 1
     from public.conversation_members cm
@@ -22,7 +22,7 @@ using (
 )
 with check (
   sender_id = (select auth.uid())
-  and private.is_conversation_member(conversation_id, (select auth.uid()))
+  and public.is_conversation_member(conversation_id, (select auth.uid()))
   and not exists (
     select 1
     from public.conversation_members cm
