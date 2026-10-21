@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { sendOtp, verifyOtp, verifyAdult, setMyIntent } from "@/lib/auth/server";
+import { useEffect, useState } from "react";
+import { sendOtp, verifyOtp, verifyAdult, setMyIntent, getMyAccess } from "@/lib/auth/server";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowLeft, Heart, Users, ShieldCheck, Mail } from "lucide-react";
 import p1 from "@/assets/p1.jpg";
 import p3 from "@/assets/p3.jpg";
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/welcome")({
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
     authError: typeof search["authError"] === "string" ? search["authError"] : "",
+    ...(search["mode"] === "signin" ? { mode: "signin" as const } : {}),
   }),
   head: () => ({
     meta: [
@@ -31,13 +33,19 @@ const steps = ["welcome", "age", "phone", "otp", "email-sent", "intent"] as cons
 
 function Welcome() {
   const nav = useNavigate();
-  const { authComplete, authError } = Route.useSearch();
-  const [step, setStep] = useState(() => (authError ? 2 : authComplete ? 1 : 0));
+  const { authComplete, authError, mode } = Route.useSearch();
+  const [signingIn, setSigningIn] = useState(mode === "signin");
+  // True once the person has a valid session and only the age check remains.
+  const [authed, setAuthed] = useState(authComplete);
+  const [step, setStep] = useState(() =>
+    authError ? 2 : authComplete ? 1 : mode === "signin" ? 2 : 0,
+  );
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [authMethod, setAuthMethod] = useState<"phone" | "email">(authError ? "email" : "phone");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState("");
+  const [cooldown, setCooldown] = useState(0);
   const [isBusy, setIsBusy] = useState(false);
   const [intent, setIntent] = useState<string[]>(["Friends"]);
   const [err, setErr] = useState(() =>
@@ -45,7 +53,11 @@ function Welcome() {
       ? "That sign-in link has expired or was already used. Enter your email below and request a new link. For your security, an expired link cannot sign you in."
       : "",
   );
-  const refs = useRef<(HTMLInputElement | null)[]>([]);
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
   const next = () => {
     setErr("");
     setStep((s) => s + 1);
@@ -56,7 +68,7 @@ function Welcome() {
       setErr("Enter your date of birth.");
       return;
     }
-    if (authComplete) {
+    if (authed) {
       setIsBusy(true);
       setErr("");
       try {
@@ -101,6 +113,7 @@ function Welcome() {
         setErr(result.message);
         return;
       }
+      setCooldown(30);
       if (authMethod === "phone") {
         setPhone(identifier);
         setStep(3);
@@ -119,8 +132,8 @@ function Welcome() {
     }
   };
 
-  const checkOtp = async () => {
-    const token = otp.join("");
+  const checkOtp = async (value = otp) => {
+    const token = value.trim();
     if (token.length !== 6) {
       setErr("Enter the 6-digit code.");
       return;
@@ -131,6 +144,17 @@ function Welcome() {
       const authResult = await verifyOtp({ data: { method: "phone", identifier: phone, token } });
       if (!authResult.ok) {
         setErr(authResult.message);
+        return;
+      }
+      setAuthed(true);
+      // Returning adults skip the age step.
+      const access = await getMyAccess();
+      if (access.authenticated && access.adultVerified) {
+        await nav({ to: "/" });
+        return;
+      }
+      if (signingIn || !/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
+        setStep(1);
         return;
       }
       const ageResult = await verifyAdult({ data: { dateOfBirth: dob } });
@@ -207,7 +231,9 @@ function Welcome() {
               </button>
               <button
                 onClick={() => {
-                  window.location.href = "/login";
+                  setSigningIn(true);
+                  setErr("");
+                  setStep(2);
                 }}
                 className="mt-3 w-full py-2 text-sm font-semibold text-primary"
               >
@@ -221,7 +247,9 @@ function Welcome() {
               <button
                 onClick={() => {
                   setErr("");
-                  setStep((s) => (s === 5 ? (authComplete ? 1 : 2) : s === 4 ? 2 : s - 1));
+                  setStep((s) =>
+                    s === 5 ? (authed ? 1 : 2) : s === 4 ? 2 : s === 2 && signingIn ? 0 : s - 1,
+                  );
                 }}
                 aria-label="Back"
                 className="grid size-10 place-items-center rounded-full border"
@@ -259,7 +287,9 @@ function Welcome() {
 
             {id === "phone" && (
               <>
-                <h1 className="text-2xl font-extrabold">Verify your account</h1>
+                <h1 className="text-2xl font-extrabold">
+                  {signingIn ? "Welcome back" : "Verify your account"}
+                </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Use a one-time SMS code or a sign-in link sent to your email.
                 </p>
@@ -317,42 +347,42 @@ function Welcome() {
                 <p className="mt-2 text-sm text-muted-foreground">
                   Code sent to {phone}. Enter all 6 digits.
                 </p>
-                <div className="mt-6 flex justify-between gap-2">
-                  {otp.map((v, k) => (
-                    <input
-                      key={k}
-                      ref={(el) => {
-                        refs.current[k] = el;
-                      }}
-                      aria-label={`Verification digit ${k + 1}`}
-                      value={v}
-                      inputMode="numeric"
-                      autoComplete={k === 0 ? "one-time-code" : "off"}
-                      maxLength={1}
-                      onChange={(e) => {
-                        const d = e.target.value.replace(/\D/g, "").slice(-1);
-                        const n = [...otp];
-                        n[k] = d;
-                        setOtp(n);
-                        if (d && k < 5) refs.current[k + 1]?.focus();
-                      }}
-                      className={`min-w-0 size-12 rounded-xl border-2 text-center font-display text-xl font-bold outline-none focus:border-primary sm:size-14 ${v ? "border-primary bg-secondary" : "bg-background"}`}
-                    />
-                  ))}
-                </div>
-                <Primary disabled={isBusy} onClick={checkOtp}>
+                <InputOTP
+                  maxLength={6}
+                  value={otp}
+                  onChange={setOtp}
+                  onComplete={(value) => void checkOtp(value)}
+                  inputMode="numeric"
+                  pattern="^[0-9]*$"
+                  autoComplete="one-time-code"
+                  aria-label="6-digit verification code"
+                  disabled={isBusy}
+                  autoFocus
+                  containerClassName="mt-6 justify-between gap-2"
+                >
+                  <InputOTPGroup className="w-full justify-between gap-2">
+                    {[0, 1, 2, 3, 4, 5].map((k) => (
+                      <InputOTPSlot
+                        key={k}
+                        index={k}
+                        className="size-12 rounded-xl border-2 font-display text-xl font-bold first:rounded-xl first:border-2 last:rounded-xl sm:size-14"
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+                <Primary disabled={isBusy} onClick={() => checkOtp()}>
                   {isBusy ? "Verifying…" : "Verify code"}
                 </Primary>
                 <button
                   type="button"
-                  disabled={isBusy}
+                  disabled={isBusy || cooldown > 0}
                   onClick={() => {
-                    setOtp(["", "", "", "", "", ""]);
+                    setOtp("");
                     void checkPhone();
                   }}
                   className="mt-3 w-full text-sm font-semibold text-primary disabled:opacity-50"
                 >
-                  Resend code
+                  {cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
                 </button>
               </>
             )}
@@ -368,8 +398,12 @@ function Welcome() {
                   <strong className="break-all text-foreground">{email}</strong>. Open that link to
                   finish signing in. You do not need to enter a six-digit code.
                 </p>
-                <Primary disabled={isBusy} onClick={checkPhone}>
-                  {isBusy ? "Sending…" : "Resend sign-in link"}
+                <Primary disabled={isBusy || cooldown > 0} onClick={checkPhone}>
+                  {cooldown > 0
+                    ? `Resend link in ${cooldown}s`
+                    : isBusy
+                      ? "Sending…"
+                      : "Resend sign-in link"}
                 </Primary>
                 <button
                   type="button"

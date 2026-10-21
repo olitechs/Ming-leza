@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
@@ -24,6 +25,16 @@ const otpVerifySchema = z.object({
     .regex(/^\d{6}$/),
 });
 
+/**
+ * Public site origin used for emailed sign-in links. Prefer the SITE_URL setting; otherwise
+ * use the origin of the current request so local, preview and production all work.
+ */
+function getSiteUrl() {
+  const configured = process.env["SITE_URL"]?.trim();
+  if (configured) return configured.replace(/\/+$/, "");
+  return new URL(getRequest().url).origin;
+}
+
 export const sendOtp = createServerFn({ method: "POST" })
   .validator(otpRequestSchema)
   .handler(async ({ data }) => {
@@ -36,7 +47,7 @@ export const sendOtp = createServerFn({ method: "POST" })
               email: data.identifier,
               options: {
                 shouldCreateUser: true,
-                emailRedirectTo: "https://mingleza-peach.vercel.app/auth-callback",
+                emailRedirectTo: `${getSiteUrl()}/auth-callback`,
               },
             });
       if (result.error) {
@@ -53,51 +64,6 @@ export const sendOtp = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         message: "Authentication is not configured yet. Please try again later.",
-      };
-    }
-  });
-
-const passwordLoginSchema = z.object({
-  email: z.string().trim().email().max(254),
-  password: z.string().min(1).max(128),
-});
-
-export const signInWithPassword = createServerFn({ method: "POST" })
-  .validator(passwordLoginSchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (result.error || !result.data.user) {
-        return {
-          ok: false as const,
-          message: "Email or password is incorrect. Check your details and try again.",
-        };
-      }
-      const profile = await supabase.from("profiles").upsert(
-        {
-          id: result.data.user.id,
-          display_name: "New member",
-          friends_enabled: true,
-          dating_enabled: false,
-          is_discoverable: true,
-        },
-        { onConflict: "id", ignoreDuplicates: true },
-      );
-      if (profile.error) {
-        return {
-          ok: false as const,
-          message: "You are signed in, but we could not load your profile. Please try again.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "We could not sign you in right now. Please try again.",
       };
     }
   });

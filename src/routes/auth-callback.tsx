@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { exchangeEmailMagicLink } from "@/lib/auth/server";
+import { exchangeEmailMagicLink, getMyAccess } from "@/lib/auth/server";
 
 export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -45,14 +45,18 @@ function AuthCallback() {
     exchangeEmailMagicLink({
       data: code ? { code } : { tokenHash, type: type as "magiclink" | "email" | "signup" },
     })
-      .then((result) => {
+      .then(async (result) => {
         if (!active) return;
         if (!result.ok) {
           setMessage(result.message);
           returnToSignIn();
           return;
         }
-        window.location.replace("/welcome?authComplete=true");
+        // Returning adults go straight in; new members continue to the age step.
+        const access = await getMyAccess();
+        window.location.replace(
+          access.authenticated && access.adultVerified ? "/" : "/welcome?authComplete=true",
+        );
       })
       .catch(() => {
         if (active) {

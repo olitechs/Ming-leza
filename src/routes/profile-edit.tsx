@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowLeft, ImagePlus, LoaderCircle, Save } from "lucide-react";
+import { ArrowLeft, ImagePlus, LoaderCircle, LogOut, Save } from "lucide-react";
+import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { AppShell } from "@/components/AppShell";
 import { getMyProfile, setMyAvatarPath, updateMyProfile } from "@/lib/profile/server";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -266,6 +267,13 @@ function EditProfile() {
             </>
           )}
         </section>
+        <button
+          type="button"
+          onClick={() => void signOutAndLeave()}
+          className="mx-auto mt-6 flex cursor-pointer items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold hover:bg-muted"
+        >
+          <LogOut className="size-4" /> Sign out
+        </button>
       </main>
     </AppShell>
   );
