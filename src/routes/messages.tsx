@@ -1,172 +1,338 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Search, Send } from "lucide-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { byId, conversations, people } from "@/lib/people";
+import { Avatar } from "@/components/Avatar";
+import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
+import { listAcceptedFriendProfiles } from "@/lib/social/friends";
+import {
+  listConversationMessages,
+  openFriendConversation,
+  sendConversationMessage,
+} from "@/lib/social/server";
 
 export const Route = createFileRoute("/messages")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified) throw redirect({ to: "/welcome" });
+    if (!access.authenticated || !access.adultVerified)
+      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
   },
   head: () => ({
     meta: [
       { title: "Messages · Mingleza" },
-      { name: "description", content: "Chat with your matches and friends on Mingleza." },
-      { property: "og:title", content: "Messages · Mingleza" },
-      { property: "og:description", content: "Chat with your matches and friends." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "description",
+        content: "Private conversations with your accepted friends on Mingleza.",
+      },
     ],
   }),
   component: Messages,
 });
 
-type Msg = { me: boolean; text: string };
+type Friend = {
+  friendshipId: string;
+  id: string;
+  display_name: string;
+  bio: string | null;
+  avatar_path: string | null;
+  city: string | null;
+  region: string | null;
+  country_code: string | null;
+};
+type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  mine: boolean;
+};
+type MessageCursor = {
+  createdAt: string;
+  id: string;
+};
 
 function Messages() {
-  const [active, setActive] = useState("wanjiru");
-  const [openMobile, setOpenMobile] = useState(false);
-  const [msgs, setMsgs] = useState<Record<string, Msg[]>>({
-    wanjiru: [
-      { me: false, text: "Hey! Saw you also love hiking 🥾" },
-      { me: true, text: "Yes! Karura or Ngong Hills?" },
-      { me: false, text: "Haha sawa, Saturday at Karura then?" },
-    ],
-  });
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [activeFriend, setActiveFriend] = useState<Friend | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
-  const person = byId(active)!;
-  const thread = msgs[active] ?? [
-    { me: false, text: conversations.find((c) => c.id === active)?.last ?? "Say hi 👋" },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [mobileThreadOpen, setMobileThreadOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingEarlier, setLoadingEarlier] = useState(false);
+  const [messageCursor, setMessageCursor] = useState<MessageCursor | null>(null);
 
-  const send = () => {
-    if (!draft.trim()) return;
-    setMsgs({ ...msgs, [active]: [...thread, { me: true, text: draft.trim() }] });
-    setDraft("");
-  };
-  const open = (id: string) => {
-    setActive(id);
-    setOpenMobile(true);
+  const openFriend = useCallback(async (friend: Friend) => {
+    setError("");
+    setLoading(true);
+    setActiveFriend(friend);
+    setMobileThreadOpen(true);
+    setMessages([]);
+    setConversationId(null);
+    setHasMore(false);
+    setMessageCursor(null);
+    try {
+      const opened = await openFriendConversation({ data: { otherUserId: friend.id } });
+      if (!opened.ok) {
+        setError(opened.message);
+        return;
+      }
+      setConversationId(opened.conversationId);
+      const result = await listConversationMessages({
+        data: { conversationId: opened.conversationId, limit: 100 },
+      });
+      if (!result.ok) {
+        setError("We could not load this conversation. Please try again.");
+        return;
+      }
+      setMessages(result.messages as Message[]);
+      setHasMore(result.hasMore);
+      setMessageCursor(result.nextCursor);
+    } catch {
+      setError("Messaging is temporarily unavailable. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    listAcceptedFriendProfiles()
+      .then(async (result) => {
+        if (!active) return;
+        if (!result.ok) {
+          setError(
+            result.reason === "unauthenticated"
+              ? "Sign in to view your conversations."
+              : "We could not load your friends.",
+          );
+          return;
+        }
+        const list = result.friends as Friend[];
+        setFriends(list);
+        const firstFriend = list[0];
+        const isDesktop =
+          typeof window !== "undefined" &&
+          (typeof window.matchMedia === "function"
+            ? window.matchMedia("(min-width: 768px)").matches
+            : window.innerWidth >= 768);
+        if (isDesktop && firstFriend) await openFriend(firstFriend);
+        else setLoading(false);
+      })
+      .catch(() => {
+        if (active) {
+          setError("We could not load your friends. Please refresh.");
+          setLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [openFriend]);
+
+  const loadEarlier = useCallback(async () => {
+    if (!conversationId || !hasMore || loadingEarlier || !messageCursor) return;
+    setLoadingEarlier(true);
+    setError("");
+    try {
+      const result = await listConversationMessages({
+        data: { conversationId, limit: 100, cursor: messageCursor },
+      });
+      if (!result.ok) {
+        setError("We could not load earlier messages. Please try again.");
+        return;
+      }
+      setMessages((current) => [...(result.messages as Message[]), ...current]);
+      setHasMore(result.hasMore);
+      setMessageCursor(result.nextCursor);
+    } catch {
+      setError("We could not load earlier messages. Please try again.");
+    } finally {
+      setLoadingEarlier(false);
+    }
+  }, [conversationId, hasMore, loadingEarlier, messageCursor]);
+
+  const send = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!conversationId || !draft.trim() || sending) return;
+    setSending(true);
+    setError("");
+    try {
+      const result = await sendConversationMessage({
+        data: { conversationId, body: draft.trim() },
+      });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      setMessages((current) => [...current, result.message as Message]);
+      setDraft("");
+    } catch {
+      setError("Your message could not be sent. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
-    <AppShell hideTabs={openMobile}>
-      <div className="flex h-[calc(100vh-7rem)] md:h-[calc(100vh-7rem)] lg:h-screen">
-        <section
-          className={`w-full flex-col bg-card md:flex md:w-80 md:border-r ${openMobile ? "hidden" : "flex"}`}
+    <AppShell hideTabs={mobileThreadOpen}>
+      <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-6xl overflow-hidden bg-card md:h-[calc(100dvh-5rem)] md:rounded-3xl md:border">
+        <aside
+          className={`w-full flex-col md:flex md:w-80 md:shrink-0 md:border-r ${mobileThreadOpen ? "hidden" : "flex"}`}
         >
-          <div className="rounded-b-[28px] bg-primary px-5 pb-5 pt-6 text-primary-foreground md:rounded-none">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-extrabold">Chat</h1>
-              <Search className="size-5" />
-            </div>
-            <div className="mt-4 flex gap-4 overflow-x-auto">
-              {people
-                .filter((p) => p.online)
-                .map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => open(p.id)}
-                    className="flex shrink-0 flex-col items-center gap-1 text-xs"
-                  >
-                    <span className="relative">
-                      <img
-                        src={p.photo}
-                        alt=""
-                        className="size-14 rounded-full border-2 border-primary-foreground object-cover"
-                      />
-                      <span className="absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-primary bg-success" />
-                    </span>
-                    {p.name}
-                  </button>
-                ))}
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto py-2">
-            {conversations.map((c) => {
-              const p = byId(c.id)!;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => open(c.id)}
-                  className={`flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-muted ${active === c.id ? "md:bg-secondary" : ""}`}
-                >
-                  <img src={p.photo} alt={p.name} className="size-12 rounded-full object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">{p.name}</span>
-                      <span className="text-xs text-muted-foreground">{c.time}</span>
-                    </div>
-                    <p className="truncate text-sm text-muted-foreground">{c.last}</p>
-                  </div>
-                  {c.unread > 0 && (
-                    <span className="grid size-5 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
-                      {c.unread}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-        <section
-          className={`flex-1 flex-col md:flex ${openMobile ? "flex" : "hidden"} ${openMobile ? "fixed inset-0 z-30 bg-background md:static" : ""}`}
-        >
-          <header className="flex items-center gap-3 bg-primary px-4 py-4 text-primary-foreground md:bg-card md:text-foreground md:border-b">
-            <button onClick={() => setOpenMobile(false)} aria-label="Back" className="md:hidden">
-              <ArrowLeft className="size-5" />
-            </button>
-            <Link to="/u/$id" params={{ id: person.id }} className="flex items-center gap-3">
-              <img
-                src={person.photo}
-                alt={person.name}
-                className="size-10 rounded-full object-cover"
-              />
-              <div>
-                <p className="font-semibold">{person.name}</p>
-                <p className="text-xs opacity-80">{person.online ? "Online" : person.area}</p>
-              </div>
-            </Link>
+          <header className="bg-primary px-5 py-5 text-primary-foreground">
+            <h1 className="text-2xl font-extrabold">Messages</h1>
+            <p className="mt-1 text-sm opacity-85">Chat privately with accepted friends</p>
           </header>
-          <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Today
-            </p>
-            {thread.map((m, k) => (
-              <div key={k} className={`flex items-end gap-2 ${m.me ? "justify-end" : ""}`}>
-                {!m.me && (
-                  <img src={person.photo} alt="" className="size-7 rounded-full object-cover" />
-                )}
-                <p
-                  className={`max-w-xs rounded-3xl px-4 py-2.5 text-sm ${m.me ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-card shadow-soft"}`}
-                >
-                  {m.text}
+          <div className="flex-1 overflow-y-auto">
+            {friends.map((friend) => (
+              <button
+                key={friend.id}
+                onClick={() => void openFriend(friend)}
+                className={`flex w-full items-center gap-3 border-b px-4 py-4 text-left hover:bg-muted ${activeFriend?.id === friend.id ? "bg-secondary" : ""}`}
+              >
+                <Avatar
+                  name={friend.display_name}
+                  avatarPath={friend.avatar_path}
+                  className="size-12"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">{friend.display_name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {[friend.city, friend.region, friend.country_code].filter(Boolean).join(", ") ||
+                      "Mingleza friend"}
+                  </span>
+                </span>
+                <MessageCircle className="size-4 text-muted-foreground" />
+              </button>
+            ))}
+            {!loading && friends.length === 0 && (
+              <div className="p-7 text-center">
+                <Users className="mx-auto size-8 text-primary" />
+                <p className="mt-3 font-semibold">No accepted friends yet</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Accept or send a friend request before starting a private conversation.
                 </p>
               </div>
-            ))}
+            )}
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send();
-            }}
-            className="flex gap-2 border-t bg-card p-4"
-          >
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Type a message here…"
-              className="flex-1 rounded-full border bg-background px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-            <button
-              aria-label="Send"
-              className="grid size-12 place-items-center rounded-full bg-primary text-primary-foreground hover:bg-primary-pressed"
+        </aside>
+
+        <section
+          className={`min-w-0 flex-1 flex-col ${mobileThreadOpen ? "flex" : "hidden md:flex"}`}
+        >
+          {activeFriend ? (
+            <>
+              <header className="flex items-center gap-3 border-b px-4 py-4">
+                <button
+                  onClick={() => setMobileThreadOpen(false)}
+                  aria-label="Back to friends"
+                  className="md:hidden"
+                >
+                  <ArrowLeft className="size-5" />
+                </button>
+                <Avatar
+                  name={activeFriend.display_name}
+                  avatarPath={activeFriend.avatar_path}
+                  className="size-10"
+                />
+                <div className="min-w-0">
+                  <h2 className="truncate font-bold">{activeFriend.display_name}</h2>
+                  <p className="text-xs text-muted-foreground">Private conversation</p>
+                </div>
+              </header>
+              <div className="flex-1 space-y-3 overflow-y-auto p-4 md:p-6">
+                {loading ? (
+                  <p className="text-sm text-muted-foreground">Loading conversation…</p>
+                ) : messages.length === 0 ? (
+                  <p className="py-10 text-center text-sm text-muted-foreground">
+                    Say hello and start the conversation.
+                  </p>
+                ) : (
+                  <>
+                    {hasMore && (
+                      <div className="flex justify-center pb-1">
+                        <button
+                          type="button"
+                          onClick={() => void loadEarlier()}
+                          disabled={loadingEarlier}
+                          aria-label="Load earlier messages"
+                          className="min-h-11 rounded-full border px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:cursor-wait disabled:opacity-60"
+                        >
+                          {loadingEarlier ? "Loading earlier…" : "Load earlier"}
+                        </button>
+                      </div>
+                    )}
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.mine ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm sm:max-w-md ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}
+                        >
+                          <p className="whitespace-pre-wrap break-words">{message.body}</p>
+                          <time
+                            className={`mt-1 block text-right text-[10px] ${message.mine ? "opacity-75" : "text-muted-foreground"}`}
+                            dateTime={message.created_at}
+                          >
+                            {new Date(message.created_at).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </time>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+              <form onSubmit={send} className="flex gap-2 border-t bg-card p-3 sm:p-4">
+                <BrandInput
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  maxLength={5000}
+                  placeholder="Write a message…"
+                  aria-label="Message"
+                  aria-describedby={error ? "message-error" : undefined}
+                  disabled={!conversationId || loading || sending}
+                  className="min-w-0 flex-1 rounded-full border bg-background px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  aria-label="Send message"
+                  disabled={!conversationId || !draft.trim() || loading || sending}
+                  className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50"
+                >
+                  <Send className="size-5" />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="grid flex-1 place-items-center p-8 text-center">
+              <div>
+                <MessageCircle className="mx-auto size-10 text-primary" />
+                <h2 className="mt-3 text-xl font-bold">Your conversations</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Choose an accepted friend to start chatting.
+                </p>
+              </div>
+            </div>
+          )}
+          {error && (
+            <p
+              id="message-error"
+              role="alert"
+              className="border-t bg-destructive/10 px-4 py-3 text-sm text-destructive-text"
             >
-              <Send className="size-5" />
-            </button>
-          </form>
+              {error}
+            </p>
+          )}
         </section>
       </div>
     </AppShell>

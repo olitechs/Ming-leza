@@ -1,6 +1,10 @@
 # Mingleza
 
-Mingleza is a Kenya-first, adults-only social networking app for friendship, opt-in dating and local discovery. The current release includes OTP authentication and age-verification flows, profile intent preferences, and database-backed Discover results through a server-side discovery RPC. This is an early implementation, not a launch-ready product: real-provider OTP and age-verification end-to-end checks, profile editing, complete messaging authorization, moderation workflows, privacy-safe live map discovery and payments remain unfinished.
+Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members sign in with an SMS verification code or an emailed passwordless link. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
+
+Logged-out visitors see a public, crawler-visible landing page that links into the existing passwordless sign-up and sign-in flows. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
+
+Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, member-facing report/block controls, moderation workflows, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
 
 ## Stack
 
@@ -8,7 +12,7 @@ Mingleza is a Kenya-first, adults-only social networking app for friendship, opt
 - React 19, TypeScript and Vite
 - Tailwind CSS 4, shadcn/Radix UI and Lucide
 - TanStack Query and Vitest
-- Supabase Auth, Postgres/RLS and server-side RPC
+- Supabase Auth, Postgres and Storage
 - Nitro for Vercel deployment
 
 ## Requirements
@@ -21,56 +25,48 @@ Mingleza is a Kenya-first, adults-only social networking app for friendship, opt
 ```sh
 git clone https://github.com/olitechs/Ming-leza.git
 cd Ming-leza
-pnpm install
+pnpm install --frozen-lockfile
 cp .env.example .env.local
 pnpm dev
 ```
 
-Configure the placeholder values in `.env.local` with the dedicated Mingleza social Supabase project values. Never commit credentials.
+Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional for local email sign-in redirects, which otherwise use the request origin. Set it to the public origin in deployment to emit absolute canonical/social URLs and the public sitemap; add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist. Configure Supabase Auth for phone OTP and passwordless email links, and apply database migrations before testing signed-in flows.
 
 ## Scripts
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Start development server |
-| `pnpm build` | Build for production |
-| `pnpm preview` | Preview the build |
-| `pnpm lint` | Run ESLint |
-| `pnpm typecheck` | Run TypeScript without emitting files |
-| `pnpm test` | Run Vitest once |
-| `pnpm format` | Format files with Prettier |
-| `pnpm format:check` | Check formatting |
-
-## Environment variables
-
-- `VITE_SUPABASE_URL`: Supabase project URL; safe for browser use.
-- `VITE_SUPABASE_PUBLISHABLE_KEY`: Supabase publishable key; safe for browser use when RLS is correct.
-- `SUPABASE_SERVICE_ROLE_KEY`: privileged server-only key required by the age-verification admin client. Set it in Vercel's server environment settings using the key from the dedicated `mingleza-social` Supabase project. Never prefix it with `VITE_`, expose it to browser code, commit it, or paste it into issues or chat. The presence of a Vercel variable name alone does not prove its value is current or correct.
-
-All client-accessible tables must enforce RLS. Never use the service-role key to authorize ordinary user actions.
+| Command             | Purpose                               |
+| ------------------- | ------------------------------------- |
+| `pnpm dev`          | Start development server              |
+| `pnpm build`        | Build for production                  |
+| `pnpm preview`      | Preview the build                     |
+| `pnpm lint`         | Run ESLint                            |
+| `pnpm typecheck`    | Run TypeScript without emitting files |
+| `pnpm test`         | Run Vitest once                       |
+| `pnpm format`       | Format files with Prettier            |
+| `pnpm format:check` | Check formatting                      |
 
 ## Project structure
 
-- `src/routes/` — file-based routes
-- `src/components/` — shared components
+- `src/routes/` — file-based routes, including public FAQ, Terms/Privacy and SEO endpoints
+- `src/components/` — shared application components
 - `src/components/ui/` — UI primitives
-- `src/lib/` — server and client utilities
-- `supabase/migrations/` — reviewable schema migrations
-- `supabase/tests/` — database/RLS tests
-- `docs/design-tokens.md` — visual reference
+- `src/lib/` — server functions and utilities
+- `supabase/migrations/` — database migrations
+- `src/styles.css` — global styles and design tokens
+- `docs/design-tokens.md` — visual reference and contrast records
 - `docs/DEFERRED.md` — incomplete work and verification gaps
+- `docs/product-completeness-audit.md` — feature audit, evidence, priorities, and owner decisions
+- `tools/og-mingleza.html` — editable source for the generated social-share image
 
-## Security and contribution rules
+## Contribution rules
 
-- Keep changes small and reviewable; do not rewrite published history.
+- Keep changes small and reviewable; never rewrite published history.
 - Do not add secrets, credentials or personal data to source, logs or analytics.
-- Store only derived adult-verification status and timestamp; do not persist date of birth.
-- Keep privileged Supabase access in server-only modules.
-- Keep precise location private; map visibility must be opt-in and dating must remain opt-in separately from friendship.
-- Use migrations for schema changes and preserve block enforcement in both directions.
-- Run lint, typecheck, tests, database/RLS tests and build before merging.
-- Do not claim end-to-end auth, messaging, or location behavior without real runtime verification.
+- Verify dependency and import usage before removing packages or components.
+- Use migrations for database schema and policy changes.
+- Run lint, typecheck, tests, build and formatting checks before claiming a change is verified.
+- Preserve the established Mingleza visual identity.
 
 ## Deployment
 
-The project uses TanStack Start and Nitro on Vercel. Production deployment is configured from this repository. After changing environment variables, redeploy and verify the affected server flows. See `docs/DEFERRED.md` for known gaps.
+The project uses TanStack Start and Nitro for Vercel. Configure the public Supabase URL and publishable key, the server-only service-role key, and the public `SITE_URL` through Vercel environment settings. `SITE_URL` supplies canonical URLs, social metadata, `robots.txt`, and `sitemap.xml`. Add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist and confirm that the SMS provider and email sign-in template are configured. Do not put service-role credentials in `VITE_` variables.

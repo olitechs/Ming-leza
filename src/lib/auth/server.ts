@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
@@ -24,6 +25,16 @@ const otpVerifySchema = z.object({
     .regex(/^\d{6}$/),
 });
 
+/**
+ * Public site origin used for emailed sign-in links. Prefer the SITE_URL setting; otherwise
+ * use the origin of the current request so local, preview and production all work.
+ */
+function getSiteUrl() {
+  const configured = process.env["SITE_URL"]?.trim();
+  if (configured) return configured.replace(/\/+$/, "");
+  return new URL(getRequest().url).origin;
+}
+
 export const sendOtp = createServerFn({ method: "POST" })
   .validator(otpRequestSchema)
   .handler(async ({ data }) => {
@@ -34,13 +45,20 @@ export const sendOtp = createServerFn({ method: "POST" })
           ? await supabase.auth.signInWithOtp({ phone: data.identifier })
           : await supabase.auth.signInWithOtp({
               email: data.identifier,
-              options: { shouldCreateUser: true },
+              options: {
+                shouldCreateUser: true,
+                emailRedirectTo: `${getSiteUrl()}/auth-callback`,
+              },
             });
-      if (result.error)
+      if (result.error) {
         return {
           ok: false as const,
-          message: "We could not send a code. Check the details and try again.",
+          message:
+            data.method === "email"
+              ? "We could not send your sign-in link. Check the email address and try again."
+              : "We could not send a code. Check the details and try again.",
         };
+      }
       return { ok: true as const };
     } catch {
       return {
@@ -67,31 +85,87 @@ export const verifyOtp = createServerFn({ method: "POST" })
               token: data.token,
               type: "email",
             });
-      if (result.error || !result.data.user)
+      if (result.error || !result.data.user) {
         return {
           ok: false as const,
           message: "That code is invalid or expired. Request a new code and try again.",
         };
+      }
       const profile = await supabase.from("profiles").upsert(
         {
           id: result.data.user.id,
           display_name: "New member",
           friends_enabled: true,
           dating_enabled: false,
-          is_discoverable: true,
+          is_discoverable: false,
         },
         { onConflict: "id", ignoreDuplicates: true },
       );
-      if (profile.error)
+      if (profile.error) {
         return {
           ok: false as const,
           message: "Your account was verified, but setup could not finish. Please retry.",
         };
+      }
       return { ok: true as const };
     } catch {
       return {
         ok: false as const,
         message: "Authentication is not configured yet. Please try again later.",
+      };
+    }
+  });
+
+const magicLinkSchema = z.union([
+  z.object({ code: z.string().trim().min(1).max(4096) }),
+  z.object({
+    tokenHash: z.string().trim().min(1).max(4096),
+    type: z.enum(["magiclink", "email", "signup"]),
+  }),
+]);
+
+/** Accept both Supabase PKCE codes and token_hash confirmation links. */
+export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
+  .validator(magicLinkSchema)
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getSupabaseServerClient();
+      const result =
+        "code" in data
+          ? await supabase.auth.exchangeCodeForSession(data.code)
+          : await supabase.auth.verifyOtp({
+              token_hash: data.tokenHash,
+              type: data.type,
+            });
+      const authData = result.data;
+      const error = result.error;
+      if (error || !authData.user) {
+        return {
+          ok: false as const,
+          message: "This sign-in link is invalid, expired, or already used. Request a new link.",
+        };
+      }
+      const profile = await supabase.from("profiles").upsert(
+        {
+          id: authData.user.id,
+          display_name: "New member",
+          friends_enabled: true,
+          dating_enabled: false,
+          is_discoverable: false,
+        },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
+      if (profile.error) {
+        return {
+          ok: false as const,
+          message: "You are signed in, but profile setup could not finish. Please retry.",
+        };
+      }
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "We could not complete sign-in. Request a fresh link and try again.",
       };
     }
   });
@@ -121,14 +195,12 @@ export const verifyAdult = createServerFn({ method: "POST" })
       }
       if (existing.data?.is_18_plus === true) return { ok: true as const };
       const eligible = isAtLeast18(data.dateOfBirth);
-      const saved = await admin.from("age_verifications").upsert(
-        {
-          user_id: userData.user.id,
-          is_18_plus: eligible,
-          checked_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+      const saved = await admin
+        .from("age_verifications")
+        .upsert(
+          { user_id: userData.user.id, is_18_plus: eligible, checked_at: new Date().toISOString() },
+          { onConflict: "user_id" },
+        );
       if (saved.error)
         return { ok: false as const, message: "Age verification is temporarily unavailable." };
       if (!eligible) {
@@ -162,6 +234,20 @@ export const setMyIntent = createServerFn({ method: "POST" })
       .maybeSingle();
     if (age.error || age.data?.is_18_plus !== true)
       return { ok: false as const, message: "Complete age verification before continuing." };
+    const profile = await supabase
+      .from("profiles")
+      .select("display_name,city")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (
+      profile.error ||
+      !profile.data ||
+      !profile.data.display_name.trim() ||
+      profile.data.display_name.trim().toLowerCase() === "new member" ||
+      !profile.data.city?.trim()
+    ) {
+      return { ok: false as const, message: "Complete your profile before choosing an intent." };
+    }
     const updated = await supabase
       .from("profiles")
       .update({
@@ -199,5 +285,5 @@ export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   } catch {
     /* Do not log auth/session material. */
   }
-  throw redirect({ to: "/welcome" });
+  throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
 });

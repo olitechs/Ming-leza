@@ -3,24 +3,27 @@ import {
   Flame,
   Map,
   MessageCircle,
-  Heart,
+  UserPlus,
   User,
   Bell,
   Crown,
   Settings,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { signOutAndLeave } from "@/lib/auth/sign-out";
 
 type NavItem = {
-  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id";
+  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id" | "/profile-edit";
   label: string;
   icon: LucideIcon;
+  badge?: number;
 };
 const main: NavItem[] = [
   { to: "/", label: "Discover", icon: Flame },
   { to: "/explore", label: "Explore", icon: Map },
-  { to: "/matches", label: "Matches", icon: Heart },
+  { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
 ];
 const soon: { label: string; icon: LucideIcon }[] = [
@@ -39,8 +42,11 @@ export function AppShell({
   hideTabs?: boolean;
 }) {
   return (
-    <div className="min-h-screen bg-background lg:flex">
-      <nav className="hidden lg:flex sticky top-0 h-screen w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5">
+    <div className="min-h-dvh bg-background lg:flex">
+      <nav
+        aria-label="Primary navigation"
+        className="sticky top-0 hidden h-dvh w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5"
+      >
         <Link
           to="/"
           aria-label="Mingleza home"
@@ -48,25 +54,34 @@ export function AppShell({
         >
           M
         </Link>
-        {main.map(({ to, label, icon: Icon }) => (
+        {main.map(({ to, label, icon: Icon, badge }) => (
           <Link
             key={to}
             to={to}
             title={label}
+            aria-label={badge && badge > 0 ? `${label}, ${badge} unread` : label}
             activeOptions={{ exact: true }}
-            className="grid size-11 place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+            className="relative grid size-11 place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
-            <Icon className="size-5" />
+            <Icon aria-hidden="true" className="size-5" />
+            {badge !== undefined && badge > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground"
+              >
+                {badge > 99 ? "99+" : badge}
+              </span>
+            )}
           </Link>
         ))}
         <Link
-          to="/u/$id"
-          params={{ id: "me" }}
-          title="Profile"
+          to="/profile-edit"
+          title="Edit profile"
+          aria-label="Edit profile"
           className="grid size-11 place-items-center rounded-2xl text-muted-foreground hover:bg-secondary"
         >
-          <User className="size-5" />
+          <User aria-hidden="true" className="size-5" />
         </Link>
         <div className="mt-auto flex flex-col gap-2">
           {soon.map(({ label, icon: Icon }) => (
@@ -75,41 +90,62 @@ export function AppShell({
               title={`${label} (coming soon)`}
               className="grid size-11 place-items-center rounded-2xl text-muted-foreground/50"
             >
-              <Icon className="size-5" />
+              <Icon aria-hidden="true" className="size-5" />
             </span>
           ))}
+          <button
+            type="button"
+            aria-label="Sign out"
+            title="Sign out"
+            onClick={() => void signOutAndLeave()}
+            className="grid size-11 cursor-pointer place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+          >
+            <LogOut aria-hidden="true" className="size-5" />
+          </button>
         </div>
       </nav>
 
       <main className="min-w-0 flex-1 pb-28 lg:pb-0">{children}</main>
       {aside && (
-        <aside className="hidden xl:block sticky top-0 h-screen w-[360px] overflow-y-auto border-l bg-card">
+        <aside className="sticky top-0 hidden h-dvh w-[360px] overflow-y-auto border-l bg-card">
           {aside}
         </aside>
       )}
 
       {!hideTabs && (
-        <nav className="fixed inset-x-4 bottom-4 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full bg-ink p-2 shadow-card lg:hidden">
-          {main.map(({ to, label, icon: Icon }) => (
+        <nav
+          aria-label="Mobile navigation"
+          className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full bg-ink p-2 shadow-card lg:hidden"
+        >
+          {main.map(({ to, label, icon: Icon, badge }) => (
             <Link
               key={to}
               to={to}
-              aria-label={label}
+              aria-label={badge && badge > 0 ? `${label}, ${badge} unread` : label}
+              title={label}
               activeOptions={{ exact: true }}
-              className="grid size-12 place-items-center rounded-full text-ink-foreground/60 transition"
+              className="relative grid size-12 place-items-center rounded-full text-ink-foreground/60 transition"
               activeProps={{ className: "!bg-primary !text-primary-foreground" }}
             >
-              <Icon className="size-5" />
+              <Icon aria-hidden="true" className="size-5" />
+              {badge !== undefined && badge > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground"
+                >
+                  {badge > 99 ? "99+" : badge}
+                </span>
+              )}
             </Link>
           ))}
           <Link
-            to="/u/$id"
-            params={{ id: "me" }}
-            aria-label="Profile"
+            to="/profile-edit"
+            aria-label="Edit profile"
+            title="Edit profile"
             className="grid size-12 place-items-center rounded-full text-ink-foreground/60"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
-            <User className="size-5" />
+            <User aria-hidden="true" className="size-5" />
           </Link>
         </nav>
       )}
@@ -126,7 +162,7 @@ export function Chip({
   active?: boolean;
   onClick?: () => void;
 }) {
-  const cls = `rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`;
+  const cls = `min-h-11 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`;
   return onClick ? (
     <button type="button" onClick={onClick} className={cls}>
       {children}

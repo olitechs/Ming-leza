@@ -1,0 +1,16 @@
+{
+  "routes": [
+    { "path": "/", "title": "Mingleza — Discover or meet people" },
+    { "path": "/welcome", "title": "Sign up or log in" },
+    { "path": "/login", "title": "Log in" },
+    { "path": "/auth-callback", "title": "Authentication callback" },
+    { "path": "/faq", "title": "Frequently asked questions" },
+    { "path": "/terms", "title": "Terms of Service" },
+    { "path": "/privacy", "title": "Privacy Policy" },
+    { "path": "/explore", "title": "Explore" },
+    { "path": "/matches", "title": "Friend requests" },
+    { "path": "/messages", "title": "Messages" },
+    { "path": "/profile-edit", "title": "Edit profile" },
+    { "path": "/u/:id", "title": "Member profile" }
+  ]
+}

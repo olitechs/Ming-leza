@@ -1,35 +1,33 @@
-# Deferred work and verification gates
+# Deferred work
 
-## Implemented and merged
+## Implemented product baseline
 
-- OTP authentication handlers for phone and email, session-aware server client, profile bootstrap, adult-verification flow, and separate friendship/dating preference flags.
-- Adult verification stores only `is_18_plus` and `checked_at`; the submitted date of birth is not persisted.
-- RLS-backed social schema and a server-side discovery RPC that filters by intent, adult verification, discoverability and bidirectional blocks.
-- Discover route reads real profiles from the RPC and provides loading, empty, error and retry states.
-- CI passed for Phase 3, and the production deployment for the merged `main` commit reached READY.
+The app includes passwordless SMS-code and email-link sign-in, adult verification, validated profile setup, Supabase-backed profiles and discovery, friend requests, and direct messages between accepted friends. Incomplete profiles remain out of Discover; friend and pending-request relationships are excluded. Profile photos use the existing profile-avatar storage bucket with an initials fallback. Explore is a privacy-safe coming-soon state rather than a demo map.
 
-## Must resolve before calling authentication production-ready
+Logged-out visitors see the public marketing homepage and a searchable, categorized FAQ at `/faq`; signed-in, age-verified members continue to see Discover at `/`. Public `/terms` and `/privacy` pages are clearly marked draft placeholders pending legal review. The public sitemap lists `/`, `/faq`, `/terms`, and `/privacy`; application and member-profile routes remain excluded from crawler discovery. Member navigation calls the `/matches` destination “Friend requests” because dating matches are not implemented.
 
-- Verify that Vercel's `SUPABASE_SERVICE_ROLE_KEY` value is the service-role secret for the dedicated `mingleza-social` project. The environment variable's existence was observed, but its value was not retrieved or verified. Obtain the key from the Supabase Dashboard for project `ipctvjtmuafhuhqjatvt` and set it directly in Vercel Project Settings → Environment Variables for Production, Preview and Development as required. Do not paste the key into source control, logs, issues or chat. Redeploy after changing it.
-- Complete a real end-to-end OTP sign-in and adult-verification test using a controlled test account and confirm session cookies, profile creation, age-verification persistence and redirect behavior.
-- Review the local migration chain against the dedicated remote social project. The initial local migration and the already-provisioned remote schema have historical naming differences; do not assume full schema parity.
-- Review and tighten social-table policies before exposing more functionality. Known areas requiring review include friendship state transitions, conversation-member insertion, message mutation, and post/comment/like visibility in the presence of blocks.
-- Correctly distinguish authorization failures from other database failures in the discovery server function.
+The app stores only a derived adult-verification result and check time; it does not store a date of birth or birth year and does not display member ages. The current age check is self-attestation, not identity-document or biometric verification. Do not add age storage or display without an approved product decision.
 
-## Product implementation still needed
+## Verification and deployment gaps
 
-- Profile editing and avatar upload with storage policies and safe file validation.
-- Profile detail and connection actions backed by server-validated database operations.
-- Persistent messaging with conversation membership checks, bidirectional block enforcement, and appropriate Realtime policies.
-- Reporting and moderation workflows.
-- Map provider selection and privacy-safe approximate-location discovery; consent must be off by default and precise coordinates must never be exposed to clients.
-- Premium payments using verified, idempotent server callbacks and integer minor units.
-- Android/Expo client and low-end Android/slow-network testing.
-- Full regression review of the original UI and repository-wide search for obsolete branding/references.
+`docs/homepage-verification.md` records the earlier homepage checks, responsive screenshots, contrast measurements, and a locally simulated edge-cache Lighthouse run. The edge simulation is not a production deployment measurement. `docs/product-completeness-audit.md` records the feature review, evidence, remaining gaps, and validation results.
 
-## Phase 1 repository hygiene
+Production deployment, live SMS/email authentication, and migrations against the production Supabase project have not been verified. Configure the phone provider and passwordless email template, set the deployed `SITE_URL`, allow `<SITE_URL>/auth-callback` in Supabase Auth redirects, and confirm supported-country seed data before production use. Verify storage-bucket visibility and deployed security settings against the final privacy commitments.
 
-- Confirm the committed `pnpm-lock.yaml` is reproducible with pnpm 10.12.4 and a frozen install.
-- Review UI component/dependency usage before deleting anything.
-- Continue requiring lint, typecheck, unit tests, database/RLS tests, formatting and production build to pass before merge.
-- Do not store date of birth, secrets, or precise location in logs, analytics, or client-visible data.
+- Verify directly in the Supabase/Vercel settings that the server-only `SUPABASE_SERVICE_ROLE_KEY` value belongs to the dedicated Mingleza project. A configured variable name alone does not prove its value is correct. Never copy the key into source control, logs, issues, or chat.
+- Complete a controlled end-to-end phone/email OTP and adult-verification test in a non-production test environment. Confirm session-cookie handling, profile creation, derived age-verification persistence, and redirect behavior; do not store the submitted date of birth.
+- Reconcile the repository migration history with the dedicated Supabase project's deployed schema before production migrations. Do not assume local migration files and remote schema are identical.
+- Review database/RPC authorization for friendship state transitions, conversation membership, message mutations, and visibility when either member has blocked the other; preserve these checks in database/RLS regression tests.
+
+The Terms and Privacy pages are placeholders, not final legal text or legal advice; obtain legal review before treating them as policy documents. No verified support or moderation contact has been published yet.
+
+## Remaining product work
+
+- Member-facing report/block controls and a monitored moderation workflow; the schema alone is not a member or staff support process.
+- Self-service account deletion/data requests and a verified support channel, including an approved retention and avatar-cleanup process.
+- Ongoing controls to turn profile discoverability and connection intents on or off after onboarding.
+- Dating likes, matches, and dating-specific workflows.
+- Real-time messaging, message notifications, and message-management controls.
+- Explore map and location/distance-based discovery.
+- Final Terms and Privacy text after legal review; privacy review for publicly retrievable profile-avatar assets.
+- Product decisions for availability outside Kenya, support and safety escalation, pricing, premium payments, and M-Pesa.
