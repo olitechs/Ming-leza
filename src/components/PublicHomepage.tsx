@@ -603,6 +603,12 @@ export function PublicHomepage() {
                 </AccordionItem>
               ))}
             </Accordion>
+            <a
+              href="/faq"
+              className="mt-5 inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-primary underline underline-offset-4 hover:text-primary-pressed"
+            >
+              Read all frequently asked questions
+            </a>
           </div>
         </section>
 
@@ -649,6 +655,12 @@ export function PublicHomepage() {
           </div>
           <nav aria-label="Footer links" className="grid content-start gap-3">
             <h2 className="text-sm font-bold text-foreground">Explore</h2>
+            <a
+              className="inline-flex min-h-11 cursor-pointer items-center text-sm text-muted-foreground hover:text-primary hover:underline"
+              href="/faq"
+            >
+              FAQ and help
+            </a>
             <a
               className="inline-flex min-h-11 cursor-pointer items-center text-sm text-muted-foreground hover:text-primary hover:underline"
               href="/terms"

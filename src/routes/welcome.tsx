@@ -302,23 +302,26 @@ function Welcome() {
         {id === "welcome" ? (
           <div>
             <div className="relative h-80 bg-brand">
+              <span className="absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full bg-card px-3 py-2 text-xs font-bold text-foreground shadow-soft">
+                Illustrative portraits
+              </span>
               <img
                 src={p1}
-                alt="Mingleza member in Nairobi"
+                alt="Illustrative portrait in a Nairobi-inspired scene"
                 width={768}
                 height={1024}
                 className="absolute left-8 top-10 h-48 w-36 -rotate-6 rounded-3xl border-4 border-card object-cover shadow-card"
               />
               <img
                 src={p3}
-                alt="Mingleza member portrait"
+                alt="Illustrative portrait for Mingleza"
                 width={768}
                 height={1024}
                 className="absolute right-8 top-6 h-48 w-36 rotate-6 rounded-3xl border-4 border-card object-cover shadow-card"
               />
               <img
                 src={p4}
-                alt="Mingleza member portrait"
+                alt="Illustrative portrait for Mingleza"
                 width={768}
                 height={1024}
                 className="absolute bottom-6 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full border-4 border-card object-cover shadow-card"
@@ -330,7 +333,8 @@ function Welcome() {
             <div className="p-8 text-center">
               <h1 className="text-3xl font-extrabold">Find your people in Kenya</h1>
               <p className="mt-3 text-muted-foreground">
-                Make friends, find a date, share moments. Safe, local and for adults 18+.
+                Choose friendship or dating, then discover adults who have chosen the same
+                connection intent. Adults 18+ only.
               </p>
               <button
                 onClick={next}

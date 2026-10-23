@@ -3,7 +3,7 @@ import {
   Flame,
   Map,
   MessageCircle,
-  Heart,
+  UserPlus,
   User,
   Bell,
   Crown,
@@ -23,7 +23,7 @@ type NavItem = {
 const main: NavItem[] = [
   { to: "/", label: "Discover", icon: Flame },
   { to: "/explore", label: "Explore", icon: Map },
-  { to: "/matches", label: "Matches", icon: Heart },
+  { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
 ];
 const soon: { label: string; icon: LucideIcon }[] = [

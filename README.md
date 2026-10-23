@@ -2,9 +2,9 @@
 
 Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members sign in with an SMS verification code or an emailed passwordless link. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
 
-Logged-out visitors see a public, crawler-visible landing page that links into the existing passwordless sign-up and sign-in flows. Signed-in, age-verified members continue to see Discover at `/`. Public Terms and Privacy routes currently contain clearly marked draft placeholders pending legal review.
+Logged-out visitors see a public, crawler-visible landing page that links into the existing passwordless sign-up and sign-in flows. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
 
-Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, in-app report/block controls, moderation tools, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared.
+Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, member-facing report/block controls, moderation workflows, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
 
 ## Stack
 
@@ -47,7 +47,7 @@ Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERV
 
 ## Project structure
 
-- `src/routes/` — file-based routes, including public Terms/Privacy and SEO endpoints
+- `src/routes/` — file-based routes, including public FAQ, Terms/Privacy and SEO endpoints
 - `src/components/` — shared application components
 - `src/components/ui/` — UI primitives
 - `src/lib/` — server functions and utilities
@@ -55,6 +55,7 @@ Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERV
 - `src/styles.css` — global styles and design tokens
 - `docs/design-tokens.md` — visual reference and contrast records
 - `docs/DEFERRED.md` — incomplete work and verification gaps
+- `docs/product-completeness-audit.md` — feature audit, evidence, priorities, and owner decisions
 - `tools/og-mingleza.html` — editable source for the generated social-share image
 
 ## Contribution rules
