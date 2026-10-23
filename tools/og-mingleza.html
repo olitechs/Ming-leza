@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1200, initial-scale=1" />
+    <title>Mingleza Open Graph artwork</title>
+    <style>
+      @font-face {
+        font-family: "Manrope";
+        src: url("../public/fonts/manrope-latin.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 200 800;
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: "Sora";
+        src: url("../public/fonts/sora-latin.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 100 800;
+        font-display: block;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fbf9ff;
+        color: #14121f;
+        font-family: "Manrope", sans-serif;
+      }
+
+      .shape-one {
+        position: absolute;
+        top: -180px;
+        right: -100px;
+        width: 650px;
+        height: 650px;
+        border-radius: 50%;
+        background: #f0ecff;
+      }
+
+      .shape-two {
+        position: absolute;
+        right: 90px;
+        bottom: -250px;
+        width: 570px;
+        height: 570px;
+        border-radius: 48% 52% 42% 58%;
+        background: #ffe0dc;
+        transform: rotate(-12deg);
+      }
+
+      .layout {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        width: 100%;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        gap: 34px;
+        padding: 66px 76px;
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        font-family: "Sora", sans-serif;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+      }
+
+      .mark {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border-radius: 50%;
+        background: #6c47ff;
+        color: white;
+      }
+
+      .mark svg {
+        width: 23px;
+        height: 23px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 52px;
+        padding: 10px 17px;
+        border: 1px solid #e5ddff;
+        border-radius: 999px;
+        background: white;
+        color: #5233e0;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+      }
+
+      h1 {
+        margin: 20px 0 0;
+        font-family: "Sora", sans-serif;
+        font-size: 62px;
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -3px;
+      }
+
+      .description {
+        max-width: 520px;
+        margin: 20px 0 0;
+        color: #5f596b;
+        font-size: 21px;
+        line-height: 1.5;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        margin-top: 29px;
+        padding: 15px 23px;
+        border-radius: 999px;
+        background: #6c47ff;
+        color: white;
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      .art {
+        position: relative;
+        display: flex;
+        min-height: 400px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .orbit {
+        position: absolute;
+        width: 340px;
+        height: 340px;
+        border: 2px solid rgb(108 71 255 / 19%);
+        border-radius: 50%;
+      }
+
+      .orbit::before,
+      .orbit::after {
+        position: absolute;
+        border-radius: 50%;
+        content: "";
+      }
+
+      .orbit::before {
+        top: 16px;
+        right: 28px;
+        width: 34px;
+        height: 34px;
+        background: #ff6b5a;
+      }
+
+      .orbit::after {
+        bottom: 36px;
+        left: 5px;
+        width: 20px;
+        height: 20px;
+        background: #6c47ff;
+      }
+
+      .card {
+        position: absolute;
+        display: flex;
+        width: 325px;
+        align-items: center;
+        gap: 17px;
+        padding: 23px 25px;
+        border: 1px solid #e8e3f0;
+        border-radius: 28px;
+        background: white;
+        box-shadow: 0 22px 55px rgb(39 21 96 / 12%);
+      }
+
+      .card-one {
+        top: 61px;
+        left: 18px;
+        transform: rotate(-7deg);
+      }
+
+      .card-two {
+        right: 10px;
+        bottom: 58px;
+        transform: rotate(6deg);
+      }
+
+      .card-icon {
+        display: grid;
+        width: 58px;
+        height: 58px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 20px;
+        background: #f0ecff;
+        color: #5233e0;
+      }
+
+      .card-icon.coral {
+        background: #ff6b5a;
+        color: #14121f;
+      }
+
+      .card-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .card-title {
+        display: block;
+        font-family: "Sora", sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .card-text {
+        display: block;
+        margin-top: 5px;
+        color: #5f596b;
+        font-size: 14px;
+      }
+
+      .age {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        padding: 12px 17px;
+        border-radius: 999px;
+        background: #ff6b5a;
+        color: #14121f;
+        font-size: 16px;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shape-one"></div>
+    <div class="shape-two"></div>
+    <main class="layout">
+      <section>
+        <div class="wordmark">
+          <span class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"
+              />
+            </svg>
+          </span>
+          Mingleza
+        </div>
+        <div class="eyebrow">KENYA-FIRST · ADULTS 18+</div>
+        <h1>Meet your people<br />in Kenya.</h1>
+        <p class="description">
+          A place for friendship and dating, made for adults looking to connect.
+        </p>
+        <div class="badge">Sign up free <span aria-hidden="true">→</span></div>
+      </section>
+      <section class="art" aria-hidden="true">
+        <div class="orbit"></div>
+        <div class="age">18+ only</div>
+        <div class="card card-one">
+          <span class="card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="10" cy="7" r="4" />
+              <path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <span
+            ><span class="card-title">Friendship</span
+            ><span class="card-text">Start with a friend request</span></span
+          >
+        </div>
+        <div class="card card-two">
+          <span class="card-icon coral">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"
+              />
+            </svg>
+          </span>
+          <span
+            ><span class="card-title">Dating</span
+            ><span class="card-text">Choose the intent that fits</span></span
+          >
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

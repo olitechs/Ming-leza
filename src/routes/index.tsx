@@ -8,17 +8,22 @@ import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
 import { getMyProfile } from "@/lib/profile/server";
 import { sendFriendRequest } from "@/lib/social/server";
+import { PublicHomepage } from "@/components/PublicHomepage";
+import { getHomePageMode } from "@/lib/homepage-routing";
+import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified)
+    const page = getHomePageMode(access);
+    if (page === "marketing") return { page, profile: null };
+    if (page === "onboarding")
       throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
     let profile;
     try {
       profile = await getMyProfile();
-    } catch (error) {
-      return { profile: null };
+    } catch {
+      return { page: "discover" as const, profile: null };
     }
     if (profile.ok) {
       const displayName = profile.profile.display_name?.trim() ?? "";
@@ -29,18 +34,20 @@ export const Route = createFileRoute("/")({
           search: { authComplete: true, authError: "", mode: "profile" },
         });
       }
-      return { profile: profile.profile };
+      return { page: "discover" as const, profile: profile.profile };
     }
-    return { profile: null };
+    return { page: "discover" as const, profile: null };
   },
-  head: () => ({
-    meta: [
-      { title: "Discover · Mingleza" },
-      { name: "description", content: "Discover real, age-verified people on Mingleza." },
-    ],
-  }),
-  component: Discover,
+  loader: async ({ context }) => ({ page: context.page, siteUrl: await getPublicSiteUrl() }),
+  head: ({ loaderData }) =>
+    loaderData ? getHomeHead(loaderData.page, loaderData.siteUrl) : getHomeHead("marketing", null),
+  component: HomeRoute,
 });
+
+function HomeRoute() {
+  const { page } = Route.useRouteContext();
+  return page === "marketing" ? <PublicHomepage /> : <Discover />;
+}
 
 type Intent = "dating" | "friends";
 type Profile = {
