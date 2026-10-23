@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(5);
+select plan(6);
 
 insert into auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -27,6 +27,14 @@ select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001'
 select is((select count(*)::int from public.discover_profiles('dating',20)), 1, 'dating discovery only returns matching eligible profiles');
 select is((select count(*)::int from public.discover_profiles('friends',20)), 2, 'friends discovery returns profiles with friendship intent enabled');
 select throws_ok($$select * from public.discover_profiles('invalid',20)$$, '22023', null, 'invalid discovery intent is rejected');
+
+reset role;
+insert into public.friendships (requester_id, addressee_id, status)
+values
+ ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002','pending'),
+ ('10000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000001','accepted');
+set local role authenticated;
+select is((select count(*)::int from public.discover_profiles('friends',20)), 0, 'pending and accepted friendships are excluded in either direction');
 
 reset role;
 insert into public.blocks (blocker_id,blocked_id)

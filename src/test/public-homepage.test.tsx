@@ -37,6 +37,9 @@ describe("public homepage", () => {
     expect(
       screen.getByRole("link", { name: "Create your free account" }).getAttribute("href"),
     ).toBe("/welcome");
+    expect(
+      screen.getByRole("link", { name: "Read all frequently asked questions" }),
+    ).toHaveAttribute("href", "/faq");
   });
 
   it("exposes a labeled, keyboard-operable mobile navigation toggle", () => {
@@ -62,11 +65,12 @@ describe("public SEO routes", () => {
     expect(normalizeSiteUrl(undefined)).toBeNull();
   });
 
-  it("lists only the public homepage and legal draft pages in the sitemap", () => {
+  it("lists only the public homepage, FAQ, and legal draft pages in the sitemap", () => {
     const xml = buildSitemapXml("https://mingleza.example");
     expect(xml).toContain("https://mingleza.example/");
     expect(xml).toContain("https://mingleza.example/terms");
     expect(xml).toContain("https://mingleza.example/privacy");
+    expect(xml).toContain("https://mingleza.example/faq");
     expect(xml).not.toContain("/welcome");
     expect(xml).not.toContain("/u/");
   });

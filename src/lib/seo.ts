@@ -17,7 +17,7 @@ export const getPublicSiteUrl = createServerFn({ method: "GET" }).handler(() =>
   normalizeSiteUrl(process.env["SITE_URL"]),
 );
 
-const publicPaths = ["/", "/terms", "/privacy"] as const;
+const publicPaths = ["/", "/terms", "/privacy", "/faq"] as const;
 
 function escapeXml(value: string): string {
   return value
