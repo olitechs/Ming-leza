@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
+import { classifyMagicLinkFailure } from "./magic-link-flow";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
 import { getSupabaseServerClient } from "../supabase/server";
 
@@ -142,7 +143,7 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
       if (error || !authData.user) {
         return {
           ok: false as const,
-          message: "This sign-in link is invalid, expired, or already used. Request a new link.",
+          reason: classifyMagicLinkFailure(error?.message ?? ""),
         };
       }
       const profile = await supabase.from("profiles").upsert(
@@ -158,14 +159,14 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
       if (profile.error) {
         return {
           ok: false as const,
-          message: "You are signed in, but profile setup could not finish. Please retry.",
+          reason: "link_failed" as const,
         };
       }
       return { ok: true as const };
     } catch {
       return {
         ok: false as const,
-        message: "We could not complete sign-in. Request a fresh link and try again.",
+        reason: "link_failed" as const,
       };
     }
   });

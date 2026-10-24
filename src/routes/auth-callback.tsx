@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { exchangeEmailMagicLink, getMyAccess } from "@/lib/auth/server";
+import { classifyMagicLinkFailure, getMagicLinkRecoveryUrl } from "@/lib/auth/magic-link-flow";
 
 export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -21,35 +22,34 @@ export const Route = createFileRoute("/auth-callback")({
 function AuthCallback() {
   const { code, tokenHash, type, error } = Route.useSearch();
   const [message, setMessage] = useState("Completing your secure sign-in…");
+  const processed = useRef(false);
 
   useEffect(() => {
-    let active = true;
-    const returnToSignIn = () => {
-      window.location.replace("/welcome?authError=link_expired");
+    // Email verification credentials are single-use. React may replay effects in
+    // development, so keep the exchange to one request for this mounted callback.
+    if (processed.current) return;
+    processed.current = true;
+
+    const returnToSignIn = (reason: "link_expired" | "link_failed") => {
+      window.location.replace(getMagicLinkRecoveryUrl(reason));
     };
 
     if (error) {
-      returnToSignIn();
-      return () => {
-        active = false;
-      };
+      returnToSignIn(classifyMagicLinkFailure(error));
+      return;
     }
 
     if (!code && !(tokenHash && ["magiclink", "email", "signup"].includes(type))) {
-      returnToSignIn();
-      return () => {
-        active = false;
-      };
+      returnToSignIn("link_failed");
+      return;
     }
 
     exchangeEmailMagicLink({
       data: code ? { code } : { tokenHash, type: type as "magiclink" | "email" | "signup" },
     })
       .then(async (result) => {
-        if (!active) return;
         if (!result.ok) {
-          setMessage(result.message);
-          returnToSignIn();
+          returnToSignIn(result.reason);
           return;
         }
         // Returning adults go straight in; new members continue to the age step.
@@ -59,15 +59,9 @@ function AuthCallback() {
         );
       })
       .catch(() => {
-        if (active) {
-          setMessage("We could not complete sign-in. Please request a fresh link.");
-          returnToSignIn();
-        }
+        setMessage("We could not complete sign-in. Returning you to sign in…");
+        returnToSignIn("link_failed");
       });
-
-    return () => {
-      active = false;
-    };
   }, [code, tokenHash, type, error]);
 
   return (
@@ -78,7 +72,7 @@ function AuthCallback() {
           {message}
         </p>
         <a
-          href="/welcome?authError=link_expired"
+          href={getMagicLinkRecoveryUrl("link_failed")}
           className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
         >
           Return to Mingleza
