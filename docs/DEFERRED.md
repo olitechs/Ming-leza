@@ -10,9 +10,14 @@ The app stores only a derived adult-verification result and check time; it does 
 
 ## Verification and deployment gaps
 
-`docs/homepage-verification.md` records the earlier homepage checks, responsive screenshots, contrast measurements, and a locally simulated edge-cache Lighthouse run. The edge simulation is not a production deployment measurement. The product-completeness branch adds its own FAQ and navigation tests; its current build, lint, typecheck, and test status is recorded in the audit report and PR after final checks.
+`docs/homepage-verification.md` records the earlier homepage checks, responsive screenshots, contrast measurements, and a locally simulated edge-cache Lighthouse run. The edge simulation is not a production deployment measurement. `docs/product-completeness-audit.md` records the feature review, evidence, remaining gaps, and validation results.
 
 Production deployment, live SMS/email authentication, and migrations against the production Supabase project have not been verified. Configure the phone provider and passwordless email template, set the deployed `SITE_URL`, allow `<SITE_URL>/auth-callback` in Supabase Auth redirects, and confirm supported-country seed data before production use. Verify storage-bucket visibility and deployed security settings against the final privacy commitments.
+
+- Verify directly in the Supabase/Vercel settings that the server-only `SUPABASE_SERVICE_ROLE_KEY` value belongs to the dedicated Mingleza project. A configured variable name alone does not prove its value is correct. Never copy the key into source control, logs, issues, or chat.
+- Complete a controlled end-to-end phone/email OTP and adult-verification test in a non-production test environment. Confirm session-cookie handling, profile creation, derived age-verification persistence, and redirect behavior; do not store the submitted date of birth.
+- Reconcile the repository migration history with the dedicated Supabase project's deployed schema before production migrations. Do not assume local migration files and remote schema are identical.
+- Review database/RPC authorization for friendship state transitions, conversation membership, message mutations, and visibility when either member has blocked the other; preserve these checks in database/RLS regression tests.
 
 The Terms and Privacy pages are placeholders, not final legal text or legal advice; obtain legal review before treating them as policy documents. No verified support or moderation contact has been published yet.
 
