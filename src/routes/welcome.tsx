@@ -5,6 +5,7 @@ import { completeMyProfileSetup, getMyProfile, setMyAvatarPath } from "@/lib/pro
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { ArrowLeft, Heart, Users, ShieldCheck, Mail } from "lucide-react";
+import { getWelcomeEntryState } from "@/lib/auth/magic-link-flow";
 import p1 from "@/assets/p1.webp";
 import p3 from "@/assets/p3.webp";
 import p4 from "@/assets/p4.webp";
@@ -38,28 +39,23 @@ const steps = ["welcome", "age", "phone", "otp", "email-sent", "profile", "inten
 function Welcome() {
   const nav = useNavigate();
   const { authComplete, authError, mode } = Route.useSearch();
-  const [signingIn, setSigningIn] = useState(mode === "signin");
+  const entryState = getWelcomeEntryState({ authComplete, authError, mode });
+  const [signingIn, setSigningIn] = useState(entryState.signingIn);
   // True once the person has a valid session and only the age check remains.
-  const [authed, setAuthed] = useState(authComplete || mode === "profile");
-  const [step, setStep] = useState(() =>
-    authError ? 2 : mode === "profile" ? 5 : authComplete ? 1 : mode === "signin" ? 2 : 0,
-  );
+  const [authed, setAuthed] = useState(entryState.authed);
+  const [step, setStep] = useState(entryState.step);
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [city, setCity] = useState("");
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
-  const [authMethod, setAuthMethod] = useState<"phone" | "email">(authError ? "email" : "phone");
+  const [authMethod, setAuthMethod] = useState<"phone" | "email">(entryState.authMethod);
   const [otp, setOtp] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const [isBusy, setIsBusy] = useState(false);
   const [intent, setIntent] = useState<string[]>(["Friends"]);
-  const [err, setErr] = useState(() =>
-    authError === "link_expired"
-      ? "That sign-in link has expired or was already used. Enter your email below and request a new link. For your security, an expired link cannot sign you in."
-      : "",
-  );
+  const [err, setErr] = useState(entryState.error);
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = window.setTimeout(() => setCooldown((value) => value - 1), 1000);
