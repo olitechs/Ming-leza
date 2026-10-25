@@ -27,11 +27,19 @@ export const getModerationQueue = createServerFn({ method: "GET" }).handler(asyn
     const admin = getSupabaseAdminClient();
     const { data: reports, error } = await admin
       .from("moderation_reports")
-      .select("id, reporter_id, reported_user_id, message_id, reason, details, status, created_at, reviewed_at, reviewed_by, resolution_note")
+      .select(
+        "id, reporter_id, reported_user_id, message_id, reason, details, status, created_at, reviewed_at, reviewed_by, resolution_note",
+      )
       .order("created_at", { ascending: true })
       .limit(100);
     if (error) return { ok: false as const, reason: "unavailable" as const };
-    const userIds = [...new Set((reports ?? []).flatMap((report) => [report.reporter_id, report.reported_user_id].filter((id): id is string => Boolean(id))))];
+    const userIds = [
+      ...new Set(
+        (reports ?? []).flatMap((report) =>
+          [report.reporter_id, report.reported_user_id].filter((id): id is string => Boolean(id)),
+        ),
+      ),
+    ];
     const { data: profiles, error: profilesError } = userIds.length
       ? await admin.from("profiles").select("id, display_name, city").in("id", userIds)
       : { data: [], error: null };
@@ -42,7 +50,9 @@ export const getModerationQueue = createServerFn({ method: "GET" }).handler(asyn
       reports: (reports ?? []).map((report) => ({
         ...report,
         reporter: profileMap.get(report.reporter_id) ?? null,
-        reported: report.reported_user_id ? profileMap.get(report.reported_user_id) ?? null : null,
+        reported: report.reported_user_id
+          ? (profileMap.get(report.reported_user_id) ?? null)
+          : null,
       })),
     };
   } catch {
