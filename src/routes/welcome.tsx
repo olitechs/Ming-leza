@@ -12,7 +12,7 @@ import p4 from "@/assets/p4.webp";
 export const Route = createFileRoute("/welcome")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated) throw redirect({ to: "/login" });
+    if (!access.authenticated) throw redirect({ to: "/login", search: { mode: "signup" } });
   },
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
