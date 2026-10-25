@@ -14,6 +14,7 @@ const updateSupportSchema = z.object({
   requestId: z.string().uuid(),
   status: supportStatusSchema,
   resolutionNote: z.string().trim().max(2000).default(""),
+  responseMessage: z.string().trim().max(2000).default(""),
 });
 
 async function getModerator() {
@@ -42,7 +43,7 @@ export const getModerationQueue = createServerFn({ method: "GET" }).handler(asyn
       admin
         .from("support_requests")
         .select(
-          "id, requester_id, category, subject, details, status, created_at, reviewed_at, reviewed_by, resolution_note",
+          "id, requester_id, category, subject, details, status, created_at, reviewed_at, reviewed_by, resolution_note, response_message",
         )
         .order("created_at", { ascending: true })
         .limit(100),
@@ -96,6 +97,7 @@ export const updateModerationReport = createServerFn({ method: "POST" })
         .update({
           status: data.status,
           resolution_note: data.resolutionNote || null,
+          response_message: data.responseMessage || null,
           reviewed_by: moderator.id,
           reviewed_at: new Date().toISOString(),
         })
