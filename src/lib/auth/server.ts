@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
+import { classifyMagicLinkFailure } from "./magic-link-flow";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
 import { getSupabaseServerClient } from "../supabase/server";
 
@@ -26,13 +27,15 @@ const otpVerifySchema = z.object({
 });
 
 /**
- * Public site origin used for emailed sign-in links. Prefer the SITE_URL setting; otherwise
- * use the origin of the current request so local, preview and production all work.
+ * Public site origin used for emailed sign-in links. A preview must return to its own
+ * deployment, even when SITE_URL is configured globally for the production domain.
  */
 function getSiteUrl() {
+  const requestOrigin = new URL(getRequest().url).origin;
+  if (process.env["VERCEL_ENV"] === "preview") return requestOrigin;
   const configured = process.env["SITE_URL"]?.trim();
   if (configured) return configured.replace(/\/+$/, "");
-  return new URL(getRequest().url).origin;
+  return requestOrigin;
 }
 
 export const sendOtp = createServerFn({ method: "POST" })
@@ -142,7 +145,7 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
       if (error || !authData.user) {
         return {
           ok: false as const,
-          message: "This sign-in link is invalid, expired, or already used. Request a new link.",
+          reason: classifyMagicLinkFailure(error?.message ?? ""),
         };
       }
       const profile = await supabase.from("profiles").upsert(
@@ -158,14 +161,14 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
       if (profile.error) {
         return {
           ok: false as const,
-          message: "You are signed in, but profile setup could not finish. Please retry.",
+          reason: "link_failed" as const,
         };
       }
       return { ok: true as const };
     } catch {
       return {
         ok: false as const,
-        message: "We could not complete sign-in. Request a fresh link and try again.",
+        reason: "link_failed" as const,
       };
     }
   });
