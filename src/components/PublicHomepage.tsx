@@ -37,7 +37,7 @@ function SignUpLink({
         className,
       )}
     >
-      <a href="/welcome" onClick={onClick}>
+      <a href="/login" onClick={onClick}>
         {label}
         <ArrowRight aria-hidden="true" className="ml-2 size-4" />
       </a>
@@ -53,7 +53,7 @@ function LoginLink({ className, onClick }: { className?: string; onClick?: () =>
       variant="outline"
       className={cn("min-h-11 cursor-pointer rounded-full px-6", className)}
     >
-      <a href="/welcome?mode=signin" onClick={onClick}>
+      <a href="/login?mode=signin" onClick={onClick}>
         Log in
       </a>
     </Button>
@@ -192,8 +192,8 @@ const trustItems = [
   },
   {
     icon: <LockKeyhole aria-hidden="true" className="size-5" />,
-    title: "No password",
-    text: "Use an SMS code or email link.",
+    title: "Password protected",
+    text: "Sign in securely with your email and password.",
   },
   {
     icon: <Heart aria-hidden="true" className="size-5" />,
@@ -236,7 +236,8 @@ const faqs = [
   },
   {
     question: "Do I need a password?",
-    answer: "No. Sign in with a one-time SMS code or a passwordless link sent to your email.",
+    answer:
+      "Yes. Create an account with your email and password. If you forget it, request a password-reset email.",
   },
   {
     question: "Who can join?",

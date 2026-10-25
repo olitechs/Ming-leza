@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { sendOtp, verifyOtp, verifyAdult, setMyIntent, getMyAccess } from "@/lib/auth/server";
 import { completeMyProfileSetup, getMyProfile, setMyAvatarPath } from "@/lib/profile/server";
@@ -10,6 +10,10 @@ import p3 from "@/assets/p3.webp";
 import p4 from "@/assets/p4.webp";
 
 export const Route = createFileRoute("/welcome")({
+  beforeLoad: async () => {
+    const access = await getMyAccess();
+    if (!access.authenticated) throw redirect({ to: "/login", search: { mode: "signup" } });
+  },
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
     authError: typeof search["authError"] === "string" ? search["authError"] : "",

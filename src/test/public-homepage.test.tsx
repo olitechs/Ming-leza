@@ -22,21 +22,21 @@ describe("public homepage", () => {
     expect(screen.queryByLabelText(/phone number|email address/i)).not.toBeInTheDocument();
   });
 
-  it("routes all sign-up and log-in calls to the existing passwordless flow", () => {
+  it("routes all sign-up and log-in calls to password-based authentication", () => {
     render(<PublicHomepage />);
 
     const signUpLinks = screen.getAllByRole("link", { name: "Sign up free" });
     expect(signUpLinks.length).toBeGreaterThanOrEqual(2);
-    expect(signUpLinks.every((link) => link.getAttribute("href") === "/welcome")).toBe(true);
+    expect(signUpLinks.every((link) => link.getAttribute("href") === "/login")).toBe(true);
 
     const logInLinks = screen.getAllByRole("link", { name: "Log in" });
     expect(logInLinks.length).toBeGreaterThanOrEqual(2);
-    expect(logInLinks.every((link) => link.getAttribute("href") === "/welcome?mode=signin")).toBe(
+    expect(logInLinks.every((link) => link.getAttribute("href") === "/login?mode=signin")).toBe(
       true,
     );
     expect(
       screen.getByRole("link", { name: "Create your free account" }).getAttribute("href"),
-    ).toBe("/welcome");
+    ).toBe("/login");
     expect(
       screen.getByRole("link", { name: "Read all frequently asked questions" }),
     ).toHaveAttribute("href", "/faq");

@@ -7,6 +7,8 @@ export const Route = createFileRoute("/auth-callback")({
     code: typeof search["code"] === "string" ? search["code"] : "",
     tokenHash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
     type: typeof search["type"] === "string" ? search["type"] : "",
+    next: search["next"] === "reset-password" ? "reset-password" : "",
+    flow: search["flow"] === "signup" ? "signup" : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
@@ -19,13 +21,13 @@ export const Route = createFileRoute("/auth-callback")({
 });
 
 function AuthCallback() {
-  const { code, tokenHash, type, error } = Route.useSearch();
+  const { code, tokenHash, type, error, next, flow } = Route.useSearch();
   const [message, setMessage] = useState("Completing your secure sign-in…");
 
   useEffect(() => {
     let active = true;
     const returnToSignIn = () => {
-      window.location.replace("/welcome?authError=link_expired");
+      window.location.replace("/login?mode=signin");
     };
 
     if (error) {
@@ -35,7 +37,10 @@ function AuthCallback() {
       };
     }
 
-    if (!code && !(tokenHash && ["magiclink", "email", "signup"].includes(type))) {
+    if (
+      (!code && !(tokenHash && ["email", "signup", "recovery"].includes(type))) ||
+      (Boolean(code) && next !== "reset-password" && flow !== "signup")
+    ) {
       returnToSignIn();
       return () => {
         active = false;
@@ -43,13 +48,17 @@ function AuthCallback() {
     }
 
     exchangeEmailMagicLink({
-      data: code ? { code } : { tokenHash, type: type as "magiclink" | "email" | "signup" },
+      data: code ? { code } : { tokenHash, type: type as "email" | "signup" | "recovery" },
     })
       .then(async (result) => {
         if (!active) return;
         if (!result.ok) {
           setMessage(result.message);
           returnToSignIn();
+          return;
+        }
+        if (next === "reset-password") {
+          window.location.replace("/login?mode=reset");
           return;
         }
         // Returning adults go straight in; new members continue to the age step.
@@ -68,7 +77,7 @@ function AuthCallback() {
     return () => {
       active = false;
     };
-  }, [code, tokenHash, type, error]);
+  }, [code, tokenHash, type, error, next, flow]);
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background p-6">
@@ -78,10 +87,10 @@ function AuthCallback() {
           {message}
         </p>
         <a
-          href="/welcome?authError=link_expired"
+          href="/login?mode=signin"
           className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
         >
-          Return to Mingleza
+          Return to sign in
         </a>
       </section>
     </main>

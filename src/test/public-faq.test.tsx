@@ -13,7 +13,7 @@ describe("public FAQ page", () => {
     expect(screen.getByRole("heading", { name: "About Mingleza" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Privacy, safety, and help" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Are my profile photos private?" })).toBeVisible();
-    expect(screen.getByRole("link", { name: /get started/i })).toHaveAttribute("href", "/welcome");
+    expect(screen.getByRole("link", { name: /get started/i })).toHaveAttribute("href", "/login");
     expect(
       screen
         .getAllByRole("link", { name: "Privacy" })
