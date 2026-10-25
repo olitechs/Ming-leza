@@ -120,7 +120,7 @@ const magicLinkSchema = z.union([
   z.object({ code: z.string().trim().min(1).max(4096) }),
   z.object({
     tokenHash: z.string().trim().min(1).max(4096),
-    type: z.enum(["magiclink", "email", "signup"]),
+    type: z.enum(["email", "signup", "recovery"]),
   }),
 ]);
 
