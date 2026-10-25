@@ -62,6 +62,100 @@ type Profile = {
   datingEnabled: boolean;
 };
 
+const demoProfiles = [
+  {
+    name: "Amina",
+    age: 26,
+    city: "Mombasa, Kenya",
+    bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine friendship.",
+    intents: ["Friends", "Dating"],
+    photo:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=640&q=80",
+  },
+  {
+    name: "Luca",
+    age: 29,
+    city: "Nairobi, Kenya",
+    bio: "Music lover, weekend hiker, and enthusiastic home cook. I enjoy meeting people with curious minds.",
+    intents: ["Friends", "Dating"],
+    photo:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&q=80",
+  },
+  {
+    name: "Zuri",
+    age: 25,
+    city: "Watamu, Kenya",
+    bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
+    intents: ["Friends"],
+    photo:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=640&q=80",
+  },
+  {
+    name: "Daniel",
+    age: 31,
+    city: "Malindi, Kenya",
+    bio: "Nature, photography, and road trips up the coast. Always happy to talk about a great place to eat.",
+    intents: ["Friends", "Dating"],
+    photo:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=640&q=80",
+  },
+] as const;
+
+function DemoProfiles() {
+  return (
+    <section aria-labelledby="demo-profiles-title" className="mb-8">
+      <div className="mb-4">
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+          Get to know Mingleza
+        </p>
+        <h2 id="demo-profiles-title" className="mt-2 text-2xl font-extrabold tracking-tight">
+          Example profiles
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+          These fictional demo profiles help you preview the experience. They are examples, not real
+          members, and cannot receive friend requests or messages. Real members appear below when
+          they finish setup and choose to be discoverable.
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {demoProfiles.map((person) => (
+          <article
+            key={person.name}
+            className="overflow-hidden rounded-3xl border bg-card shadow-soft"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
+              <img
+                src={person.photo}
+                alt={`Illustrative portrait for fictional demo profile ${person.name}`}
+                loading="lazy"
+                className="size-full object-cover"
+              />
+              <span className="absolute left-3 top-3 rounded-full border bg-card/95 px-3 py-1.5 text-xs font-extrabold text-foreground">
+                Fictional demo
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="text-lg font-extrabold">
+                {person.name}, {person.age}
+              </h3>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin aria-hidden="true" className="size-4 shrink-0" />
+                {person.city}
+              </p>
+              <p className="mt-3 min-h-20 text-sm leading-6 text-muted-foreground">{person.bio}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {person.intents.map((value) => (
+                  <Chip key={value}>{value}</Chip>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Discover() {
   const { profile: loadedProfile } = Route.useRouteContext();
   const [intent, setIntent] = useState<Intent | null>(() =>
@@ -164,6 +258,8 @@ function Discover() {
             </>
           }
         />
+
+        <DemoProfiles />
 
         {requestError && <ErrorBanner className="mb-4">{requestError}</ErrorBanner>}
         {loading ? (
