@@ -63,7 +63,7 @@ export const listMySupportRequests = createServerFn({ method: "GET" }).handler(a
     }
     const { data, error } = await supabase
       .from("support_requests")
-      .select("id, category, subject, status, created_at, reviewed_at")
+      .select("id, category, subject, status, created_at, reviewed_at, response_message")
       .eq("requester_id", auth.user.id)
       .order("created_at", { ascending: false })
       .limit(50);
