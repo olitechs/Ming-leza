@@ -413,7 +413,10 @@ export const updateMyPassword = createServerFn({ method: "POST" })
     }
   });
 
-const accountConfirmationSchema = z.object({ confirmation: z.literal("DELETE") });
+const accountConfirmationSchema = z.object({
+  confirmation: z.literal("DELETE"),
+  password: z.string().min(1).max(128),
+});
 
 /** Export the signed-in member's own profile, preferences, social records, and conversation history. */
 export const exportMyData = createServerFn({ method: "GET" }).handler(async () => {
@@ -531,6 +534,22 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       const { data: auth, error: authError } = await supabase.auth.getUser();
       if (authError || !auth.user) {
         return { ok: false as const, message: "Sign in again before deleting your account." };
+      }
+      if (!auth.user.email) {
+        return {
+          ok: false as const,
+          message: "This account cannot be reauthenticated with email and password. Please use the support request form.",
+        };
+      }
+      const { data: reauthenticated, error: reauthError } = await supabase.auth.signInWithPassword({
+        email: auth.user.email,
+        password: data.password,
+      });
+      if (reauthError || reauthenticated.user?.id !== auth.user.id) {
+        return {
+          ok: false as const,
+          message: "Password verification failed. Your account was not deleted.",
+        };
       }
       const admin = getSupabaseAdminClient();
       const bucket = admin.storage.from("profile-avatars");
