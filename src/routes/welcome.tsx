@@ -463,6 +463,13 @@ function Welcome() {
                 <Primary disabled={isBusy} onClick={checkPhone}>
                   {isBusy ? "Sending…" : authMethod === "email" ? "Send sign-in link" : "Send code"}
                 </Primary>
+                <button
+                  type="button"
+                  onClick={() => void nav({ to: "/login" })}
+                  className="mt-4 w-full rounded-full border px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+                >
+                  Already have an account? Log in with password
+                </button>
               </>
             )}
 
