@@ -11,10 +11,14 @@ describe("registration phone validation", () => {
     expect(registrationPhoneSchema.safeParse(phone).success).toBe(true);
   });
 
-  it.each(["", "abcdefghi", "          ", "+254 12", "+1234567890123456", "07123abc45"])(
-    "rejects an invalid phone number: %s",
-    (phone) => {
-      expect(registrationPhoneSchema.safeParse(phone).success).toBe(false);
-    },
-  );
+  it.each([
+    "",
+    "abcdefghi",
+    "          ",
+    "+254 12",
+    "+1234567890123456",
+    "07123abc45",
+  ])("rejects an invalid phone number: %s", (phone) => {
+    expect(registrationPhoneSchema.safeParse(phone).success).toBe(false);
+  });
 });
