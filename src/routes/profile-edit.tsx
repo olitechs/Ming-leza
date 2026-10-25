@@ -1,10 +1,20 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, ImagePlus, LoaderCircle, LogOut, Save } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  ImagePlus,
+  LifeBuoy,
+  LoaderCircle,
+  LogOut,
+  Save,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
-import { getMyAccess } from "@/lib/auth/server";
+import { deleteMyAccount, exportMyData, getMyAccess } from "@/lib/auth/server";
 import { AppShell } from "@/components/AppShell";
-import { Field as BrandField, Input as BrandInput } from "@/components/brand";
+import { Button, Field as BrandField, Input as BrandInput } from "@/components/brand";
 import {
   getMyProfile,
   listSupportedCountries,
@@ -12,6 +22,7 @@ import {
   updateMyProfile,
 } from "@/lib/profile/server";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { listMySupportRequests, submitSupportRequest } from "@/lib/support/server";
 
 export const Route = createFileRoute("/profile-edit")({
   beforeLoad: async () => {
@@ -51,6 +62,140 @@ function EditProfile() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [accountNotice, setAccountNotice] = useState("");
+  const [supportCategory, setSupportCategory] = useState<
+    "account" | "privacy" | "technical" | "safety" | "other"
+  >("account");
+  const [supportSubject, setSupportSubject] = useState("");
+  const [supportDetails, setSupportDetails] = useState("");
+  const [supportBusy, setSupportBusy] = useState(false);
+  const [supportError, setSupportError] = useState("");
+  const [supportNotice, setSupportNotice] = useState("");
+  const [supportRequests, setSupportRequests] = useState<
+    {
+      id: string;
+      category: string;
+      subject: string;
+      status: string;
+      created_at: string;
+      response_message: string | null;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    let active = true;
+    void listMySupportRequests().then((result) => {
+      if (active && result.ok) setSupportRequests(result.requests);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const downloadMyData = async () => {
+    setExporting(true);
+    setAccountError("");
+    setAccountNotice("");
+    try {
+      const result = await exportMyData();
+      if (!result.ok) {
+        setAccountError(result.message);
+        return;
+      }
+      const blob = new Blob(
+        [
+          JSON.stringify(
+            {
+              generatedAt: result.generatedAt,
+              data: result.data,
+              truncated: result.truncated,
+            },
+            null,
+            2,
+          ),
+        ],
+        { type: "application/json;charset=utf-8" },
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `mingleza-personal-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      setAccountNotice(
+        result.truncated
+          ? "Your export downloaded, but conversation history reached the 10,000-message limit. Request additional data through support."
+          : "Your personal data export has been downloaded to this device.",
+      );
+    } catch {
+      setAccountError("Your data export is temporarily unavailable. Please retry.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    setAccountError("");
+    setAccountNotice("");
+    if (deleteConfirmation !== "DELETE") {
+      setAccountError("Type DELETE exactly to confirm account deletion.");
+      return;
+    }
+    setDeleting(true);
+    try {
+      const result = await deleteMyAccount({
+        data: { confirmation: "DELETE", password: deletePassword },
+      });
+      if (!result.ok) {
+        setAccountError(result.message);
+        return;
+      }
+      window.location.replace("/welcome?accountDeleted=1");
+    } catch {
+      setAccountError("Account deletion is temporarily unavailable. Please retry.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const sendSupportRequest = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSupportBusy(true);
+    setSupportError("");
+    setSupportNotice("");
+    try {
+      const result = await submitSupportRequest({
+        data: {
+          category: supportCategory,
+          subject: supportSubject,
+          details: supportDetails,
+        },
+      });
+      if (!result.ok) {
+        setSupportError(result.message);
+        return;
+      }
+      setSupportRequests((current) =>
+        [{ ...result.request, response_message: null }, ...current].slice(0, 50),
+      );
+      setSupportSubject("");
+      setSupportDetails("");
+      setSupportNotice(
+        "Your request was saved. It will remain in your request history while the team reviews it.",
+      );
+    } catch {
+      setSupportError("Your support request could not be submitted. Please retry.");
+    } finally {
+      setSupportBusy(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -306,6 +451,214 @@ function EditProfile() {
             </>
           )}
         </section>
+        <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft sm:p-8">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-1 size-6 shrink-0 text-primary" />
+            <div>
+              <h2 className="text-xl font-extrabold">Account & privacy</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Download a copy of your profile, preferences, blocks, friend requests, reports you
+                submitted, and conversation history. Account deletion removes your profile photos
+                and account-linked application records. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 rounded-full"
+              disabled={exporting || deleting}
+              onClick={() => void downloadMyData()}
+            >
+              <Download className="size-4" />
+              {exporting ? "Preparing export…" : "Download my data"}
+            </Button>
+          </div>
+          <div className="mt-6 rounded-2xl border border-destructive/30 p-4">
+            <h3 className="flex items-center gap-2 font-bold text-destructive-text">
+              <Trash2 className="size-4" /> Delete account permanently
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Export anything you want to keep first. Deletion removes your sign-in account,
+              profile, avatar files, and records linked by the app's deletion rules. Your submitted
+              reports are subject to the current database cascade; the final legal retention policy
+              still needs owner/legal review.
+            </p>
+            <label htmlFor="delete-account-password" className="mt-4 block text-sm font-semibold">
+              Confirm your password
+            </label>
+            <input
+              id="delete-account-password"
+              type="password"
+              value={deletePassword}
+              onChange={(event) => setDeletePassword(event.target.value)}
+              autoComplete="current-password"
+              className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
+              placeholder="Your current password"
+              disabled={deleting}
+              required
+            />
+            <label
+              htmlFor="delete-account-confirmation"
+              className="mt-4 block text-sm font-semibold"
+            >
+              Type DELETE to confirm
+            </label>
+            <input
+              id="delete-account-confirmation"
+              value={deleteConfirmation}
+              onChange={(event) => setDeleteConfirmation(event.target.value)}
+              autoComplete="off"
+              className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
+              placeholder="DELETE"
+              disabled={deleting}
+            />
+            <Button
+              type="button"
+              className="mt-3 min-h-11 rounded-full"
+              disabled={deleting || deleteConfirmation !== "DELETE" || !deletePassword}
+              onClick={() => void deleteAccount()}
+            >
+              <Trash2 className="size-4" />
+              {deleting ? "Deleting account…" : "Delete my account"}
+            </Button>
+          </div>
+          {accountError && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+            >
+              {accountError}
+            </p>
+          )}
+          {accountNotice && (
+            <p
+              role="status"
+              className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text"
+            >
+              {accountNotice}
+            </p>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft sm:p-8">
+          <div className="flex items-start gap-3">
+            <LifeBuoy className="mt-1 size-6 shrink-0 text-primary" />
+            <div>
+              <h2 className="text-xl font-extrabold">Contact support</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Submit a private in-app request about your account, privacy, safety, or a technical
+                issue. This creates a tracked request; it does not guarantee an immediate response
+                or emergency support.
+              </p>
+            </div>
+          </div>
+          <form onSubmit={(event) => void sendSupportRequest(event)} className="mt-5 space-y-4">
+            <div>
+              <label htmlFor="support-category" className="text-sm font-semibold">
+                Request type
+              </label>
+              <select
+                id="support-category"
+                value={supportCategory}
+                onChange={(event) =>
+                  setSupportCategory(event.target.value as typeof supportCategory)
+                }
+                className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
+              >
+                <option value="account">Account access</option>
+                <option value="privacy">Privacy or personal data</option>
+                <option value="technical">Technical issue</option>
+                <option value="safety">Safety concern</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="support-subject" className="text-sm font-semibold">
+                Subject
+              </label>
+              <input
+                id="support-subject"
+                value={supportSubject}
+                onChange={(event) => setSupportSubject(event.target.value)}
+                minLength={3}
+                maxLength={120}
+                required
+                className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
+                placeholder="Briefly describe the issue"
+              />
+            </div>
+            <div>
+              <label htmlFor="support-details" className="text-sm font-semibold">
+                Details
+              </label>
+              <textarea
+                id="support-details"
+                value={supportDetails}
+                onChange={(event) => setSupportDetails(event.target.value)}
+                minLength={10}
+                maxLength={4000}
+                rows={4}
+                required
+                className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                placeholder="Share the details needed to understand your request."
+              />
+              <p className="mt-1 text-xs text-muted-foreground">{supportDetails.length}/4000</p>
+            </div>
+            <Button type="submit" className="min-h-11 rounded-full" disabled={supportBusy}>
+              <LifeBuoy className="size-4" />
+              {supportBusy ? "Submitting…" : "Submit support request"}
+            </Button>
+          </form>
+          {supportError && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+            >
+              {supportError}
+            </p>
+          )}
+          {supportNotice && (
+            <p
+              role="status"
+              className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text"
+            >
+              {supportNotice}
+            </p>
+          )}
+          {supportRequests.length > 0 && (
+            <div className="mt-6 border-t pt-5">
+              <h3 className="font-bold">Your recent requests</h3>
+              <ul className="mt-3 space-y-2">
+                {supportRequests.map((request) => (
+                  <li key={request.id} className="rounded-xl bg-secondary/50 p-3">
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <span className="text-sm font-semibold">{request.subject}</span>
+                      <span className="rounded-full border px-2 py-1 text-xs">
+                        {request.status}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {request.category} · {new Date(request.created_at).toLocaleString()}
+                    </p>
+                    {request.response_message && (
+                      <p className="mt-3 rounded-lg border bg-card p-3 text-sm leading-6">
+                        <span className="block text-xs font-bold uppercase tracking-wide text-primary">
+                          Response from Mingleza
+                        </span>
+                        <span className="mt-1 block whitespace-pre-wrap">
+                          {request.response_message}
+                        </span>
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+
         <button
           type="button"
           onClick={() => void signOutAndLeave()}

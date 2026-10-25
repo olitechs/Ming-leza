@@ -19,12 +19,12 @@ Production deployment, live SMS/email authentication, and migrations against the
 - Reconcile the repository migration history with the dedicated Supabase project's deployed schema before production migrations. Do not assume local migration files and remote schema are identical.
 - Review database/RPC authorization for friendship state transitions, conversation membership, message mutations, and visibility when either member has blocked the other; preserve these checks in database/RLS regression tests.
 
-The Terms and Privacy pages are placeholders, not final legal text or legal advice; obtain legal review before treating them as policy documents. No verified support or moderation contact has been published yet.
+The Terms and Privacy pages are placeholders, not final legal text or legal advice; obtain legal review before treating them as policy documents. Member-facing report/block controls, a restricted moderator queue, in-app support intake, personal-data export, and self-service account deletion are implemented in code. They are not a staffed or externally verified support service until the owner assigns trusted moderator accounts, defines response/retention/escalation procedures, and completes a live deployment verification. No external support inbox or URL has been verified.
 
 ## Remaining product work
 
-- Member-facing report/block controls and a monitored moderation workflow; the schema alone is not a member or staff support process.
-- Self-service account deletion/data requests and a verified support channel, including an approved retention and avatar-cleanup process.
+- Operationalize the safety workflow: assign trusted moderator accounts through Supabase Auth `app_metadata`, staff the queue, define response-time expectations, escalation and evidence-retention rules, and verify the production workflow. Code and a restricted queue exist, but monitoring is not configured by repository changes alone.
+- Publish a verified external support contact and obtain legal approval for data-retention rules. In-app support intake, personal-data export, and account deletion are implemented; verify avatar cleanup, cascaded deletion, and support handling in the deployed Supabase project before launch.
 - Ongoing controls to turn profile discoverability and connection intents on or off after onboarding.
 - Dating likes, matches, and dating-specific workflows.
 - Real-time messaging, message notifications, and message-management controls.

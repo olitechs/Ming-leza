@@ -78,3 +78,10 @@ Unknown routes use the existing root not-found handling. The audit did not chang
 7. What final Terms, Privacy, business identity, and contact details have been approved for publication?
 
 **Deployment status:** No deployment was made or validated by this audit. A successful local build is not evidence that the production application or third-party authentication providers work.
+
+## Phase 2 and Phase 3 implementation update
+
+- Member report/block controls and a role-gated moderation queue are implemented in the repository. The owner must assign trusted moderator roles and establish staffing, response expectations, retention, and escalation before the service can be described as monitored.
+- Profile settings now provide personal-data export, password-confirmed account deletion with avatar cleanup, and an in-app support request form. Support requests can be reviewed and answered through the role-gated queue.
+- No external support email or URL has been verified. Legal review of data retention and the final Terms/Privacy text remains outstanding.
+- These are repository changes only; production Supabase migrations, live deletion/cleanup behavior, and staff assignment still require deployment verification.

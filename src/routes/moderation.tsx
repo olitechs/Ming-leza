@@ -4,7 +4,11 @@ import { AlertTriangle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
-import { getModerationQueue, updateModerationReport } from "@/lib/moderation/server";
+import {
+  getModerationQueue,
+  updateModerationReport,
+  updateSupportRequest,
+} from "@/lib/moderation/server";
 
 export const Route = createFileRoute("/moderation")({
   beforeLoad: async () => {
@@ -35,12 +39,28 @@ type QueueReport = {
   reported: { display_name: string; city: string | null } | null;
 };
 
+type SupportRequest = {
+  id: string;
+  requester_id: string;
+  category: string;
+  subject: string;
+  details: string;
+  status: "new" | "reviewing" | "resolved" | "closed";
+  created_at: string;
+  reviewed_at: string | null;
+  resolution_note: string | null;
+  response_message: string | null;
+  requester: { display_name: string; city: string | null } | null;
+};
+
 function ModerationPage() {
   const [reports, setReports] = useState<QueueReport[]>([]);
+  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [responses, setResponses] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState("");
 
   const load = async () => {
@@ -56,12 +76,20 @@ function ModerationPage() {
             : "The moderation queue is temporarily unavailable.",
         );
         setReports([]);
+        setSupportRequests([]);
       } else {
         setAuthorized(true);
         setReports(result.reports as QueueReport[]);
+        setSupportRequests(result.supportRequests as SupportRequest[]);
         setNotes(
+          Object.fromEntries([
+            ...result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
+            ...result.supportRequests.map((request) => [request.id, request.resolution_note ?? ""]),
+          ]),
+        );
+        setResponses(
           Object.fromEntries(
-            result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
+            result.supportRequests.map((request) => [request.id, request.response_message ?? ""]),
           ),
         );
       }
@@ -90,6 +118,30 @@ function ModerationPage() {
       await load();
     } catch {
       setError("The report could not be updated. Please retry.");
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const updateSupport = async (request: SupportRequest, status: SupportRequest["status"]) => {
+    setBusyId(request.id);
+    setError("");
+    try {
+      const result = await updateSupportRequest({
+        data: {
+          requestId: request.id,
+          status,
+          resolutionNote: notes[request.id] ?? "",
+          responseMessage: responses[request.id] ?? "",
+        },
+      });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      await load();
+    } catch {
+      setError("The support request could not be updated. Please retry.");
     } finally {
       setBusyId("");
     }
@@ -188,6 +240,95 @@ function ModerationPage() {
               ))
             )}
           </div>
+        )}
+        {authorized && (
+          <section className="mt-8 space-y-4">
+            <div>
+              <h2 className="text-xl font-extrabold">Support requests</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Private requests submitted through member account settings.
+              </p>
+            </div>
+            {supportRequests.length === 0 && !loading ? (
+              <div className="rounded-3xl border-2 border-dashed p-8 text-center text-muted-foreground">
+                No support requests in the queue.
+              </div>
+            ) : (
+              supportRequests.map((request) => (
+                <article key={request.id} className="rounded-3xl border bg-card p-5 shadow-soft">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                        {request.category}
+                      </p>
+                      <h3 className="mt-1 text-lg font-bold">{request.subject}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        From {request.requester?.display_name ?? "Unavailable member"}{" "}
+                        <span aria-hidden="true">·</span>{" "}
+                        {new Date(request.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="rounded-full border px-3 py-1 text-xs font-bold">
+                      {request.status}
+                    </span>
+                  </div>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-6">{request.details}</p>
+                  <div className="mt-4">
+                    <label
+                      htmlFor={`support-response-${request.id}`}
+                      className="text-sm font-semibold"
+                    >
+                      Reply visible to the member
+                    </label>
+                    <textarea
+                      id={`support-response-${request.id}`}
+                      value={responses[request.id] ?? ""}
+                      onChange={(event) =>
+                        setResponses((current) => ({
+                          ...current,
+                          [request.id]: event.target.value,
+                        }))
+                      }
+                      maxLength={2000}
+                      rows={3}
+                      className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                      placeholder="Write a response the member can see in account settings."
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <label htmlFor={`support-note-${request.id}`} className="text-sm font-semibold">
+                      Internal resolution note
+                    </label>
+                    <textarea
+                      id={`support-note-${request.id}`}
+                      value={notes[request.id] ?? ""}
+                      onChange={(event) =>
+                        setNotes((current) => ({ ...current, [request.id]: event.target.value }))
+                      }
+                      maxLength={2000}
+                      rows={2}
+                      className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                      placeholder="Record follow-up or resolution."
+                    />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(["new", "reviewing", "resolved", "closed"] as const).map((status) => (
+                      <Button
+                        key={status}
+                        type="button"
+                        variant={status === request.status ? "default" : "outline"}
+                        className="min-h-10 rounded-full"
+                        disabled={busyId === request.id || status === request.status}
+                        onClick={() => void updateSupport(request, status)}
+                      >
+                        {busyId === request.id ? "Saving…" : status}
+                      </Button>
+                    ))}
+                  </div>
+                </article>
+              ))
+            )}
+          </section>
         )}
         {error && authorized && (
           <p

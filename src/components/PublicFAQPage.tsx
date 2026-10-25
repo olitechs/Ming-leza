@@ -229,12 +229,12 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Can I block or report a member in the app?",
         answer:
-          "You can report or block a member from Discover or their profile. Reports are recorded for moderator review, but Mingleza has not yet published a staffed support contact or response-time commitment. If you are in immediate danger, contact local emergency services.",
+          "You can report or block a member from Discover or their profile. Reports are recorded in the app for moderator review, but a staffed moderation service and response-time commitment are not yet configured. If you are in immediate danger, contact local emergency services.",
       },
       {
         question: "Can I delete my account or request data deletion?",
         answer:
-          "A self-service account deletion flow and a published data-deletion request channel are not available in the current app. The owner needs to provide an approved process and support contact before this can be answered as an available service.",
+          "Open Edit profile, then Account & privacy to download a copy of your data or permanently delete your account. The deletion action removes your account and associated app records under the current database deletion rules; final legal retention terms are still pending review.",
       },
       {
         question: "Where can I read the Privacy Policy and Terms?",
@@ -249,7 +249,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How do I contact Mingleza support or report a bug?",
         answer:
-          "A public support email, contact form, operating hours, and bug-report channel have not been provided in the repository. The owner needs to publish a verified contact route before support requests can be directed reliably.",
+          "Signed-in members can submit a private in-app support request from Edit profile. Requests are stored for staff review, but the owner has not yet published a verified external support email or response-time commitment.",
       },
       {
         question: "What should I do if something does not load or save?",
