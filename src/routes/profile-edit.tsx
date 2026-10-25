@@ -607,7 +607,7 @@ function EditProfile() {
 
         <button
           type="button"
-          onClick={() => void signOutAndLeave()
+          onClick={() => void signOutAndLeave()}
           className="mx-auto mt-6 flex cursor-pointer items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold hover:bg-muted"
         >
           <LogOut className="size-4" /> Sign out
