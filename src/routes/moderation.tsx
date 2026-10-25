@@ -49,6 +49,7 @@ type SupportRequest = {
   created_at: string;
   reviewed_at: string | null;
   resolution_note: string | null;
+  response_message: string | null;
   requester: { display_name: string; city: string | null } | null;
 };
 
@@ -59,6 +60,7 @@ function ModerationPage() {
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [responses, setResponses] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState("");
 
   const load = async () => {
@@ -84,6 +86,11 @@ function ModerationPage() {
             ...result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
             ...result.supportRequests.map((request) => [request.id, request.resolution_note ?? ""]),
           ]),
+        );
+        setResponses(
+          Object.fromEntries(
+            result.supportRequests.map((request) => [request.id, request.response_message ?? ""]),
+          ),
         );
       }
     } catch {
@@ -121,7 +128,12 @@ function ModerationPage() {
     setError("");
     try {
       const result = await updateSupportRequest({
-        data: { requestId: request.id, status, resolutionNote: notes[request.id] ?? "" },
+        data: {
+          requestId: request.id,
+          status,
+          resolutionNote: notes[request.id] ?? "",
+          responseMessage: responses[request.id] ?? "",
+        },
       });
       if (!result.ok) {
         setError(result.message);
@@ -261,6 +273,28 @@ function ModerationPage() {
                     </span>
                   </div>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6">{request.details}</p>
+                  <div className="mt-4">
+                    <label
+                      htmlFor={`support-response-${request.id}`}
+                      className="text-sm font-semibold"
+                    >
+                      Reply visible to the member
+                    </label>
+                    <textarea
+                      id={`support-response-${request.id}`}
+                      value={responses[request.id] ?? ""}
+                      onChange={(event) =>
+                        setResponses((current) => ({
+                          ...current,
+                          [request.id]: event.target.value,
+                        }))
+                      }
+                      maxLength={2000}
+                      rows={3}
+                      className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                      placeholder="Write a response the member can see in account settings."
+                    />
+                  </div>
                   <div className="mt-4">
                     <label htmlFor={`support-note-${request.id}`} className="text-sm font-semibold">
                       Internal resolution note
