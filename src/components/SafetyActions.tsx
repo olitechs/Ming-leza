@@ -1,17 +1,16 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { AlertTriangle, Ban, Flag, ShieldCheck } from "lucide-react";
-import { blockMember, getMemberBlockStatus, reportMember, unblockMember } from "@/lib/social/server";
+import {
+  blockMember,
+  getMemberBlockStatus,
+  reportMember,
+  unblockMember,
+} from "@/lib/social/server";
 import { Button } from "@/components/brand";
 
 type ReportReason = "spam" | "harassment" | "underage" | "impersonation" | "other";
 
-export function SafetyActions({
-  userId,
-  displayName,
-}: {
-  userId: string;
-  displayName: string;
-}) {
+export function SafetyActions({ userId, displayName }: { userId: string; displayName: string }) {
   const [blocked, setBlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -120,7 +119,10 @@ export function SafetyActions({
       )}
 
       {showReport && (
-        <form onSubmit={(event) => void submitReport(event)} className="mt-4 space-y-3 rounded-2xl border p-4">
+        <form
+          onSubmit={(event) => void submitReport(event)}
+          className="mt-4 space-y-3 rounded-2xl border p-4"
+        >
           <div>
             <label htmlFor={`report-reason-${userId}`} className="text-sm font-semibold">
               Why are you reporting this profile?
@@ -158,7 +160,12 @@ export function SafetyActions({
               <Flag aria-hidden="true" className="size-4" />
               {busy ? "Submitting…" : "Submit report"}
             </Button>
-            <Button type="button" variant="outline" className="min-h-11 rounded-full" onClick={() => setShowReport(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 rounded-full"
+              onClick={() => setShowReport(false)}
+            >
               Cancel
             </Button>
           </div>
@@ -166,14 +173,22 @@ export function SafetyActions({
       )}
 
       {error && (
-        <p role="alert" className="mt-3 flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+        <p
+          role="alert"
+          className="mt-3 flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+        >
           <AlertTriangle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           {error}
         </p>
       )}
-      {notice && <p role="status" className="mt-3 rounded-xl bg-success/10 p-3 text-sm text-success-text">{notice}</p>}
+      {notice && (
+        <p role="status" className="mt-3 rounded-xl bg-success/10 p-3 text-sm text-success-text">
+          {notice}
+        </p>
+      )}
       <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        Reports are stored for moderator review. If you are in immediate danger, contact local emergency services.
+        Reports are stored for moderator review. If you are in immediate danger, contact local
+        emergency services.
       </p>
     </section>
   );
