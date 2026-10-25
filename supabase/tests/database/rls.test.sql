@@ -1,5 +1,5 @@
 begin;
-select plan(25);
+select plan(28);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
@@ -7,6 +7,9 @@ select has_table('public', 'messages', 'messages table exists');
 select has_column('public', 'moderation_reports', 'status', 'moderation reports have workflow status');
 select ok(not has_column_privilege('authenticated', 'public.moderation_reports', 'status', 'INSERT'), 'members cannot set moderation workflow status');
 select ok(not has_column_privilege('authenticated', 'public.moderation_reports', 'reviewed_by', 'INSERT'), 'members cannot assign moderators');
+select has_table('public', 'support_requests', 'in-app support request table exists');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'support_requests' and policyname = 'support_requests_read_self'), 'members can read only their own support requests');
+select ok(not has_column_privilege('authenticated', 'public.support_requests', 'status', 'INSERT'), 'members cannot set support workflow status');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_read_self_or_discoverable'), 'profile discovery policy exists');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_insert_self'), 'profile insert is self-only');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_update_self'), 'profile update is self-only');
