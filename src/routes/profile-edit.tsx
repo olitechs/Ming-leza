@@ -65,6 +65,7 @@ function EditProfile() {
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
   const [accountError, setAccountError] = useState("");
   const [accountNotice, setAccountNotice] = useState("");
   const [supportCategory, setSupportCategory] = useState<"account" | "privacy" | "technical" | "safety" | "other">("account");
@@ -131,7 +132,9 @@ function EditProfile() {
     }
     setDeleting(true);
     try {
-      const result = await deleteMyAccount({ data: { confirmation: "DELETE" } });
+      const result = await deleteMyAccount({
+        data: { confirmation: "DELETE", password: deletePassword },
+      });
       if (!result.ok) {
         setAccountError(result.message);
         return;
@@ -455,6 +458,20 @@ function EditProfile() {
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Export anything you want to keep first. Deletion removes your sign-in account, profile, avatar files, and records linked by the app's deletion rules. Your submitted reports are subject to the current database cascade; the final legal retention policy still needs owner/legal review.
             </p>
+            <label htmlFor="delete-account-password" className="mt-4 block text-sm font-semibold">
+              Confirm your password
+            </label>
+            <input
+              id="delete-account-password"
+              type="password"
+              value={deletePassword}
+              onChange={(event) => setDeletePassword(event.target.value)}
+              autoComplete="current-password"
+              className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
+              placeholder="Your current password"
+              disabled={deleting}
+              required
+            />
             <label htmlFor="delete-account-confirmation" className="mt-4 block text-sm font-semibold">
               Type DELETE to confirm
             </label>
@@ -470,7 +487,7 @@ function EditProfile() {
             <Button
               type="button"
               className="mt-3 min-h-11 rounded-full"
-              disabled={deleting || deleteConfirmation !== "DELETE"}
+              disabled={deleting || deleteConfirmation !== "DELETE" || !deletePassword}
               onClick={() => void deleteAccount()}
             >
               <Trash2 className="size-4" />
