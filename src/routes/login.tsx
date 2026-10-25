@@ -210,7 +210,7 @@ function LoginPage() {
               <input id="password" name="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} maxLength={128} autoComplete={mode === "signin" ? "current-password" : "new-password"} placeholder={mode === "reset" ? "At least 6 characters" : "At least 6 characters"} className="min-h-12 w-full rounded-xl border border-input bg-background px-3 pr-12 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground hover:bg-secondary" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>
             </div>
-          </label>
+          </label>}
           {(mode === "signup" || mode === "reset") && (
             <label className="block text-sm font-semibold" htmlFor="confirmPassword">Confirm password
               <input id="confirmPassword" name="confirmPassword" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} maxLength={128} autoComplete="new-password" placeholder="Enter the password again" className="mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-3 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring" />
@@ -225,8 +225,8 @@ function LoginPage() {
           </button>
         </form>
 
-        {mode === "signin" && <button type="button" onClick={() => changeMode("reset")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Forgot password?</button>}
-        {mode === "reset" && <button type="button" onClick={sendReset} disabled={busy} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline disabled:opacity-60">Email me a password-reset link</button>}
+        {mode === "signin" && <button type="button" onClick={() => changeMode("forgot")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Forgot password?</button>}
+        {(mode === "forgot" || mode === "reset") && <button type="button" onClick={() => changeMode("signin")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Back to sign in</button>}}
         <p className="mt-6 text-xs leading-5 text-muted-foreground">Mingleza is strictly for adults aged 18+. Selecting an age bracket does not replace the required adult-verification step. Passwords are handled by Supabase Auth and are never stored in your profile.</p>
       </section>
     </main>
