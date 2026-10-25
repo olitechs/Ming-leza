@@ -62,7 +62,6 @@ type Profile = {
   datingEnabled: boolean;
 };
 
-
 const demoProfiles = [
   {
     name: "Amina",
@@ -70,7 +69,8 @@ const demoProfiles = [
     city: "Mombasa, Kenya",
     bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine friendship.",
     intents: ["Friends", "Dating"],
-    photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=640&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=640&q=80",
   },
   {
     name: "Luca",
@@ -78,7 +78,8 @@ const demoProfiles = [
     city: "Nairobi, Kenya",
     bio: "Music lover, weekend hiker, and enthusiastic home cook. I enjoy meeting people with curious minds.",
     intents: ["Friends", "Dating"],
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&q=80",
   },
   {
     name: "Zuri",
@@ -86,7 +87,8 @@ const demoProfiles = [
     city: "Watamu, Kenya",
     bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
     intents: ["Friends"],
-    photo: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=640&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=640&q=80",
   },
   {
     name: "Daniel",
@@ -94,7 +96,8 @@ const demoProfiles = [
     city: "Malindi, Kenya",
     bio: "Nature, photography, and road trips up the coast. Always happy to talk about a great place to eat.",
     intents: ["Friends", "Dating"],
-    photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=640&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=640&q=80",
   },
 ] as const;
 
@@ -116,7 +119,10 @@ function DemoProfiles() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {demoProfiles.map((person) => (
-          <article key={person.name} className="overflow-hidden rounded-3xl border bg-card shadow-soft">
+          <article
+            key={person.name}
+            className="overflow-hidden rounded-3xl border bg-card shadow-soft"
+          >
             <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
               <img
                 src={person.photo}
@@ -129,7 +135,9 @@ function DemoProfiles() {
               </span>
             </div>
             <div className="p-4">
-              <h3 className="text-lg font-extrabold">{person.name}, {person.age}</h3>
+              <h3 className="text-lg font-extrabold">
+                {person.name}, {person.age}
+              </h3>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                 <MapPin aria-hidden="true" className="size-4 shrink-0" />
                 {person.city}
