@@ -59,7 +59,11 @@ function ModerationPage() {
       } else {
         setAuthorized(true);
         setReports(result.reports as QueueReport[]);
-        setNotes(Object.fromEntries(result.reports.map((report) => [report.id, report.resolution_note ?? ""])));
+        setNotes(
+          Object.fromEntries(
+            result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
+          ),
+        );
       }
     } catch {
       setError("The moderation queue is temporarily unavailable.");
@@ -104,7 +108,9 @@ function ModerationPage() {
             <p className="mt-3 font-bold">Moderator access required</p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{error}</p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              No moderator accounts are configured by this code change. Assign the trusted role in Supabase Auth app_metadata through an authorized admin process before operating the queue.
+              No moderator accounts are configured by this code change. Assign the trusted role in
+              Supabase Auth app_metadata through an authorized admin process before operating the
+              queue.
             </p>
           </div>
         )}
@@ -113,62 +119,98 @@ function ModerationPage() {
             <div className="rounded-2xl border bg-secondary/40 p-4 text-sm leading-6">
               <p className="font-bold">Operational note</p>
               <p className="mt-1 text-muted-foreground">
-                This queue stores and tracks reports; it does not by itself create a staffed service, response-time guarantee, or emergency escalation channel.
+                This queue stores and tracks reports; it does not by itself create a staffed
+                service, response-time guarantee, or emergency escalation channel.
               </p>
             </div>
             {reports.length === 0 && !loading ? (
-              <div className="rounded-3xl border-2 border-dashed p-10 text-center text-muted-foreground">No reports in the queue.</div>
-            ) : reports.map((report) => (
-              <article key={report.id} className="rounded-3xl border bg-card p-5 shadow-soft">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-primary">{report.reason.replace("_", " ")}</p>
-                    <h2 className="mt-1 text-lg font-bold">{report.reported?.display_name ?? "Unavailable member"}</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Reported by {report.reporter?.display_name ?? "Unavailable member"} · {new Date(report.created_at).toLocaleString()}
-                    </p>
+              <div className="rounded-3xl border-2 border-dashed p-10 text-center text-muted-foreground">
+                No reports in the queue.
+              </div>
+            ) : (
+              reports.map((report) => (
+                <article key={report.id} className="rounded-3xl border bg-card p-5 shadow-soft">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                        {report.reason.replace("_", " ")}
+                      </p>
+                      <h2 className="mt-1 text-lg font-bold">
+                        {report.reported?.display_name ?? "Unavailable member"}
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Reported by {report.reporter?.display_name ?? "Unavailable member"}{" "}
+                        · {new Date(report.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="rounded-full border px-3 py-1 text-xs font-bold">
+                      {report.status}
+                    </span>
                   </div>
-                  <span className="rounded-full border px-3 py-1 text-xs font-bold">{report.status}</span>
-                </div>
-                {report.details && <p className="mt-4 whitespace-pre-wrap text-sm leading-6">{report.details}</p>}
-                <div className="mt-4">
-                  <label htmlFor={`moderation-note-${report.id}`} className="text-sm font-semibold">Internal resolution note</label>
-                  <textarea
-                    id={`moderation-note-${report.id}`}
-                    value={notes[report.id] ?? ""}
-                    onChange={(event) => setNotes((current) => ({ ...current, [report.id]: event.target.value }))}
-                    maxLength={2000}
-                    rows={2}
-                    className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
-                    placeholder="Record action taken or reason for dismissal."
-                  />
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(["new", "reviewing", "actioned", "dismissed"] as const).map((status) => (
-                    <Button
-                      key={status}
-                      type="button"
-                      variant={status === report.status ? "default" : "outline"}
-                      className="min-h-10 rounded-full"
-                      disabled={busyId === report.id || status === report.status}
-                      onClick={() => void update(report, status)}
+                  {report.details && (
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6">{report.details}</p>
+                  )}
+                  <div className="mt-4">
+                    <label
+                      htmlFor={`moderation-note-${report.id}`}
+                      className="text-sm font-semibold"
                     >
-                      {busyId === report.id ? "Saving…" : status}
-                    </Button>
-                  ))}
-                </div>
-              </article>
-            ))}
+                      Internal resolution note
+                    </label>
+                    <textarea
+                      id={`moderation-note-${report.id}`}
+                      value={notes[report.id] ?? ""}
+                      onChange={(event) =>
+                        setNotes((current) => ({ ...current, [report.id]: event.target.value }))
+                      }
+                      maxLength={2000}
+                      rows={2}
+                      className="mt-2 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                      placeholder="Record action taken or reason for dismissal."
+                    />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(["new", "reviewing", "actioned", "dismissed"] as const).map((status) => (
+                      <Button
+                        key={status}
+                        type="button"
+                        variant={status === report.status ? "default" : "outline"}
+                        className="min-h-10 rounded-full"
+                        disabled={busyId === report.id || status === report.status}
+                        onClick={() => void update(report, status)}
+                      >
+                        {busyId === report.id ? "Saving…" : status}
+                      </Button>
+                    ))}
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         )}
         {error && authorized && (
-          <p role="alert" className="mt-5 flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+          <p
+            role="alert"
+            className="mt-5 flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+          >
             <AlertTriangle className="size-4 shrink-0" /> {error}
           </p>
         )}
-        {loading && <p role="status" className="mt-6 text-sm text-muted-foreground">Loading moderation queue…</p>}
+        {loading && (
+          <p role="status" className="mt-6 text-sm text-muted-foreground">
+            Loading moderation queue…
+          </p>
+        )}
         <div className="mt-5">
-          <Button type="button" variant="outline" className="rounded-full" onClick={() => void load()} disabled={loading}>Refresh queue</Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            onClick={() => void load()}
+            disabled={loading}
+          >
+            Refresh queue
+          </Button>
         </div>
       </div>
     </AppShell>
