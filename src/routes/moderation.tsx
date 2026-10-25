@@ -80,9 +80,13 @@ function ModerationPage() {
         setReports(result.reports as QueueReport[]);
         setSupportRequests(result.supportRequests as SupportRequest[]);
         setNotes(
-          Object.fromEntries(
-            result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
-          ),
+          Object.fromEntries([
+            ...result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
+            ...result.supportRequests.map((request) => [
+              request.id,
+              request.resolution_note ?? "",
+            ]),
+          ]),
         );
       }
     } catch {
