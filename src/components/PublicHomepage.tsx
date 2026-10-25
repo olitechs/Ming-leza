@@ -361,7 +361,9 @@ export function PublicHomepage() {
               </div>
               <p className="mt-4 text-sm font-semibold text-foreground">
                 18+ only{" "}
-                <span className="font-normal text-muted-foreground">· Email and password sign-up</span>
+                <span className="font-normal text-muted-foreground">
+                  · Email and password sign-up
+                </span>
               </p>
             </div>
             <HeroArtwork />
@@ -410,7 +412,8 @@ export function PublicHomepage() {
                   city: "Mombasa, Kenya",
                   bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine friendship.",
                   intents: ["Friends", "Dating"],
-                  photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=640&q=80",
+                  photo:
+                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=640&q=80",
                   alt: "Illustrative portrait for fictional AI demo profile Amina",
                 },
                 {
@@ -419,7 +422,8 @@ export function PublicHomepage() {
                   city: "Nairobi, Kenya",
                   bio: "Music lover, weekend hiker, and enthusiastic home cook. I enjoy meeting people with curious minds.",
                   intents: ["Friends", "Dating"],
-                  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&q=80",
+                  photo:
+                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&q=80",
                   alt: "Illustrative portrait for fictional AI demo profile Luca",
                 },
                 {
@@ -428,7 +432,8 @@ export function PublicHomepage() {
                   city: "Watamu, Kenya",
                   bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
                   intents: ["Friends"],
-                  photo: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=640&q=80",
+                  photo:
+                    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=640&q=80",
                   alt: "Illustrative portrait for fictional AI demo profile Zuri",
                 },
                 {
@@ -437,7 +442,8 @@ export function PublicHomepage() {
                   city: "Malindi, Kenya",
                   bio: "Nature, photography, and road trips up the coast. Always happy to talk about a great place to eat.",
                   intents: ["Friends", "Dating"],
-                  photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=640&q=80",
+                  photo:
+                    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=640&q=80",
                   alt: "Illustrative portrait for fictional AI demo profile Daniel",
                 },
               ].map((person) => (
@@ -457,7 +463,9 @@ export function PublicHomepage() {
                     </span>
                   </div>
                   <div className="p-5">
-                    <h3 className="text-xl font-extrabold">{person.name}, {person.age}</h3>
+                    <h3 className="text-xl font-extrabold">
+                      {person.name}, {person.age}
+                    </h3>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                       <MapPin aria-hidden="true" className="size-4 shrink-0" />
                       {person.city}
@@ -480,7 +488,7 @@ export function PublicHomepage() {
               ))}
             </div>
             <p className="mx-auto mt-6 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
-              Photos are illustrative stock portraits. Demo profiles do not have real accounts,
+              Photos are illustrative stock portraits. Demo profiles do not have real accounts or
               live status, or private conversations. Real member profiles appear in Discover after
               members complete setup and choose to be discoverable.
             </p>
