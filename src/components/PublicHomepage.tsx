@@ -192,8 +192,8 @@ const trustItems = [
   },
   {
     icon: <LockKeyhole aria-hidden="true" className="size-5" />,
-    title: "No password",
-    text: "Use an SMS code or email link.",
+    title: "Password protected",
+    text: "Sign in securely with your email and password.",
   },
   {
     icon: <Heart aria-hidden="true" className="size-5" />,
