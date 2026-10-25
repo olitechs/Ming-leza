@@ -30,7 +30,9 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Email confirmation is controlled by Supabase Auth. Existing email accounts from the previous passwordless flow can use Forgot password; phone-only legacy accounts need account recovery before switching to email/password.\n\nSet the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional for local authentication redirects, which otherwise use the request origin. Set it to the public origin in deployment to emit absolute canonical/social URLs and the public sitemap; add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist. Configure Supabase Auth email confirmation and password-reset redirects for `/auth-callback`, keep email/password sign-in enabled, and apply database migrations before testing signed-in flows. Legacy OTP sign-in endpoints are disabled.
+Email confirmation is controlled by Supabase Auth. Existing email accounts from the previous passwordless flow can use Forgot password; phone-only legacy accounts need account recovery before switching to email/password.
+
+Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional for local authentication redirects, which otherwise use the request origin. Set it to the public origin in deployment to emit absolute canonical/social URLs and the public sitemap; add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist. Configure Supabase Auth email confirmation and password-reset redirects for `/auth-callback`, keep email/password sign-in enabled, and apply database migrations before testing signed-in flows. Legacy OTP sign-in endpoints are disabled.
 
 ## Scripts
 
