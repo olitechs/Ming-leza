@@ -229,7 +229,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Can I block or report a member in the app?",
         answer:
-          "Member-facing report and block controls are not available yet. Although the database includes some related foundations, there is no completed in-app workflow or published moderation-support contact. This is an important unfinished safety feature.",
+          "You can report or block a member from Discover or their profile. Reports are recorded for moderator review, but Mingleza has not yet published a staffed support contact or response-time commitment. If you are in immediate danger, contact local emergency services.",
       },
       {
         question: "Can I delete my account or request data deletion?",
