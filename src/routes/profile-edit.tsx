@@ -68,14 +68,23 @@ function EditProfile() {
   const [deletePassword, setDeletePassword] = useState("");
   const [accountError, setAccountError] = useState("");
   const [accountNotice, setAccountNotice] = useState("");
-  const [supportCategory, setSupportCategory] = useState<"account" | "privacy" | "technical" | "safety" | "other">("account");
+  const [supportCategory, setSupportCategory] = useState<
+    "account" | "privacy" | "technical" | "safety" | "other"
+  >("account");
   const [supportSubject, setSupportSubject] = useState("");
   const [supportDetails, setSupportDetails] = useState("");
   const [supportBusy, setSupportBusy] = useState(false);
   const [supportError, setSupportError] = useState("");
   const [supportNotice, setSupportNotice] = useState("");
   const [supportRequests, setSupportRequests] = useState<
-    { id: string; category: string; subject: string; status: string; created_at: string; response_message: string | null }[]
+    {
+      id: string;
+      category: string;
+      subject: string;
+      status: string;
+      created_at: string;
+      response_message: string | null;
+    }[]
   >([]);
 
   useEffect(() => {
@@ -98,11 +107,20 @@ function EditProfile() {
         setAccountError(result.message);
         return;
       }
-      const blob = new Blob([JSON.stringify({
-        generatedAt: result.generatedAt,
-        data: result.data,
-        truncated: result.truncated,
-      }, null, 2)], { type: "application/json;charset=utf-8" });
+      const blob = new Blob(
+        [
+          JSON.stringify(
+            {
+              generatedAt: result.generatedAt,
+              data: result.data,
+              truncated: result.truncated,
+            },
+            null,
+            2,
+          ),
+        ],
+        { type: "application/json;charset=utf-8" },
+      );
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -127,7 +145,7 @@ function EditProfile() {
     setAccountError("");
     setAccountNotice("");
     if (deleteConfirmation !== "DELETE") {
-      setAccountError('Type DELETE exactly to confirm account deletion.');
+      setAccountError("Type DELETE exactly to confirm account deletion.");
       return;
     }
     setDeleting(true);
@@ -167,7 +185,9 @@ function EditProfile() {
       setSupportRequests((current) => [result.request, ...current].slice(0, 50));
       setSupportSubject("");
       setSupportDetails("");
-      setSupportNotice("Your request was saved. It will remain in your request history while the team reviews it.");
+      setSupportNotice(
+        "Your request was saved. It will remain in your request history while the team reviews it.",
+      );
     } catch {
       setSupportError("Your support request could not be submitted. Please retry.");
     } finally {
@@ -435,7 +455,9 @@ function EditProfile() {
             <div>
               <h2 className="text-xl font-extrabold">Account & privacy</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Download a copy of your profile, preferences, blocks, friend requests, reports you submitted, and conversation history. Account deletion removes your profile photos and account-linked application records. This action cannot be undone.
+                Download a copy of your profile, preferences, blocks, friend requests, reports you
+                submitted, and conversation history. Account deletion removes your profile photos
+                and account-linked application records. This action cannot be undone.
               </p>
             </div>
           </div>
@@ -456,7 +478,10 @@ function EditProfile() {
               <Trash2 className="size-4" /> Delete account permanently
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Export anything you want to keep first. Deletion removes your sign-in account, profile, avatar files, and records linked by the app's deletion rules. Your submitted reports are subject to the current database cascade; the final legal retention policy still needs owner/legal review.
+              Export anything you want to keep first. Deletion removes your sign-in account,
+              profile, avatar files, and records linked by the app's deletion rules. Your submitted
+              reports are subject to the current database cascade; the final legal retention policy
+              still needs owner/legal review.
             </p>
             <label htmlFor="delete-account-password" className="mt-4 block text-sm font-semibold">
               Confirm your password
@@ -472,7 +497,10 @@ function EditProfile() {
               disabled={deleting}
               required
             />
-            <label htmlFor="delete-account-confirmation" className="mt-4 block text-sm font-semibold">
+            <label
+              htmlFor="delete-account-confirmation"
+              className="mt-4 block text-sm font-semibold"
+            >
               Type DELETE to confirm
             </label>
             <input
@@ -495,12 +523,18 @@ function EditProfile() {
             </Button>
           </div>
           {accountError && (
-            <p role="alert" className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+            >
               {accountError}
             </p>
           )}
           {accountNotice && (
-            <p role="status" className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text">
+            <p
+              role="status"
+              className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text"
+            >
               {accountNotice}
             </p>
           )}
@@ -512,17 +546,23 @@ function EditProfile() {
             <div>
               <h2 className="text-xl font-extrabold">Contact support</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Submit a private in-app request about your account, privacy, safety, or a technical issue. This creates a tracked request; it does not guarantee an immediate response or emergency support.
+                Submit a private in-app request about your account, privacy, safety, or a technical
+                issue. This creates a tracked request; it does not guarantee an immediate response
+                or emergency support.
               </p>
             </div>
           </div>
           <form onSubmit={(event) => void sendSupportRequest(event)} className="mt-5 space-y-4">
             <div>
-              <label htmlFor="support-category" className="text-sm font-semibold">Request type</label>
+              <label htmlFor="support-category" className="text-sm font-semibold">
+                Request type
+              </label>
               <select
                 id="support-category"
                 value={supportCategory}
-                onChange={(event) => setSupportCategory(event.target.value as typeof supportCategory)}
+                onChange={(event) =>
+                  setSupportCategory(event.target.value as typeof supportCategory)
+                }
                 className="mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm"
               >
                 <option value="account">Account access</option>
@@ -533,7 +573,9 @@ function EditProfile() {
               </select>
             </div>
             <div>
-              <label htmlFor="support-subject" className="text-sm font-semibold">Subject</label>
+              <label htmlFor="support-subject" className="text-sm font-semibold">
+                Subject
+              </label>
               <input
                 id="support-subject"
                 value={supportSubject}
@@ -546,7 +588,9 @@ function EditProfile() {
               />
             </div>
             <div>
-              <label htmlFor="support-details" className="text-sm font-semibold">Details</label>
+              <label htmlFor="support-details" className="text-sm font-semibold">
+                Details
+              </label>
               <textarea
                 id="support-details"
                 value={supportDetails}
@@ -583,7 +627,9 @@ function EditProfile() {
                   <li key={request.id} className="rounded-xl bg-secondary/50 p-3">
                     <div className="flex flex-wrap justify-between gap-2">
                       <span className="text-sm font-semibold">{request.subject}</span>
-                      <span className="rounded-full border px-2 py-1 text-xs">{request.status}</span>
+                      <span className="rounded-full border px-2 py-1 text-xs">
+                        {request.status}
+                      </span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {request.category} · {new Date(request.created_at).toLocaleString()}
