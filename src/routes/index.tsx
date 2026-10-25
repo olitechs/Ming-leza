@@ -11,6 +11,13 @@ import { sendFriendRequest } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
 import { getHomePageMode } from "@/lib/homepage-routing";
 import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -102,6 +109,56 @@ const demoProfiles = [
 ] as const;
 
 function DemoProfiles() {
+  type DemoStage = "preview" | "requested" | "accepted";
+  const [selected, setSelected] = useState<(typeof demoProfiles)[number] | null>(null);
+  const [stages, setStages] = useState<Record<string, DemoStage>>({});
+  const [messages, setMessages] = useState<Record<string, string[]>>({});
+  const [draft, setDraft] = useState("");
+
+  const stage = selected ? (stages[selected.name] ?? "preview") : "preview";
+  const conversation = selected ? (messages[selected.name] ?? []) : [];
+
+  const simulateRequest = () => {
+    if (!selected) return;
+    setStages((current) => ({ ...current, [selected.name]: "requested" }));
+  };
+
+  const simulateAcceptance = () => {
+    if (!selected) return;
+    setStages((current) => ({ ...current, [selected.name]: "accepted" }));
+  };
+
+  const sendDemoMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!selected || stage !== "accepted") return;
+    const body = draft.trim();
+    if (!body) return;
+    setMessages((current) => ({
+      ...current,
+      [selected.name]: [
+        ...(current[selected.name] ?? []),
+        `You: ${body}`,
+        `${selected.name}: Thanks for saying hello! This is a scripted demo reply.`,
+      ],
+    }));
+    setDraft("");
+  };
+
+  const resetDemo = () => {
+    if (!selected) return;
+    setStages((current) => {
+      const next = { ...current };
+      delete next[selected.name];
+      return next;
+    });
+    setMessages((current) => {
+      const next = { ...current };
+      delete next[selected.name];
+      return next;
+    });
+    setDraft("");
+  };
+
   return (
     <section aria-labelledby="demo-profiles-title" className="mb-8">
       <div className="mb-4">
@@ -109,12 +166,12 @@ function DemoProfiles() {
           Get to know Mingleza
         </p>
         <h2 id="demo-profiles-title" className="mt-2 text-2xl font-extrabold tracking-tight">
-          Example profiles
+          Try the experience
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          These fictional demo profiles help you preview the experience. They are examples, not real
-          members, and cannot receive friend requests or messages. Real members appear below when
-          they finish setup and choose to be discoverable.
+          Explore fictional example profiles and walk through a friend request and sample
+          conversation. Demo actions stay in this page session; no real member is contacted and
+          nothing is saved to your account.
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -148,10 +205,185 @@ function DemoProfiles() {
                   <Chip key={value}>{value}</Chip>
                 ))}
               </div>
+              <Button
+                type="button"
+                className="mt-4 w-full rounded-full"
+                onClick={() => {
+                  setSelected(person);
+                  setDraft("");
+                }}
+              >
+                {stages[person.name] === "accepted"
+                  ? "Continue demo"
+                  : stages[person.name] === "requested"
+                    ? "Continue request"
+                    : "Try this profile"}
+              </Button>
             </div>
           </article>
         ))}
       </div>
+
+      <Dialog
+        open={selected !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelected(null);
+            setDraft("");
+          }
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Try a profile: {selected.name}</DialogTitle>
+                <DialogDescription>
+                  Interactive walkthrough with fictional data. No real request or message is sent.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="rounded-2xl border bg-secondary/40 p-4">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={selected.photo}
+                    alt=""
+                    className="size-20 shrink-0 rounded-2xl object-cover"
+                  />
+                  <div>
+                    <p className="font-bold">
+                      {selected.name}, {selected.age}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin aria-hidden="true" className="size-4" />
+                      {selected.city}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {selected.intents.map((value) => (
+                        <Chip key={value}>{value}</Chip>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm leading-6">{selected.bio}</p>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-extrabold">How the workflow works</p>
+                <ol className="grid gap-2 text-sm sm:grid-cols-3">
+                  <li
+                    className={`rounded-xl border p-3 ${stage !== "preview" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
+                    <span className="font-bold">1. Profile</span>
+                    <p className="mt-1 text-muted-foreground">Review their details and intent.</p>
+                  </li>
+                  <li
+                    className={`rounded-xl border p-3 ${stage === "requested" || stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
+                    <span className="font-bold">2. Friend request</span>
+                    <p className="mt-1 text-muted-foreground">
+                      {stage === "preview"
+                        ? "Send a sample request."
+                        : stage === "requested"
+                          ? "Request sent in the demo."
+                          : "Demo request accepted."}
+                    </p>
+                  </li>
+                  <li
+                    className={`rounded-xl border p-3 ${stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
+                    <span className="font-bold">3. Messaging</span>
+                    <p className="mt-1 text-muted-foreground">
+                      Unlock the sample chat after acceptance.
+                    </p>
+                  </li>
+                </ol>
+              </div>
+
+              {stage === "preview" && (
+                <Button type="button" className="w-full rounded-full" onClick={simulateRequest}>
+                  <UserPlus aria-hidden="true" className="size-4" />
+                  Simulate sending friend request
+                </Button>
+              )}
+
+              {stage === "requested" && (
+                <div className="space-y-3 rounded-2xl border border-primary/30 p-4">
+                  <p className="text-sm font-semibold">Request sent — demo only</p>
+                  <p className="text-sm text-muted-foreground">
+                    In the real app, the other member would need to accept before messaging is
+                    available. Simulate that acceptance to continue testing.
+                  </p>
+                  <Button
+                    type="button"
+                    className="w-full rounded-full"
+                    onClick={simulateAcceptance}
+                  >
+                    Simulate acceptance
+                  </Button>
+                </div>
+              )}
+
+              {stage === "accepted" && (
+                <div className="space-y-3 rounded-2xl border p-4">
+                  <div>
+                    <p className="font-bold">Demo conversation</p>
+                    <p className="text-xs text-muted-foreground">
+                      Scripted responses only. This is not the real messaging inbox.
+                    </p>
+                  </div>
+                  <div
+                    aria-live="polite"
+                    className="max-h-48 space-y-2 overflow-y-auto rounded-xl bg-secondary/50 p-3"
+                  >
+                    {conversation.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No messages yet. Send a hello to try the composer.
+                      </p>
+                    ) : (
+                      conversation.map((message, index) => (
+                        <p
+                          key={`${selected.name}-${index}`}
+                          className="rounded-lg bg-card p-2 text-sm"
+                        >
+                          {message}
+                        </p>
+                      ))
+                    )}
+                  </div>
+                  <form onSubmit={sendDemoMessage} className="flex gap-2">
+                    <input
+                      value={draft}
+                      onChange={(event) => setDraft(event.target.value)}
+                      aria-label="Demo message"
+                      placeholder="Write a sample message…"
+                      maxLength={500}
+                      className="min-h-11 min-w-0 flex-1 rounded-full border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <Button type="submit" disabled={!draft.trim()} className="rounded-full px-4">
+                      Send
+                    </Button>
+                  </form>
+                </div>
+              )}
+
+              <div className="flex flex-wrap justify-between gap-2 border-t pt-3">
+                <p className="max-w-sm text-xs leading-5 text-muted-foreground">
+                  Demo only: no Supabase writes, real friend requests, or real messages.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={resetDemo}
+                >
+                  Reset demo
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
