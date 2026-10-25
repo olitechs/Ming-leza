@@ -6,7 +6,7 @@
 2. Copy `.env.example` to `.env.local` and fill in `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SERVICE_ROLE_KEY` from your own Supabase project.
 3. Keep `.env.local` untracked. Never use the service-role key in a `VITE_` variable or browser module.
 4. Run `supabase start`, then `supabase db reset` to apply migrations and reference seed data.
-5. Configure SMS delivery and phone OTP in Supabase Auth. Configure the email template to display the one-time token (not a magic link), and set exact production site/redirect URLs.
+5. Configure SMS delivery and phone OTP in Supabase Auth. For email links that must work when opened in a different browser or device, configure the Magic Link template to link to `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&amp;type=email`, with the allowed redirect URL ending in `/auth-callback`. The callback verifies the one-time hash server-side and persists the session; never log or retain token hashes. Supabase's template variables are documented at https://supabase.com/docs/guides/auth/auth-email-templates. A PKCE `code` flow requires the verifier cookie from the browser that started sign-in.
 6. Run `pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, and `supabase test db`.
 
 The Vitest suite includes a hermetic server-side email-link flow test. It uses the real Supabase SSR client against a local HTTP test double to exercise OTP request setup, PKCE callback exchange, session-cookie persistence, profile creation, and authenticated-but-not-yet-age-verified access. It sends no real email and does not use a deployed database, so it does not replace the controlled provider test below.
@@ -32,6 +32,6 @@ The Vitest suite includes a hermetic server-side email-link flow test. It uses t
 ## Boundaries
 
 - Real SMS/email delivery requires a configured Supabase project and provider.
-- The automated email-link session test verifies the app/SSR-client exchange against a local test server; inbox delivery, provider configuration, and a live callback still require a controlled non-production test.
+- The automated email-link session tests verify both the PKCE exchange and the token-hash callback against a local test server. A controlled non-production preview accepted a test email-link request, but the callback did not complete when the request was initiated in the sandbox browser and the message link was opened in another browser. Confirm the deployed template/redirect configuration and retry the callback in the same browser or with the token-hash template; do not log or retain one-time credentials.
 - Production rate limits, deliverability, account appeals and operational moderation require additional review.
 - Messaging, connections and profiles have schema/RLS foundations; replacing all hardcoded cards with live database queries remains a subsequent integration task.

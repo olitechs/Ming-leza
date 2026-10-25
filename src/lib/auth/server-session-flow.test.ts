@@ -54,6 +54,7 @@ describe("Phase 2 passwordless server session flow", () => {
   let otpPayload: JsonObject | undefined;
   let otpRedirectTo: string | null | undefined;
   let tokenPayload: JsonObject | undefined;
+  let verifyPayload: JsonObject | undefined;
   let profilePayload: JsonObject | undefined;
   let userAuthorization: string | undefined;
 
@@ -69,6 +70,24 @@ describe("Phase 2 passwordless server session flow", () => {
 
       if (url.pathname === "/auth/v1/token" && request.method === "POST") {
         tokenPayload = await readBody(request);
+        writeJson(response, 200, {
+          access_token: makeTestAccessToken(),
+          token_type: "bearer",
+          expires_in: 3600,
+          refresh_token: "phase2-test-refresh-token",
+          user: {
+            id: "phase2-test-user",
+            aud: "authenticated",
+            role: "authenticated",
+            email: "phase2-test@example.invalid",
+            created_at: "2026-01-01T00:00:00.000Z",
+          },
+        });
+        return;
+      }
+
+      if (url.pathname === "/auth/v1/verify" && request.method === "POST") {
+        verifyPayload = await readBody(request);
         writeJson(response, 200, {
           access_token: makeTestAccessToken(),
           token_type: "bearer",
@@ -172,6 +191,31 @@ describe("Phase 2 passwordless server session flow", () => {
 
     expect(access).toEqual({ authenticated: true, adultVerified: false });
     expect(userAuthorization).toMatch(/^Bearer test\./);
+  });
+
+  it("verifies a token-hash email link and persists a session without a PKCE verifier", async () => {
+    state.cookies.clear();
+    verifyPayload = undefined;
+    tokenPayload = undefined;
+    profilePayload = undefined;
+
+    const exchanged = await exchangeEmailMagicLink({
+      data: { tokenHash: "single-use-test-hash", type: "email" },
+    });
+
+    expect(exchanged).toEqual({ ok: true });
+    expect(verifyPayload).toMatchObject({ token_hash: "single-use-test-hash", type: "email" });
+    expect(tokenPayload).toBeUndefined();
+    expect(Object.keys(Object.fromEntries(state.cookies))).toContainEqual(
+      expect.stringMatching(/auth-token/),
+    );
+    expect(profilePayload).toEqual({
+      id: "phase2-test-user",
+      display_name: "New member",
+      friends_enabled: true,
+      dating_enabled: false,
+      is_discoverable: false,
+    });
   });
 
   it("uses configured SITE_URL outside Vercel Preview", async () => {
