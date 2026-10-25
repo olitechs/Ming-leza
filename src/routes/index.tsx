@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
+import { SafetyActions } from "@/components/SafetyActions";
 import { Avatar } from "@/components/Avatar";
 import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
@@ -577,6 +578,7 @@ function Discover() {
                           ? "Sending…"
                           : "Add friend"}
                     </button>
+                    <SafetyActions userId={profile.id} displayName={profile.displayName} />
                   </div>
                 </article>
               );

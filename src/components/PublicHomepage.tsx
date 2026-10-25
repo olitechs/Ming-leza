@@ -247,7 +247,7 @@ const faqs = [
   {
     question: "How do I report someone?",
     answer:
-      "In-app reporting and blocking controls are coming soon and are not available yet. A direct support contact has not been published either.",
+      "You can report or block a member from Discover or their profile. Reports are recorded for moderator review, but a staffed support contact and response-time commitment have not yet been published. If you are in immediate danger, contact local emergency services.",
   },
   {
     question: "Does Mingleza use my location?",
@@ -570,8 +570,9 @@ export function PublicHomepage() {
                 <div>
                   <h3 className="font-bold">Report and block</h3>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    In-app reporting and blocking are not available yet. These controls are coming
-                    soon.
+                    Members can report or block profiles from Discover. Reports are recorded for
+                    moderator review; a staffed support contact and response-time commitment are not
+                    yet published.
                   </p>
                 </div>
               </article>

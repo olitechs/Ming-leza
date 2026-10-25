@@ -16,6 +16,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -57,6 +58,11 @@ const MatchesRoute = MatchesRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModerationRoute = ModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
+  ModerationRoute: typeof ModerationRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileEditRoute: typeof ProfileEditRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -261,6 +274,20 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -323,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
+  ModerationRoute: ModerationRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileEditRoute: ProfileEditRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
