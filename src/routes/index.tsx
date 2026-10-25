@@ -251,13 +251,17 @@ function DemoProfiles() {
                     className="size-20 shrink-0 rounded-2xl object-cover"
                   />
                   <div>
-                    <p className="font-bold">{selected.name}, {selected.age}</p>
+                    <p className="font-bold">
+                      {selected.name}, {selected.age}
+                    </p>
                     <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                       <MapPin aria-hidden="true" className="size-4" />
                       {selected.city}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {selected.intents.map((value) => <Chip key={value}>{value}</Chip>)}
+                      {selected.intents.map((value) => (
+                        <Chip key={value}>{value}</Chip>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -267,19 +271,31 @@ function DemoProfiles() {
               <div className="space-y-3">
                 <p className="text-sm font-extrabold">How the workflow works</p>
                 <ol className="grid gap-2 text-sm sm:grid-cols-3">
-                  <li className={`rounded-xl border p-3 ${stage !== "preview" ? "border-primary bg-primary/5" : "bg-card"}`}>
+                  <li
+                    className={`rounded-xl border p-3 ${stage !== "preview" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
                     <span className="font-bold">1. Profile</span>
                     <p className="mt-1 text-muted-foreground">Review their details and intent.</p>
                   </li>
-                  <li className={`rounded-xl border p-3 ${stage === "requested" || stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}>
+                  <li
+                    className={`rounded-xl border p-3 ${stage === "requested" || stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
                     <span className="font-bold">2. Friend request</span>
                     <p className="mt-1 text-muted-foreground">
-                      {stage === "preview" ? "Send a sample request." : stage === "requested" ? "Request sent in the demo." : "Demo request accepted."}
+                      {stage === "preview"
+                        ? "Send a sample request."
+                        : stage === "requested"
+                          ? "Request sent in the demo."
+                          : "Demo request accepted."}
                     </p>
                   </li>
-                  <li className={`rounded-xl border p-3 ${stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}>
+                  <li
+                    className={`rounded-xl border p-3 ${stage === "accepted" ? "border-primary bg-primary/5" : "bg-card"}`}
+                  >
                     <span className="font-bold">3. Messaging</span>
-                    <p className="mt-1 text-muted-foreground">Unlock the sample chat after acceptance.</p>
+                    <p className="mt-1 text-muted-foreground">
+                      Unlock the sample chat after acceptance.
+                    </p>
                   </li>
                 </ol>
               </div>
@@ -295,10 +311,14 @@ function DemoProfiles() {
                 <div className="space-y-3 rounded-2xl border border-primary/30 p-4">
                   <p className="text-sm font-semibold">Request sent — demo only</p>
                   <p className="text-sm text-muted-foreground">
-                    In the real app, the other member would need to accept before messaging is available.
-                    Simulate that acceptance to continue testing.
+                    In the real app, the other member would need to accept before messaging is
+                    available. Simulate that acceptance to continue testing.
                   </p>
-                  <Button type="button" className="w-full rounded-full" onClick={simulateAcceptance}>
+                  <Button
+                    type="button"
+                    className="w-full rounded-full"
+                    onClick={simulateAcceptance}
+                  >
                     Simulate acceptance
                   </Button>
                 </div>
@@ -312,14 +332,20 @@ function DemoProfiles() {
                       Scripted responses only. This is not the real messaging inbox.
                     </p>
                   </div>
-                  <div aria-live="polite" className="max-h-48 space-y-2 overflow-y-auto rounded-xl bg-secondary/50 p-3">
+                  <div
+                    aria-live="polite"
+                    className="max-h-48 space-y-2 overflow-y-auto rounded-xl bg-secondary/50 p-3"
+                  >
                     {conversation.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
                         No messages yet. Send a hello to try the composer.
                       </p>
                     ) : (
                       conversation.map((message, index) => (
-                        <p key={`${selected.name}-${index}`} className="rounded-lg bg-card p-2 text-sm">
+                        <p
+                          key={`${selected.name}-${index}`}
+                          className="rounded-lg bg-card p-2 text-sm"
+                        >
                           {message}
                         </p>
                       ))
@@ -345,7 +371,12 @@ function DemoProfiles() {
                 <p className="max-w-sm text-xs leading-5 text-muted-foreground">
                   Demo only: no Supabase writes, real friend requests, or real messages.
                 </p>
-                <Button type="button" variant="outline" className="rounded-full" onClick={resetDemo}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={resetDemo}
+                >
                   Reset demo
                 </Button>
               </div>
