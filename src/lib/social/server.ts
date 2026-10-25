@@ -169,15 +169,24 @@ export const getMemberBlockStatus = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabase, user } = await authenticatedClient();
     if (!user) return { ok: false as const, message: "Sign in to use safety controls." };
-    if (user.id === data.userId)
-      return { ok: false as const, message: "You cannot apply safety actions to your own profile." };
+    if (user.id === data.userId) {
+      return {
+        ok: false as const,
+        message: "You cannot apply safety actions to your own profile.",
+      };
+    }
     const { data: row, error } = await supabase
       .from("blocks")
       .select("blocked_id")
       .eq("blocker_id", user.id)
       .eq("blocked_id", data.userId)
       .maybeSingle();
-    if (error) return { ok: false as const, message: "Safety controls are temporarily unavailable." };
+    if (error) {
+      return {
+        ok: false as const,
+        message: "Safety controls are temporarily unavailable.",
+      };
+    }
     return { ok: true as const, blocked: Boolean(row) };
   });
 
@@ -186,13 +195,19 @@ export const blockMember = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabase, user } = await authenticatedClient();
     if (!user) return { ok: false as const, message: "Sign in to block a member." };
-    if (user.id === data.userId)
+    if (user.id === data.userId) {
       return { ok: false as const, message: "You cannot block your own profile." };
-    const { error } = await supabase.from("blocks").upsert(
-      { blocker_id: user.id, blocked_id: data.userId },
-      { onConflict: "blocker_id,blocked_id", ignoreDuplicates: true },
-    );
-    if (error) return { ok: false as const, message: "This member could not be blocked. Please retry." };
+    }
+    const { error } = await supabase.from("blocks").insert({
+      blocker_id: user.id,
+      blocked_id: data.userId,
+    });
+    if (error && error.code !== "23505") {
+      return {
+        ok: false as const,
+        message: "This member could not be blocked. Please retry.",
+      };
+    }
     return { ok: true as const };
   });
 
@@ -206,7 +221,12 @@ export const unblockMember = createServerFn({ method: "POST" })
       .delete()
       .eq("blocker_id", user.id)
       .eq("blocked_id", data.userId);
-    if (error) return { ok: false as const, message: "This member could not be unblocked. Please retry." };
+    if (error) {
+      return {
+        ok: false as const,
+        message: "This member could not be unblocked. Please retry.",
+      };
+    }
     return { ok: true as const };
   });
 
@@ -215,21 +235,31 @@ export const reportMember = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabase, user } = await authenticatedClient();
     if (!user) return { ok: false as const, message: "Sign in to report a member." };
-    if (user.id === data.userId)
+    if (user.id === data.userId) {
       return { ok: false as const, message: "You cannot report your own profile." };
+    }
     const { data: target, error: targetError } = await supabase
       .from("profiles")
       .select("id")
       .eq("id", data.userId)
       .maybeSingle();
-    if (targetError || !target)
-      return { ok: false as const, message: "This profile is no longer available to report." };
+    if (targetError || !target) {
+      return {
+        ok: false as const,
+        message: "This profile is no longer available to report.",
+      };
+    }
     const { error } = await supabase.from("moderation_reports").insert({
       reporter_id: user.id,
       reported_user_id: data.userId,
       reason: data.reason,
       details: data.details.trim() || null,
     });
-    if (error) return { ok: false as const, message: "Your report could not be submitted. Please retry." };
+    if (error) {
+      return {
+        ok: false as const,
+        message: "Your report could not be submitted. Please retry.",
+      };
+    }
     return { ok: true as const };
   });
