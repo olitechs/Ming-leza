@@ -6,7 +6,7 @@ export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     code: typeof search["code"] === "string" ? search["code"] : "",
     tokenHash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
-    type: typeof search["type"] === "string" ? search["type"] : "",
+    type: typeof search["type"] === "string" ? search["type"] : "",\n    next: search["next"] === "reset-password" ? "reset-password" : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/auth-callback")({
 });
 
 function AuthCallback() {
-  const { code, tokenHash, type, error } = Route.useSearch();
+  const { code, tokenHash, type, error, next } = Route.useSearch();
   const [message, setMessage] = useState("Completing your secure sign-in…");
 
   useEffect(() => {
@@ -35,7 +35,7 @@ function AuthCallback() {
       };
     }
 
-    if (!code && !(tokenHash && ["magiclink", "email", "signup"].includes(type))) {
+    if (!code && !(tokenHash && ["email", "signup", "recovery"].includes(type))) {
       returnToSignIn();
       return () => {
         active = false;
@@ -43,7 +43,7 @@ function AuthCallback() {
     }
 
     exchangeEmailMagicLink({
-      data: code ? { code } : { tokenHash, type: type as "magiclink" | "email" | "signup" },
+      data: code ? { code } : { tokenHash, type: type as "email" | "signup" | "recovery" },
     })
       .then(async (result) => {
         if (!active) return;
@@ -68,7 +68,7 @@ function AuthCallback() {
     return () => {
       active = false;
     };
-  }, [code, tokenHash, type, error]);
+  }, [code, tokenHash, type, error, next]);
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background p-6">
