@@ -2,7 +2,7 @@
 
 Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members create accounts with their full name, email, password, phone number, country, and adult age bracket, then sign in with email and password. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
 
-Logged-out visitors see a public, crawler-visible landing page that links into password-based sign-up and sign-in. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
+Logged-out visitors see a public, crawler-visible landing page that links into password-based sign-up and sign-in. Existing users from the former passwordless flow should use Forgot password to set a password; profile IDs and application data are preserved. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
 
 Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, member-facing report/block controls, moderation workflows, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
 
