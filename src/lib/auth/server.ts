@@ -538,7 +538,8 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       if (!auth.user.email) {
         return {
           ok: false as const,
-          message: "This account cannot be reauthenticated with email and password. Please use the support request form.",
+          message:
+            "This account cannot be reauthenticated with email and password. Please use the support request form.",
         };
       }
       const { data: reauthenticated, error: reauthError } = await supabase.auth.signInWithPassword({
@@ -572,7 +573,8 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
         if (removeError) {
           return {
             ok: false as const,
-            message: "We could not safely clean up your profile photos. Your account was not deleted.",
+            message:
+              "We could not safely clean up your profile photos. Your account was not deleted.",
           };
         }
       }
