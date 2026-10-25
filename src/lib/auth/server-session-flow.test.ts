@@ -135,6 +135,8 @@ describe("Phase 2 passwordless server session flow", () => {
     tokenPayload = undefined;
     profilePayload = undefined;
     userAuthorization = undefined;
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("SITE_URL", "https://mingleza.example");
 
     const sent = await sendOtp({
       data: { method: "email", identifier: "phase2-test@example.invalid" },
@@ -170,5 +172,18 @@ describe("Phase 2 passwordless server session flow", () => {
 
     expect(access).toEqual({ authenticated: true, adultVerified: false });
     expect(userAuthorization).toMatch(/^Bearer test\./);
+  });
+
+  it("uses configured SITE_URL outside Vercel Preview", async () => {
+    otpRedirectTo = undefined;
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("SITE_URL", "https://mingleza.example/");
+
+    const sent = await sendOtp({
+      data: { method: "email", identifier: "phase2-test@example.invalid" },
+    });
+
+    expect(sent).toEqual({ ok: true });
+    expect(otpRedirectTo).toBe("https://mingleza.example/auth-callback");
   });
 });

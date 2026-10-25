@@ -27,13 +27,15 @@ const otpVerifySchema = z.object({
 });
 
 /**
- * Public site origin used for emailed sign-in links. Prefer the SITE_URL setting; otherwise
- * use the origin of the current request so local, preview and production all work.
+ * Public site origin used for emailed sign-in links. A preview must return to its own
+ * deployment, even when SITE_URL is configured globally for the production domain.
  */
 function getSiteUrl() {
+  const requestOrigin = new URL(getRequest().url).origin;
+  if (process.env["VERCEL_ENV"] === "preview") return requestOrigin;
   const configured = process.env["SITE_URL"]?.trim();
   if (configured) return configured.replace(/\/+$/, "");
-  return new URL(getRequest().url).origin;
+  return requestOrigin;
 }
 
 export const sendOtp = createServerFn({ method: "POST" })
