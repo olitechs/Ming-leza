@@ -610,12 +610,18 @@ function EditProfile() {
             </Button>
           </form>
           {supportError && (
-            <p role="alert" className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+            >
               {supportError}
             </p>
           )}
           {supportNotice && (
-            <p role="status" className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text">
+            <p
+              role="status"
+              className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text"
+            >
               {supportNotice}
             </p>
           )}
