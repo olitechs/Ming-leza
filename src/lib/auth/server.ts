@@ -273,7 +273,7 @@ export const signUpWithPassword = createServerFn({ method: "POST" })
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: `${getSiteUrl()}/auth-callback`,
+          emailRedirectTo: `${getSiteUrl()}/auth-callback?flow=signup`,
           data: {
             full_name: data.fullName,
             phone_number: data.phone,
