@@ -226,7 +226,7 @@ function LoginPage() {
         </form>
 
         {mode === "signin" && <button type="button" onClick={() => changeMode("forgot")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Forgot password?</button>}
-        {(mode === "forgot" || mode === "reset") && <button type="button" onClick={() => changeMode("signin")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Back to sign in</button>}}
+        {(mode === "forgot" || mode === "reset") && <button type="button" onClick={() => changeMode("signin")} className="mt-4 min-h-11 text-sm font-semibold text-primary underline-offset-4 hover:underline">Back to sign in</button>}
         <p className="mt-6 text-xs leading-5 text-muted-foreground">Mingleza is strictly for adults aged 18+. Selecting an age bracket does not replace the required adult-verification step. Passwords are handled by Supabase Auth and are never stored in your profile.</p>
       </section>
     </main>
