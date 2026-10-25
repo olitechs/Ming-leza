@@ -6,7 +6,7 @@ const credentialsSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().min(1).max(256),
 });
-\n
+
 /** Authenticate an existing account with its email and password. */
 export const signInWithPassword = createServerFn({ method: "POST" })
   .validator(credentialsSchema)
