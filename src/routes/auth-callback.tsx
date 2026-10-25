@@ -53,6 +53,10 @@ function AuthCallback() {
           returnToSignIn();
           return;
         }
+        if (next === "reset-password") {
+          window.location.replace("/login?mode=reset");
+          return;
+        }
         // Returning adults go straight in; new members continue to the age step.
         const access = await getMyAccess();
         window.location.replace(
