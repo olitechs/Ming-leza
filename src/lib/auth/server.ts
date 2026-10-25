@@ -412,3 +412,162 @@ export const updateMyPassword = createServerFn({ method: "POST" })
       return { ok: false as const, message: "Password could not be updated. Please try again." };
     }
   });
+
+
+const accountConfirmationSchema = z.object({ confirmation: z.literal("DELETE") });
+
+/** Export the signed-in member's own profile, preferences, social records, and conversation history. */
+export const exportMyData = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const supabase = getSupabaseServerClient();
+    const { data: auth, error: authError } = await supabase.auth.getUser();
+    if (authError || !auth.user) {
+      return { ok: false as const, message: "Sign in to export your data." };
+    }
+    const userId = auth.user.id;
+    const [profile, age, preferences, blocks, friendships, reports, memberships] =
+      await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+        supabase
+          .from("age_verifications")
+          .select("is_18_plus, checked_at")
+          .eq("user_id", userId)
+          .maybeSingle(),
+        supabase.from("user_preferences").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("blocks").select("blocked_id, created_at").eq("blocker_id", userId),
+        supabase
+          .from("friendships")
+          .select("id, requester_id, addressee_id, status, created_at, updated_at")
+          .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
+        supabase
+          .from("moderation_reports")
+          .select("id, reported_user_id, message_id, reason, details, status, created_at")
+          .eq("reporter_id", userId),
+        supabase
+          .from("conversation_members")
+          .select("conversation_id, joined_at")
+          .eq("user_id", userId),
+      ]);
+    if (
+      profile.error ||
+      age.error ||
+      preferences.error ||
+      blocks.error ||
+      friendships.error ||
+      reports.error ||
+      memberships.error
+    ) {
+      return {
+        ok: false as const,
+        message: "Your data export is temporarily unavailable. Please try again.",
+      };
+    }
+
+    const conversationIds = [...new Set((memberships.data ?? []).map((item) => item.conversation_id))];
+    const messages: Record<string, unknown>[] = [];
+    const pageSize = 500;
+    const maximumMessages = 10000;
+    if (conversationIds.length) {
+      for (let offset = 0; offset < maximumMessages; offset += pageSize) {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("id, conversation_id, sender_id, body, created_at, edited_at, deleted_at")
+          .in("conversation_id", conversationIds)
+          .order("created_at", { ascending: true })
+          .range(offset, offset + pageSize - 1);
+        if (error) {
+          return {
+            ok: false as const,
+            message: "Your conversation history could not be exported. Please try again.",
+          };
+        }
+        messages.push(...(data ?? []));
+        if ((data ?? []).length < pageSize) break;
+      }
+    }
+
+    return {
+      ok: true as const,
+      generatedAt: new Date().toISOString(),
+      truncated: messages.length >= maximumMessages,
+      data: {
+        account: {
+          id: userId,
+          email: auth.user.email ?? null,
+          createdAt: auth.user.created_at,
+          metadata: auth.user.user_metadata,
+        },
+        profile: profile.data,
+        adultVerification: age.data,
+        preferences: preferences.data,
+        blocks: blocks.data ?? [],
+        friendships: friendships.data ?? [],
+        reportsSubmitted: reports.data ?? [],
+        conversationMemberships: memberships.data ?? [],
+        messages,
+      },
+    };
+  } catch {
+    return {
+      ok: false as const,
+      message: "Your data export is temporarily unavailable. Please try again.",
+    };
+  }
+});
+
+/**
+ * Delete the authenticated account and its avatar objects. Foreign-key cascades remove
+ * associated app records; avatar cleanup must succeed before the Auth user is deleted.
+ */
+export const deleteMyAccount = createServerFn({ method: "POST" })
+  .validator(accountConfirmationSchema)
+  .handler(async ({ data }) => {
+    if (data.confirmation !== "DELETE") {
+      return { ok: false as const, message: "Type DELETE to confirm account deletion." };
+    }
+    try {
+      const supabase = getSupabaseServerClient();
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError || !auth.user) {
+        return { ok: false as const, message: "Sign in again before deleting your account." };
+      }
+      const admin = getSupabaseAdminClient();
+      const bucket = admin.storage.from("profile-avatars");
+      const { data: objects, error: listError } = await bucket.list(auth.user.id, {
+        limit: 1000,
+        sortBy: { column: "name", order: "asc" },
+      });
+      if (listError) {
+        return {
+          ok: false as const,
+          message: "We could not safely clean up your profile photos. Your account was not deleted.",
+        };
+      }
+      const paths = (objects ?? [])
+        .filter((object) => object.name)
+        .map((object) => `${auth.user.id}/${object.name}`);
+      if (paths.length) {
+        const { error: removeError } = await bucket.remove(paths);
+        if (removeError) {
+          return {
+            ok: false as const,
+            message: "We could not safely clean up your profile photos. Your account was not deleted.",
+          };
+        }
+      }
+      const { error: deleteError } = await admin.auth.admin.deleteUser(auth.user.id);
+      if (deleteError) {
+        return {
+          ok: false as const,
+          message: "Your account could not be deleted. Please retry or use the support request form.",
+        };
+      }
+      await supabase.auth.signOut().catch(() => undefined);
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "Account deletion is temporarily unavailable. Please retry.",
+      };
+    }
+  });
