@@ -9,7 +9,8 @@ create table if not exists public.support_requests (
   created_at timestamptz not null default now(),
   reviewed_by uuid references auth.users(id) on delete set null,
   reviewed_at timestamptz,
-  resolution_note text check (resolution_note is null or char_length(resolution_note) <= 2000)
+  resolution_note text check (resolution_note is null or char_length(resolution_note) <= 2000),
+  response_message text check (response_message is null or char_length(response_message) <= 2000)
 );
 
 create index if not exists support_requests_queue_idx
