@@ -82,10 +82,7 @@ function ModerationPage() {
         setNotes(
           Object.fromEntries([
             ...result.reports.map((report) => [report.id, report.resolution_note ?? ""]),
-            ...result.supportRequests.map((request) => [
-              request.id,
-              request.resolution_note ?? "",
-            ]),
+            ...result.supportRequests.map((request) => [request.id, request.resolution_note ?? ""]),
           ]),
         );
       }
@@ -265,10 +262,7 @@ function ModerationPage() {
                   </div>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6">{request.details}</p>
                   <div className="mt-4">
-                    <label
-                      htmlFor={`support-note-${request.id}`}
-                      className="text-sm font-semibold"
-                    >
+                    <label htmlFor={`support-note-${request.id}`} className="text-sm font-semibold">
                       Internal resolution note
                     </label>
                     <textarea
