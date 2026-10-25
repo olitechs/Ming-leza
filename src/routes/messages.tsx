@@ -16,7 +16,7 @@ export const Route = createFileRoute("/messages")({
   beforeLoad: async () => {
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
-      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+      throw redirect({ to: "/login", search: { mode: "signin" } });
   },
   head: () => ({
     meta: [

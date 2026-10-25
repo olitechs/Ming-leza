@@ -10,9 +10,14 @@ import p3 from "@/assets/p3.webp";
 import p4 from "@/assets/p4.webp";
 
 export const Route = createFileRoute("/welcome")({
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     const access = await getMyAccess();
-    if (!access.authenticated) throw redirect({ to: "/login", search: { mode: "signup" } });
+    if (!access.authenticated) {
+      throw redirect({
+        to: "/login",
+        search: { mode: search.mode === "signin" ? "signin" : "signup" },
+      });
+    }
   },
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
