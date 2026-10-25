@@ -6,7 +6,8 @@ export const Route = createFileRoute("/auth-callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     code: typeof search["code"] === "string" ? search["code"] : "",
     tokenHash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
-    type: typeof search["type"] === "string" ? search["type"] : "",\n    next: search["next"] === "reset-password" ? "reset-password" : "",
+    type: typeof search["type"] === "string" ? search["type"] : "",
+    next: search["next"] === "reset-password" ? "reset-password" : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
