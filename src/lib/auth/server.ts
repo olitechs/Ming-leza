@@ -413,7 +413,6 @@ export const updateMyPassword = createServerFn({ method: "POST" })
     }
   });
 
-
 const accountConfirmationSchema = z.object({ confirmation: z.literal("DELETE") });
 
 /** Export the signed-in member's own profile, preferences, social records, and conversation history. */
@@ -463,7 +462,9 @@ export const exportMyData = createServerFn({ method: "GET" }).handler(async () =
       };
     }
 
-    const conversationIds = [...new Set((memberships.data ?? []).map((item) => item.conversation_id))];
+    const conversationIds = [
+      ...new Set((memberships.data ?? []).map((item) => item.conversation_id)),
+    ];
     const messages: Record<string, unknown>[] = [];
     const pageSize = 500;
     const maximumMessages = 10000;
@@ -540,7 +541,8 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       if (listError) {
         return {
           ok: false as const,
-          message: "We could not safely clean up your profile photos. Your account was not deleted.",
+          message:
+            "We could not safely clean up your profile photos. Your account was not deleted.",
         };
       }
       const paths = (objects ?? [])
@@ -559,7 +561,8 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       if (deleteError) {
         return {
           ok: false as const,
-          message: "Your account could not be deleted. Please retry or use the support request form.",
+          message:
+            "Your account could not be deleted. Please retry or use the support request form.",
         };
       }
       await supabase.auth.signOut().catch(() => undefined);
