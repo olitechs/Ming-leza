@@ -140,7 +140,8 @@ function ModerationPage() {
                       </h2>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Reported by {report.reporter?.display_name ?? "Unavailable member"}{" "}
-                        · {new Date(report.created_at).toLocaleString()}
+                        <span aria-hidden="true">·</span>{" "}
+                        {new Date(report.created_at).toLocaleString()}
                       </p>
                     </div>
                     <span className="rounded-full border px-3 py-1 text-xs font-bold">
