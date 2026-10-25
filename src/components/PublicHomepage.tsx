@@ -361,7 +361,7 @@ export function PublicHomepage() {
               </div>
               <p className="mt-4 text-sm font-semibold text-foreground">
                 18+ only{" "}
-                <span className="font-normal text-muted-foreground">· No password needed</span>
+                <span className="font-normal text-muted-foreground">· Email and password sign-up</span>
               </p>
             </div>
             <HeroArtwork />
