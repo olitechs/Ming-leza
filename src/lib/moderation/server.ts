@@ -107,7 +107,6 @@ export const updateModerationReport = createServerFn({ method: "POST" })
     }
   });
 
-
 export const updateSupportRequest = createServerFn({ method: "POST" })
   .validator(updateSupportSchema)
   .handler(async ({ data }) => {
@@ -124,7 +123,12 @@ export const updateSupportRequest = createServerFn({ method: "POST" })
           reviewed_at: new Date().toISOString(),
         })
         .eq("id", data.requestId);
-      if (error) return { ok: false as const, message: "The support request could not be updated." };
+      if (error) {
+        return {
+          ok: false as const,
+          message: "The support request could not be updated.",
+        };
+      }
       return { ok: true as const };
     } catch {
       return { ok: false as const, message: "The support queue is unavailable." };
