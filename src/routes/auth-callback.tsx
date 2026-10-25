@@ -37,8 +37,10 @@ function AuthCallback() {
       };
     }
 
-    if ((!code && !(tokenHash && ["email", "signup", "recovery"].includes(type))) ||
-        (Boolean(code) && next !== "reset-password" && flow !== "signup")) {
+    if (
+      (!code && !(tokenHash && ["email", "signup", "recovery"].includes(type))) ||
+      (Boolean(code) && next !== "reset-password" && flow !== "signup")
+    ) {
       returnToSignIn();
       return () => {
         active = false;
