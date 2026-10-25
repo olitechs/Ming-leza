@@ -9,11 +9,11 @@ import {
   getMyAccess,
 } from "@/lib/auth/server";
 
-type Mode = "signup" | "signin" | "reset";
+type Mode = "signup" | "signin" | "forgot" | "reset";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
-    mode: search["mode"] === "signin" || search["mode"] === "reset" ? search["mode"] : "signup",
+    mode: search["mode"] === "signin" || search["mode"] === "forgot" || search["mode"] === "reset" ? search["mode"] : "signup",
   }),
   head: () => ({
     meta: [
@@ -103,6 +103,18 @@ function LoginPage() {
       return;
     }
 
+    if (mode === "forgot") {
+      if (!normalizedEmail) { setError("Enter your email address first."); return; }
+      setBusy(true);
+      try {
+        const result = await requestPasswordReset({ data: { email: normalizedEmail } });
+        if (!result.ok) { setError(result.message); return; }
+        setMessage("If an account exists for that address, a password-reset email will arrive shortly. Open it in this browser to continue.");
+      } catch { setError("We could not send a reset email. Please try again later."); }
+      finally { setBusy(false); }
+      return;
+    }
+
     if (mode === "reset") {
       if (password.length < 6) {
         setError("Your new password must contain at least 6 characters.");
@@ -148,32 +160,10 @@ function LoginPage() {
     }
   };
 
-  const sendReset = async () => {
-    if (!email.trim()) {
-      setError("Enter your email address first.");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    setMessage("");
-    try {
-      const result = await requestPasswordReset({ data: { email: email.trim().toLowerCase() } });
-      if (!result.ok) {
-        setError(result.message);
-        return;
-      }
-      setMessage("If an account exists for that address, a password-reset email will arrive shortly. Open it in this browser to continue.");
-    } catch {
-      setError("We could not send a reset email. Please try again later.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const title = mode === "signup" ? "Create your account" : mode === "reset" ? "Set a new password" : "Welcome back";
+  const title = mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Set a new password" : "Welcome back";
   const description = mode === "signup"
     ? "Meet your people. Mingleza is for adults aged 18 and over."
-    : mode === "reset" ? "Choose a new password for your Mingleza account." : "Sign in with your email and password.";
+    : mode === "forgot" ? "We will email a secure reset link if an account exists for your address." : mode === "reset" ? "Choose a new password for your Mingleza account." : "Sign in with your email and password.";
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-10 text-foreground">
@@ -190,7 +180,7 @@ function LoginPage() {
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
 
-        {mode !== "reset" && (
+        {(mode === "signup" || mode === "signin") && (
           <div className="mt-6 grid grid-cols-2 rounded-full bg-secondary p-1" aria-label="Account action">
             <button type="button" onClick={() => changeMode("signup")} className={`min-h-11 rounded-full px-3 text-sm font-bold ${mode === "signup" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`} aria-pressed={mode === "signup"}>Create account</button>
             <button type="button" onClick={() => changeMode("signin")} className={`min-h-11 rounded-full px-3 text-sm font-bold ${mode === "signin" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`} aria-pressed={mode === "signin"}>Sign in</button>
@@ -215,7 +205,7 @@ function LoginPage() {
             </>
           )}
           <Field label="Email address" name="email" value={email} onChange={setEmail} autoComplete="email" required placeholder="you@example.com" type="email" />
-          <label className="block text-sm font-semibold" htmlFor="password">{mode === "reset" ? "New password" : "Password"}
+          {mode !== "forgot" && <label className="block text-sm font-semibold" htmlFor="password">{mode === "reset" ? "New password" : "Password"}
             <div className="relative mt-2">
               <input id="password" name="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} maxLength={128} autoComplete={mode === "signin" ? "current-password" : "new-password"} placeholder={mode === "reset" ? "At least 6 characters" : "At least 6 characters"} className="min-h-12 w-full rounded-xl border border-input bg-background px-3 pr-12 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground hover:bg-secondary" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>
@@ -231,7 +221,7 @@ function LoginPage() {
           {message && <p role="status" className="rounded-xl border border-primary/20 bg-secondary p-3 text-sm leading-6">{message}</p>}
 
           <button type="submit" disabled={busy} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 font-bold text-primary-foreground transition hover:bg-primary-pressed disabled:cursor-not-allowed disabled:opacity-60">
-            <LockKeyhole aria-hidden="true" className="size-4" /> {busy ? "Please wait…" : mode === "signup" ? "Create account" : mode === "reset" ? "Update password" : "Sign in"}
+            <LockKeyhole aria-hidden="true" className="size-4" /> {busy ? "Please wait…" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset email" : mode === "reset" ? "Update password" : "Sign in"}
           </button>
         </form>
 
