@@ -468,7 +468,15 @@ export const exportMyData = createServerFn({ method: "GET" }).handler(async () =
     const conversationIds = [
       ...new Set((memberships.data ?? []).map((item) => item.conversation_id)),
     ];
-    const messages: Record<string, unknown>[] = [];
+    const messages: {
+      id: string;
+      conversation_id: string;
+      sender_id: string;
+      body: string;
+      created_at: string;
+      edited_at: string | null;
+      deleted_at: string | null;
+    }[] = [];
     const pageSize = 500;
     const maximumMessages = 10000;
     if (conversationIds.length) {
