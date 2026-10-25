@@ -18,4 +18,7 @@ comment on column public.moderation_reports.resolution_note is
 -- Members may submit reports and see their own submission only. Moderator queue access
 -- uses the server-only service client after checking the trusted app_metadata.role claim.
 revoke all on public.moderation_reports from anon;
-grant select, insert on public.moderation_reports to authenticated;
+revoke insert on public.moderation_reports from authenticated;
+grant select on public.moderation_reports to authenticated;
+grant insert (reporter_id, reported_user_id, message_id, reason, details)
+  on public.moderation_reports to authenticated;
