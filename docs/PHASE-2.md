@@ -9,6 +9,8 @@
 5. Configure SMS delivery and phone OTP in Supabase Auth. Configure the email template to display the one-time token (not a magic link), and set exact production site/redirect URLs.
 6. Run `pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, and `supabase test db`.
 
+The Vitest suite includes a hermetic server-side email-link flow test. It uses the real Supabase SSR client against a local HTTP test double to exercise OTP request setup, PKCE callback exchange, session-cookie persistence, profile creation, and authenticated-but-not-yet-age-verified access. It sends no real email and does not use a deployed database, so it does not replace the controlled provider test below.
+
 ## Security model
 
 - Browser code uses the public project URL and publishable key only. The admin client is restricted to age-attestation writes and must never be imported into browser-facing modules.
@@ -30,5 +32,6 @@
 ## Boundaries
 
 - Real SMS/email delivery requires a configured Supabase project and provider.
+- The automated email-link session test verifies the app/SSR-client exchange against a local test server; inbox delivery, provider configuration, and a live callback still require a controlled non-production test.
 - Production rate limits, deliverability, account appeals and operational moderation require additional review.
 - Messaging, connections and profiles have schema/RLS foundations; replacing all hardcoded cards with live database queries remains a subsequent integration task.
