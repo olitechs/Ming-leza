@@ -75,7 +75,7 @@ function EditProfile() {
   const [supportError, setSupportError] = useState("");
   const [supportNotice, setSupportNotice] = useState("");
   const [supportRequests, setSupportRequests] = useState<
-    { id: string; category: string; subject: string; status: string; created_at: string }[]
+    { id: string; category: string; subject: string; status: string; created_at: string; response_message: string | null }[]
   >([]);
 
   useEffect(() => {
@@ -588,6 +588,16 @@ function EditProfile() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       {request.category} · {new Date(request.created_at).toLocaleString()}
                     </p>
+                    {request.response_message && (
+                      <p className="mt-3 rounded-lg border bg-card p-3 text-sm leading-6">
+                        <span className="block text-xs font-bold uppercase tracking-wide text-primary">
+                          Response from Mingleza
+                        </span>
+                        <span className="mt-1 block whitespace-pre-wrap">
+                          {request.response_message}
+                        </span>
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>
