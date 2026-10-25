@@ -38,7 +38,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How is Mingleza different from other apps?",
         answer:
-          "Mingleza supports both friendship and opt-in dating in one adults-only app and uses passwordless sign-in. We do not make verified comparative claims about other services.",
+          "Mingleza supports both friendship and opt-in dating in one adults-only app and uses email-and-password sign-in. We do not make verified comparative claims about other services.",
       },
     ],
   },
@@ -49,7 +49,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How do I get started?",
         answer:
-          "Choose Sign up, verify that you are 18 or older, sign in with a one-time SMS code or passwordless email link, then add a display name and town or city and choose your intent.",
+          "Choose Sign up, create an account with your email and password, complete the 18+ verification, then add a display name and town or city and choose your intent.",
       },
       {
         question: "Do I need an account to browse members?",
@@ -59,7 +59,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What information do I need to create an account?",
         answer:
-          "You need access to a supported sign-in method (SMS or email), provide your date of birth for the adult check, and complete a display name and town or city. A profile photo is optional.",
+          "You need your full name, email address, password, phone number, country, and age bracket. You must also provide your date of birth for the separate 18+ eligibility check and complete a display name and town or city. A profile photo is optional.",
       },
       {
         question: "What should I do after signing in?",
@@ -80,22 +80,22 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Do I need a password?",
         answer:
-          "No. Mingleza uses a one-time SMS code or a passwordless link sent to your email address.",
+          "Mingleza uses email and password. You can request a password-reset email if you forget your password.",
       },
       {
         question: "How do I sign in with my phone?",
         answer:
-          "Choose phone sign-in, enter a supported Kenyan mobile number, request a code, and enter the code you receive. If delivery fails, check the number and connection, wait for the resend timer, and try again.",
+          "Enter the email address and password you registered with. Phone number is collected as account information, not as a sign-in method.",
       },
       {
         question: "How do I sign in with email?",
         answer:
-          "Choose email sign-in and request a passwordless link. Open the link on the device or browser where you want to use Mingleza. If it expires or has already been used, request a new one.",
+          "Enter the email address and password you registered with. If you cannot remember the password, use Forgot password to request a reset email.",
       },
       {
         question: "What if I forget my password?",
         answer:
-          "There is no Mingleza password to recover. Request a fresh SMS code or email sign-in link using the contact method on your account.",
+          "Choose Forgot password on the sign-in screen and request a reset email. If the address belongs to an account, a reset message will be sent.",
       },
       {
         question: "How does the 18+ check work?",
@@ -413,7 +413,7 @@ export function PublicFAQPage() {
             Create a profile, choose friendship or dating, and explore Mingleza. Adults 18+ only.
           </p>
           <a
-            href="/welcome"
+            href="/login"
             className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-5 py-3 text-sm font-bold text-primary hover:bg-secondary"
           >
             Get started <ArrowRight aria-hidden="true" className="size-4" />
