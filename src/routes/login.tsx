@@ -8,7 +8,10 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Log in · Mingleza" },
-      { name: "description", content: "Log in to your Mingleza account with your email and password." },
+      {
+        name: "description",
+        content: "Log in to your Mingleza account with your email and password.",
+      },
     ],
   }),
   component: LoginPage,
@@ -52,7 +55,12 @@ function LoginPage() {
       <section className="w-full max-w-md rounded-[32px] border bg-card p-6 shadow-card sm:p-8">
         <button
           type="button"
-          onClick={() => void nav({ to: "/welcome", search: { authComplete: false, authError: "", mode: "signin" } })}
+          onClick={() =>
+            void nav({
+              to: "/welcome",
+              search: { authComplete: false, authError: "", mode: "signin" },
+            })
+          }
           className="mb-7 inline-flex min-h-10 items-center gap-2 rounded-full px-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" /> Back to sign in options
@@ -104,8 +112,16 @@ function LoginPage() {
               </button>
             </span>
           </label>
-          {error && <p className="text-sm font-medium text-destructive" role="alert">{error}</p>}
-          {notice && <p className="text-sm font-medium text-primary" role="status">{notice}</p>}
+          {error && (
+            <p className="text-sm font-medium text-destructive" role="alert">
+              {error}
+            </p>
+          )}
+          {notice && (
+            <p className="text-sm font-medium text-primary" role="status">
+              {notice}
+            </p>
+          )}
           <button
             type="submit"
             disabled={busy}
@@ -116,7 +132,9 @@ function LoginPage() {
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           New to Mingleza?{" "}
-          <a href="/welcome" className="font-semibold text-primary hover:underline">Create an account</a>
+          <a href="/welcome" className="font-semibold text-primary hover:underline">
+            Create an account
+          </a>
         </p>
       </section>
     </main>
