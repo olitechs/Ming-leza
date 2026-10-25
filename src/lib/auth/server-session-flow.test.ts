@@ -48,7 +48,7 @@ function makeTestAccessToken() {
   return `test.${payload}.signature`;
 }
 
-describe("Phase 2 passwordless server session flow", () => {
+describe("password-based auth migration and session flow", () => {
   let server: Server;
   let supabaseUrl: string;
   let otpPayload: JsonObject | undefined;
@@ -128,7 +128,7 @@ describe("Phase 2 passwordless server session flow", () => {
     });
   });
 
-  it("sends a link, exchanges its callback code, persists the session cookie, and resumes onboarding authenticated", async () => {
+  it("rejects passwordless OTP requests and still exchanges a signup-confirmation callback into a session", async () => {
     state.cookies.clear();
     otpPayload = undefined;
     otpRedirectTo = undefined;
@@ -140,13 +140,12 @@ describe("Phase 2 passwordless server session flow", () => {
       data: { method: "email", identifier: "phase2-test@example.invalid" },
     });
 
-    expect(sent).toEqual({ ok: true });
-    expect(otpPayload).toMatchObject({
-      email: "phase2-test@example.invalid",
-      create_user: true,
-      code_challenge_method: "s256",
+    expect(sent).toEqual({
+      ok: false,
+      message: "Passwordless sign-in is no longer supported. Use your email and password.",
     });
-    expect(otpRedirectTo).toBe("https://preview.mingleza.test/auth-callback");
+    expect(otpPayload).toBeUndefined();
+    expect(otpRedirectTo).toBeUndefined();
 
     const exchanged = await exchangeEmailMagicLink({ data: { code: "single-use-test-code" } });
 
