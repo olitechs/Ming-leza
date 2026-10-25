@@ -236,7 +236,8 @@ const faqs = [
   },
   {
     question: "Do I need a password?",
-    answer: "Yes. Create an account with your email and password. If you forget it, request a password-reset email.",
+    answer:
+      "Yes. Create an account with your email and password. If you forget it, request a password-reset email.",
   },
   {
     question: "Who can join?",

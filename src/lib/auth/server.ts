@@ -221,23 +221,46 @@ export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
 });
 
-
 const passwordSignUpSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
-  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(254)
+    .transform((value) => value.toLowerCase()),
   password: z.string().min(6).max(128),
-  phone: z.string().trim().min(7).max(20).regex(/^\\+?[0-9 ()-]{7,20}$/),
-  countryCode: z.string().trim().regex(/^[A-Za-z]{2}$/).transform((value) => value.toUpperCase()),
+  phone: z
+    .string()
+    .trim()
+    .min(7)
+    .max(20)
+    .regex(/^\\+?[0-9 ()-]{7,20}$/),
+  countryCode: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z]{2}$/)
+    .transform((value) => value.toUpperCase()),
   ageBracket: z.enum(["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]),
 });
 
 const passwordSignInSchema = z.object({
-  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(254)
+    .transform((value) => value.toLowerCase()),
   password: z.string().min(1).max(128),
 });
 
 const passwordResetSchema = z.object({
-  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(254)
+    .transform((value) => value.toLowerCase()),
 });
 
 /** Create an account with password credentials; metadata is kept in Supabase Auth. */
@@ -262,7 +285,8 @@ export const signUpWithPassword = createServerFn({ method: "POST" })
       if (result.error) {
         return {
           ok: false as const,
-          message: "We could not create your account. Check your details or sign in if you already have an account.",
+          message:
+            "We could not create your account. Check your details or sign in if you already have an account.",
         };
       }
       if (result.data.session && result.data.user) {
@@ -277,7 +301,11 @@ export const signUpWithPassword = createServerFn({ method: "POST" })
           { onConflict: "id", ignoreDuplicates: true },
         );
         if (profile.error) {
-          return { ok: false as const, message: "Your account was created, but setup could not finish. Please sign in and retry." };
+          return {
+            ok: false as const,
+            message:
+              "Your account was created, but setup could not finish. Please sign in and retry.",
+          };
         }
       }
       return {
@@ -285,7 +313,10 @@ export const signUpWithPassword = createServerFn({ method: "POST" })
         requiresEmailConfirmation: !result.data.session,
       };
     } catch {
-      return { ok: false as const, message: "Authentication is temporarily unavailable. Please try again later." };
+      return {
+        ok: false as const,
+        message: "Authentication is temporarily unavailable. Please try again later.",
+      };
     }
   });
 
@@ -300,12 +331,19 @@ export const signInWithPassword = createServerFn({ method: "POST" })
         password: data.password,
       });
       if (result.error || !result.data.user) {
-        return { ok: false as const, message: "Email or password is incorrect. If you have an older passwordless account, reset your password first." };
+        return {
+          ok: false as const,
+          message:
+            "Email or password is incorrect. If you have an older passwordless account, reset your password first.",
+        };
       }
       const profile = await supabase.from("profiles").upsert(
         {
           id: result.data.user.id,
-          display_name: String(result.data.user.user_metadata?.full_name ?? "New member").slice(0, 60),
+          display_name: String(result.data.user.user_metadata?.full_name ?? "New member").slice(
+            0,
+            60,
+          ),
           friends_enabled: true,
           dating_enabled: false,
           is_discoverable: false,
@@ -313,11 +351,17 @@ export const signInWithPassword = createServerFn({ method: "POST" })
         { onConflict: "id", ignoreDuplicates: true },
       );
       if (profile.error) {
-        return { ok: false as const, message: "You are signed in, but account setup could not finish. Please retry." };
+        return {
+          ok: false as const,
+          message: "You are signed in, but account setup could not finish. Please retry.",
+        };
       }
       return { ok: true as const };
     } catch {
-      return { ok: false as const, message: "Authentication is temporarily unavailable. Please try again later." };
+      return {
+        ok: false as const,
+        message: "Authentication is temporarily unavailable. Please try again later.",
+      };
     }
   });
 
@@ -331,11 +375,17 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
         redirectTo: `${getSiteUrl()}/auth-callback?next=reset-password`,
       });
       if (error) {
-        return { ok: false as const, message: "We could not send a reset email right now. Please try again later." };
+        return {
+          ok: false as const,
+          message: "We could not send a reset email right now. Please try again later.",
+        };
       }
       return { ok: true as const };
     } catch {
-      return { ok: false as const, message: "We could not send a reset email right now. Please try again later." };
+      return {
+        ok: false as const,
+        message: "We could not send a reset email right now. Please try again later.",
+      };
     }
   });
 
@@ -347,10 +397,17 @@ export const updateMyPassword = createServerFn({ method: "POST" })
       const supabase = getSupabaseServerClient();
       const { data: authData, error: authError } = await supabase.auth.getUser();
       if (authError || !authData.user) {
-        return { ok: false as const, message: "Your reset session is invalid or expired. Request another reset email." };
+        return {
+          ok: false as const,
+          message: "Your reset session is invalid or expired. Request another reset email.",
+        };
       }
       const { error } = await supabase.auth.updateUser({ password: data.password });
-      if (error) return { ok: false as const, message: "Password could not be updated. Please request a new reset email." };
+      if (error)
+        return {
+          ok: false as const,
+          message: "Password could not be updated. Please request a new reset email.",
+        };
       return { ok: true as const };
     } catch {
       return { ok: false as const, message: "Password could not be updated. Please try again." };
