@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { getVisibleProfile } from "@/lib/profile/server";
+import { SafetyActions } from "@/components/SafetyActions";
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -96,6 +97,7 @@ function Profile() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
             </div>
           )}
+          <SafetyActions userId={profile.id} displayName={profile.displayName} />
         </section>
       </div>
     </AppShell>
