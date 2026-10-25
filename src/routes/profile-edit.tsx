@@ -14,7 +14,7 @@ import {
 import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { deleteMyAccount, exportMyData, getMyAccess } from "@/lib/auth/server";
 import { AppShell } from "@/components/AppShell";
-import { Field as BrandField, Input as BrandInput } from "@/components/brand";
+import { Button, Field as BrandField, Input as BrandInput } from "@/components/brand";
 import {
   getMyProfile,
   listSupportedCountries,
