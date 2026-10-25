@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
+import { registrationPhoneSchema } from "./registration";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
 import { getSupabaseServerClient } from "../supabase/server";
 
@@ -233,12 +234,7 @@ const passwordSignUpSchema = z.object({
     .max(254)
     .transform((value) => value.toLowerCase()),
   password: z.string().min(6).max(128),
-  phone: z
-    .string()
-    .trim()
-    .min(7)
-    .max(20)
-    .regex(/^\\+?[0-9 ()-]{7,20}$/),
+  phone: registrationPhoneSchema,
   countryCode: z
     .string()
     .trim()
