@@ -43,7 +43,10 @@ export const submitSupportRequest = createServerFn({ method: "POST" })
         .select("id, category, subject, status, created_at")
         .single();
       if (error || !request) {
-        return { ok: false as const, message: "Your support request could not be saved. Please retry." };
+        return {
+          ok: false as const,
+          message: "Your support request could not be saved. Please retry.",
+        };
       }
       return { ok: true as const, request };
     } catch {
