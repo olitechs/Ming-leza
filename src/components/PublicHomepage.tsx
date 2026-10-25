@@ -247,7 +247,7 @@ const faqs = [
   {
     question: "How do I report someone?",
     answer:
-      "In-app reporting and blocking controls are coming soon and are not available yet. A direct support contact has not been published either.",
+      "You can report or block a member from Discover or their profile. Reports are recorded for moderator review, but a staffed support contact and response-time commitment have not yet been published. If you are in immediate danger, contact local emergency services.",
   },
   {
     question: "Does Mingleza use my location?",
