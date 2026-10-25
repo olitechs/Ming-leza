@@ -570,8 +570,9 @@ export function PublicHomepage() {
                 <div>
                   <h3 className="font-bold">Report and block</h3>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Members can report or block profiles from Discover. Reports are recorded for moderator
-                    review; a staffed support contact and response-time commitment are not yet published.
+                    Members can report or block profiles from Discover. Reports are recorded for
+                    moderator review; a staffed support contact and response-time commitment are not
+                    yet published.
                   </p>
                 </div>
               </article>
