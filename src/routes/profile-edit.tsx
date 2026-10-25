@@ -17,7 +17,7 @@ export const Route = createFileRoute("/profile-edit")({
   beforeLoad: async () => {
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
-      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+      throw redirect({ to: "/login", search: { mode: "signin" } });
   },
   head: () => ({ meta: [{ title: "Edit profile · Mingleza" }] }),
   component: EditProfile,
