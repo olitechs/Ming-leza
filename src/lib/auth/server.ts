@@ -81,7 +81,7 @@ export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
       const profile = await supabase.from("profiles").upsert(
         {
           id: authData.user.id,
-          display_name: String(authData.user.user_metadata?.full_name ?? "New member").slice(0, 60),
+          display_name: String(authData.user.user_metadata?.["full_name"] ?? "New member").slice(0, 60),
           friends_enabled: true,
           dating_enabled: false,
           is_discoverable: false,
@@ -340,7 +340,7 @@ export const signInWithPassword = createServerFn({ method: "POST" })
       const profile = await supabase.from("profiles").upsert(
         {
           id: result.data.user.id,
-          display_name: String(result.data.user.user_metadata?.full_name ?? "New member").slice(
+          display_name: String(result.data.user.user_metadata?.["full_name"] ?? "New member").slice(
             0,
             60,
           ),
