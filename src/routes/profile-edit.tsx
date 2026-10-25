@@ -182,7 +182,9 @@ function EditProfile() {
         setSupportError(result.message);
         return;
       }
-      setSupportRequests((current) => [{ ...result.request, response_message: null }, ...current].slice(0, 50));
+      setSupportRequests((current) =>
+        [{ ...result.request, response_message: null }, ...current].slice(0, 50),
+      );
       setSupportSubject("");
       setSupportDetails("");
       setSupportNotice(
