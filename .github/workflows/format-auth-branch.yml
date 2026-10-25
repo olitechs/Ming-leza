@@ -1,0 +1,50 @@
+name: One-time auth branch formatting
+on:
+  push:
+    branches:
+      - feat/password-auth-registration
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.ref == 'refs/heads/feat/password-auth-registration' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/password-auth-registration
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format changed auth files
+        run: |
+          pnpm exec prettier --write \
+            src/routes/login.tsx \
+            src/lib/auth/server.ts \
+            src/routes/welcome.tsx \
+            src/routes/auth-callback.tsx \
+            src/test/public-homepage.test.tsx \
+            src/lib/auth/server-session-flow.test.ts \
+            src/components/PublicHomepage.tsx \
+            src/components/PublicFAQPage.tsx \
+            src/lib/seo.ts \
+            README.md \
+            docs/DEFERRED.md
+      - name: Commit formatting and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/routes/login.tsx src/lib/auth/server.ts src/routes/welcome.tsx src/routes/auth-callback.tsx src/test/public-homepage.test.tsx src/lib/auth/server-session-flow.test.ts src/components/PublicHomepage.tsx src/components/PublicFAQPage.tsx src/lib/seo.ts README.md docs/DEFERRED.md
+          git rm .github/workflows/format-auth-branch.yml
+          if git diff --cached --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git commit -m "style(auth): apply repository formatting"
+          git push origin HEAD:feat/password-auth-registration
