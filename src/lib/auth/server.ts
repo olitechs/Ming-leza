@@ -37,84 +37,17 @@ function getSiteUrl() {
 
 export const sendOtp = createServerFn({ method: "POST" })
   .validator(otpRequestSchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result =
-        data.method === "phone"
-          ? await supabase.auth.signInWithOtp({ phone: data.identifier })
-          : await supabase.auth.signInWithOtp({
-              email: data.identifier,
-              options: {
-                shouldCreateUser: true,
-                emailRedirectTo: `${getSiteUrl()}/auth-callback`,
-              },
-            });
-      if (result.error) {
-        return {
-          ok: false as const,
-          message:
-            data.method === "email"
-              ? "We could not send your sign-in link. Check the email address and try again."
-              : "We could not send a code. Check the details and try again.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "Authentication is not configured yet. Please try again later.",
-      };
-    }
-  });
+  .handler(async () => ({
+    ok: false as const,
+    message: "Passwordless sign-in is no longer supported. Use your email and password.",
+  }));
 
 export const verifyOtp = createServerFn({ method: "POST" })
   .validator(otpVerifySchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result =
-        data.method === "phone"
-          ? await supabase.auth.verifyOtp({
-              phone: data.identifier,
-              token: data.token,
-              type: "sms",
-            })
-          : await supabase.auth.verifyOtp({
-              email: data.identifier,
-              token: data.token,
-              type: "email",
-            });
-      if (result.error || !result.data.user) {
-        return {
-          ok: false as const,
-          message: "That code is invalid or expired. Request a new code and try again.",
-        };
-      }
-      const profile = await supabase.from("profiles").upsert(
-        {
-          id: result.data.user.id,
-          display_name: "New member",
-          friends_enabled: true,
-          dating_enabled: false,
-          is_discoverable: false,
-        },
-        { onConflict: "id", ignoreDuplicates: true },
-      );
-      if (profile.error) {
-        return {
-          ok: false as const,
-          message: "Your account was verified, but setup could not finish. Please retry.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "Authentication is not configured yet. Please try again later.",
-      };
-    }
-  });
+  .handler(async () => ({
+    ok: false as const,
+    message: "Passwordless sign-in is no longer supported. Use your email and password.",
+  }));
 
 const magicLinkSchema = z.union([
   z.object({ code: z.string().trim().min(1).max(4096) }),
