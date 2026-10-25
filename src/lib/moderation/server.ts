@@ -97,7 +97,6 @@ export const updateModerationReport = createServerFn({ method: "POST" })
         .update({
           status: data.status,
           resolution_note: data.resolutionNote || null,
-          response_message: data.responseMessage || null,
           reviewed_by: moderator.id,
           reviewed_at: new Date().toISOString(),
         })
@@ -121,6 +120,7 @@ export const updateSupportRequest = createServerFn({ method: "POST" })
         .update({
           status: data.status,
           resolution_note: data.resolutionNote || null,
+          response_message: data.responseMessage || null,
           reviewed_by: moderator.id,
           reviewed_at: new Date().toISOString(),
         })
