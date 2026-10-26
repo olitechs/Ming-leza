@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, MessageCircle, Send, Users } from "lucide-react";
+import { ArrowLeft, MessageCircle, Send, Users, Plus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Input as BrandInput } from "@/components/brand";
@@ -10,6 +10,8 @@ import {
   listConversationMessages,
   openFriendConversation,
   sendConversationMessage,
+  createFriendGroup,
+  listMyGroupConversations,
 } from "@/lib/social/server";
 
 export const Route = createFileRoute("/messages")({
@@ -47,6 +49,7 @@ type Message = {
   body: string;
   created_at: string;
   mine: boolean;
+  senderName?: string | null;
 };
 type MessageCursor = {
   createdAt: string;
@@ -66,11 +69,19 @@ function Messages() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingEarlier, setLoadingEarlier] = useState(false);
   const [messageCursor, setMessageCursor] = useState<MessageCursor | null>(null);
+  const [groups, setGroups] = useState<{ id: string; title: string | null; created_at: string }[]>(
+    [],
+  );
+  const [activeGroupTitle, setActiveGroupTitle] = useState("");
+  const [newGroupTitle, setNewGroupTitle] = useState("");
+  const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
+  const [groupBusy, setGroupBusy] = useState(false);
 
   const openFriend = useCallback(async (friend: Friend) => {
     setError("");
     setLoading(true);
     setActiveFriend(friend);
+    setActiveGroupTitle("");
     setMobileThreadOpen(true);
     setMessages([]);
     setConversationId(null);
@@ -100,6 +111,33 @@ function Messages() {
     }
   }, []);
 
+  const openGroup = useCallback(async (group: { id: string; title: string | null }) => {
+    setError("");
+    setLoading(true);
+    setActiveFriend(null);
+    setActiveGroupTitle(group.title || "Group chat");
+    setMobileThreadOpen(true);
+    setConversationId(group.id);
+    setMessages([]);
+    setHasMore(false);
+    setMessageCursor(null);
+    try {
+      const result = await listConversationMessages({
+        data: { conversationId: group.id, limit: 100 },
+      });
+      if (!result.ok) setError("We could not load this group conversation.");
+      else {
+        setMessages(result.messages as Message[]);
+        setHasMore(result.hasMore);
+        setMessageCursor(result.nextCursor);
+      }
+    } catch {
+      setError("Group chat is temporarily unavailable.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
     listAcceptedFriendProfiles()
@@ -115,6 +153,8 @@ function Messages() {
         }
         const list = result.friends as Friend[];
         setFriends(list);
+        const groupResult = await listMyGroupConversations();
+        if (active && groupResult.ok) setGroups(groupResult.groups);
         const firstFriend = list[0];
         const isDesktop =
           typeof window !== "undefined" &&
@@ -134,6 +174,55 @@ function Messages() {
       active = false;
     };
   }, [openFriend]);
+
+  useEffect(() => {
+    if (!conversationId) return;
+    let active = true;
+    const refreshMessages = async () => {
+      const result = await listConversationMessages({ data: { conversationId, limit: 100 } }).catch(
+        () => null,
+      );
+      if (!active || !result?.ok) return;
+      setMessages((current) => {
+        const byId = new Map(current.map((message) => [message.id, message]));
+        for (const message of result.messages as Message[]) byId.set(message.id, message);
+        return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
+      });
+    };
+    const timer = window.setInterval(() => void refreshMessages(), 5000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [conversationId]);
+
+  const createGroup = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setGroupBusy(true);
+    try {
+      const result = await createFriendGroup({
+        data: { title: newGroupTitle.trim(), friendIds: selectedFriendIds },
+      });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      const group = {
+        id: result.conversationId,
+        title: newGroupTitle.trim(),
+        created_at: new Date().toISOString(),
+      };
+      setGroups((current) => [group, ...current]);
+      setNewGroupTitle("");
+      setSelectedFriendIds([]);
+      await openGroup(group);
+    } catch {
+      setError("Group chat could not be created.");
+    } finally {
+      setGroupBusy(false);
+    }
+  };
 
   const loadEarlier = useCallback(async () => {
     if (!conversationId || !hasMore || loadingEarlier || !messageCursor) return;
@@ -187,9 +276,83 @@ function Messages() {
         >
           <header className="bg-primary px-5 py-5 text-primary-foreground">
             <h1 className="text-2xl font-extrabold">Messages</h1>
-            <p className="mt-1 text-sm opacity-85">Chat privately with accepted friends</p>
+            <p className="mt-1 text-sm opacity-85">
+              Private chats refresh automatically while open
+            </p>
           </header>
+          <details className="border-b p-4">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-semibold">
+              <span className="flex items-center gap-2">
+                <Plus className="size-4" /> Create group chat
+              </span>
+            </summary>
+            <form onSubmit={(event) => void createGroup(event)} className="mt-3 space-y-3">
+              <label className="block text-xs font-semibold">
+                Group name
+                <BrandInput
+                  value={newGroupTitle}
+                  onChange={(event) => setNewGroupTitle(event.target.value)}
+                  required
+                  minLength={1}
+                  maxLength={80}
+                  className="mt-1 w-full rounded-xl border bg-background px-3 py-2 text-sm"
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">
+                Select 2–19 accepted friends. Group members can see one another.
+              </p>
+              <div className="max-h-36 space-y-2 overflow-auto">
+                {friends.map((friend) => (
+                  <label key={friend.id} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={selectedFriendIds.includes(friend.id)}
+                      onChange={(event) =>
+                        setSelectedFriendIds((ids) =>
+                          event.target.checked
+                            ? [...ids, friend.id]
+                            : ids.filter((id) => id !== friend.id),
+                        )
+                      }
+                    />
+                    {friend.display_name}
+                  </label>
+                ))}
+                {friends.length < 2 && (
+                  <p className="text-xs text-muted-foreground">
+                    You need at least two accepted friends to create a group.
+                  </p>
+                )}
+              </div>
+              <button
+                type="submit"
+                disabled={groupBusy || selectedFriendIds.length < 2}
+                className="min-h-10 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {groupBusy ? "Creating…" : "Create group"}
+              </button>
+            </form>
+          </details>
           <div className="flex-1 overflow-y-auto">
+            {groups.length > 0 && (
+              <div className="border-b p-3">
+                <h2 className="px-2 pb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  Groups
+                </h2>
+                {groups.map((group) => (
+                  <button
+                    key={group.id}
+                    onClick={() => void openGroup(group)}
+                    className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left hover:bg-muted ${conversationId === group.id ? "bg-secondary" : ""}`}
+                  >
+                    <Users className="size-5 text-primary" />
+                    <span className="truncate text-sm font-semibold">
+                      {group.title || "Group chat"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
             {friends.map((friend) => (
               <button
                 key={friend.id}
@@ -226,7 +389,7 @@ function Messages() {
         <section
           className={`min-w-0 flex-1 flex-col ${mobileThreadOpen ? "flex" : "hidden md:flex"}`}
         >
-          {activeFriend ? (
+          {activeFriend || activeGroupTitle ? (
             <>
               <header className="flex items-center gap-3 border-b px-4 py-4">
                 <button
@@ -236,14 +399,24 @@ function Messages() {
                 >
                   <ArrowLeft className="size-5" />
                 </button>
-                <Avatar
-                  name={activeFriend.display_name}
-                  avatarPath={activeFriend.avatar_path}
-                  className="size-10"
-                />
+                {activeFriend ? (
+                  <Avatar
+                    name={activeFriend.display_name}
+                    avatarPath={activeFriend.avatar_path}
+                    className="size-10"
+                  />
+                ) : (
+                  <Users className="size-8 text-primary" />
+                )}
                 <div className="min-w-0">
-                  <h2 className="truncate font-bold">{activeFriend.display_name}</h2>
-                  <p className="text-xs text-muted-foreground">Private conversation</p>
+                  <h2 className="truncate font-bold">
+                    {activeFriend?.display_name || activeGroupTitle}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {activeFriend
+                      ? "Private conversation · checks for new messages every 5 seconds"
+                      : "Group conversation · members can see group messages"}
+                  </p>
                 </div>
               </header>
               <div className="flex-1 space-y-3 overflow-y-auto p-4 md:p-6">
@@ -276,6 +449,11 @@ function Messages() {
                         <div
                           className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm sm:max-w-md ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}
                         >
+                          {!message.mine && activeGroupTitle && (
+                            <p className="mb-1 text-xs font-semibold">
+                              {message.senderName || "Mingleza member"}
+                            </p>
+                          )}
                           <p className="whitespace-pre-wrap break-words">{message.body}</p>
                           <time
                             className={`mt-1 block text-right text-[10px] ${message.mine ? "opacity-75" : "text-muted-foreground"}`}

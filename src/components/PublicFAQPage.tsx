@@ -121,7 +121,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What goes on my profile?",
         answer:
-          "A profile can include your display name, bio, profile photo, town or city, region, country, and the connection intents you enable. The member-facing app does not display age.",
+          "A profile can include your display name, bio, profile photo, town or city, region, country, and the connection intents you enable. Members can follow profiles and share a profile link. The member-facing app does not display age or account phone numbers.",
       },
       {
         question: "Is a profile photo required?",
@@ -177,17 +177,22 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Who can message me?",
         answer:
-          "Direct conversations are limited to accepted friends. The app does not provide open messaging between people who have not accepted a friend request.",
+          "You may receive a message request from another eligible member. A private conversation opens only after you accept. Accepted friends can start a chat directly; you can decline a request.",
       },
       {
         question: "Are messages real time?",
         answer:
-          "The current app supports stored one-to-one messages between accepted friends. Real-time delivery and message notifications are not implemented, so a new message may not appear until the conversation is loaded again.",
+          "Open conversations refresh about every five seconds while the page remains open. This is polling, not instant real-time delivery, and there are no push notifications yet. Group chats are available to create with at least two accepted friends.",
       },
       {
         question: "Can I edit or delete a message?",
         answer:
           "The current member-facing messaging screen supports sending and reading messages, but does not expose message-edit or delete controls.",
+      },
+      {
+        question: "Can I make a video call or see another member’s phone number?",
+        answer:
+          "A member can send a video-chat invitation, but Mingleza does not currently provide live video calling. Phone numbers are private account details and are never shown to other members. There are no premium subscriptions or paid phone-visibility features.",
       },
     ],
   },

@@ -1,8 +1,23 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  MapPin,
+  UserRoundPlus,
+  MessageCircle,
+  Share2,
+  Video,
+  Check,
+} from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { getVisibleProfile } from "@/lib/profile/server";
+import {
+  getFollowStatus,
+  sendFriendRequest,
+  sendMessageRequest,
+  setFollow,
+} from "@/lib/social/server";
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -50,10 +65,113 @@ export const Route = createFileRoute("/u/$id")({
 
 function Profile() {
   const profile = Route.useLoaderData();
+  const [following, setFollowing] = useState(false);
+  const [friendRequested, setFriendRequested] = useState(false);
+  const [messageRequested, setMessageRequested] = useState(false);
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [invitationNote, setInvitationNote] = useState("");
   const location = [profile.city, profile.region, profile.countryCode].filter(
     (value): value is string => Boolean(value?.trim()),
   );
   const hasIntent = profile.friendsEnabled || profile.datingEnabled;
+
+  useEffect(() => {
+    let active = true;
+    void getFollowStatus({ data: { userId: profile.id } })
+      .then((result) => {
+        if (active && result.ok) setFollowing(result.following);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [profile.id]);
+
+  const follow = async () => {
+    setBusy("follow");
+    setError("");
+    try {
+      const result = await setFollow({ data: { userId: profile.id, following: !following } });
+      if (!result.ok) setError(result.message);
+      else {
+        setFollowing(!following);
+        setNotice(
+          !following
+            ? `You are now following ${profile.displayName}.`
+            : `You unfollowed ${profile.displayName}.`,
+        );
+      }
+    } catch {
+      setError("Follow could not be updated. Please try again.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const friendRequest = async () => {
+    setBusy("friend");
+    setError("");
+    try {
+      const result = await sendFriendRequest({ data: { userId: profile.id } });
+      if (!result.ok) setError(result.message);
+      else {
+        setFriendRequested(true);
+        setNotice("Friend request sent.");
+      }
+    } catch {
+      setError("Friend request could not be sent.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const messageRequest = async (kind: "message" | "video") => {
+    setBusy(kind);
+    setError("");
+    try {
+      const note =
+        kind === "video"
+          ? `Video chat invitation (not a live call): ${invitationNote.trim() || "Would you like to arrange a video chat?"}`
+          : invitationNote.trim();
+      const result = await sendMessageRequest({ data: { userId: profile.id, note } });
+      if (!result.ok) setError(result.message);
+      else {
+        setMessageRequested(true);
+        setNotice(
+          kind === "video"
+            ? "Video chat invitation sent. They must accept before messaging; live calling is not available yet."
+            : "Message request sent. They must accept before chat opens.",
+        );
+        setInvitationNote("");
+      }
+    } catch {
+      setError("Request could not be sent. Please try again.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const shareProfile = async () => {
+    const url = `${window.location.origin}/u/${encodeURIComponent(profile.id)}`;
+    try {
+      if (navigator.share)
+        await navigator.share({ title: `${profile.displayName} on Mingleza`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        setNotice("Profile link copied.");
+      }
+    } catch (cause) {
+      if (cause instanceof Error && cause.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(url);
+        setNotice("Profile link copied.");
+      } catch {
+        setError("Could not share this link. Copy the page URL from your browser.");
+      }
+    }
+  };
 
   return (
     <AppShell>
@@ -89,6 +207,93 @@ function Profile() {
               {profile.datingEnabled && <Chip active>Dating</Chip>}
             </div>
           )}
+
+          <div className="mt-6 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => void follow()}
+              disabled={busy === "follow"}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            >
+              {following ? <Check className="size-4" /> : <UserRoundPlus className="size-4" />}
+              {following ? "Following" : "Follow"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void friendRequest()}
+              disabled={friendRequested || busy === "friend"}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              <UserRoundPlus className="size-4" />
+              {friendRequested
+                ? "Friend request sent"
+                : busy === "friend"
+                  ? "Sending…"
+                  : "Add friend"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void shareProfile()}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold"
+            >
+              <Share2 className="size-4" />
+              Share profile
+            </button>
+          </div>
+          <div className="mt-6 rounded-2xl bg-secondary/60 p-4">
+            <label htmlFor="contact-request-note" className="text-sm font-semibold">
+              A short note (optional)
+            </label>
+            <textarea
+              id="contact-request-note"
+              value={invitationNote}
+              onChange={(event) => setInvitationNote(event.target.value)}
+              maxLength={500}
+              rows={2}
+              className="mt-2 w-full rounded-xl border bg-background p-3 text-sm"
+              placeholder="Introduce yourself…"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void messageRequest("message")}
+                disabled={messageRequested || busy === "message"}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              >
+                <MessageCircle className="size-4" />
+                {messageRequested ? "Request pending" : "Request to chat"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void messageRequest("video")}
+                disabled={messageRequested || busy === "video"}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              >
+                <Video className="size-4" />
+                Request video chat
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Chat opens only if they accept. Video chat is an invitation only; live calling is not
+              available yet.
+            </p>
+          </div>
+          {error && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+            >
+              {error}
+            </p>
+          )}
+          {notice && (
+            <p role="status" className="mt-4 rounded-xl bg-primary/10 p-3 text-sm">
+              {notice}
+            </p>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            Phone number and registration details are private and are not shared on your profile.
+          </p>
 
           {profile.bio?.trim() && (
             <div className="mt-7 border-t pt-6">

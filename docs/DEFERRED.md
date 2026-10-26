@@ -31,3 +31,7 @@ The Terms and Privacy pages are placeholders, not final legal text or legal advi
 - Explore map and location/distance-based discovery.
 - Final Terms and Privacy text after legal review; privacy review for publicly retrievable profile-avatar assets.
 - Product decisions for availability outside Kenya, support and safety escalation, pricing, premium payments, and M-Pesa.
+
+## Social interaction feature branch
+
+`feat/social-interactions` (PR to follow) adds member follow/unfollow, shareable profile links, friendship and recipient-approved message requests, friend-only group chats, and five-second polling for open conversations. Polling is not instant realtime delivery and there are no push notifications. Video-chat requests are invitations only; no WebRTC provider/live call exists. Phone numbers remain private; no premium entitlement or consent system exists, so no paid phone-number visibility is advertised or exposed. Database assertions are in `supabase/tests/social_interactions.test.sql`; validate against disposable Supabase before merge/deployment. Report/block moderation and support-contact launch blockers remain unresolved.
