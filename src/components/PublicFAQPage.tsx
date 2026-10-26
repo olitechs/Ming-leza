@@ -38,7 +38,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How is Mingleza different from other apps?",
         answer:
-          "Mingleza supports both friendship and opt-in dating in one adults-only app and uses passwordless sign-in. We do not make verified comparative claims about other services.",
+          "Mingleza supports both friendship and opt-in dating in one adults-only app with email and password accounts. We do not make verified comparative claims about other services.",
       },
     ],
   },
@@ -49,7 +49,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How do I get started?",
         answer:
-          "Choose Sign up, verify that you are 18 or older, sign in with a one-time SMS code or passwordless email link, then add a display name and town or city and choose your intent.",
+          "Choose Sign up, confirm that you are 18 or older, and register with your name, email, password, phone, country and age bracket. Then complete your profile and choose your intent.",
       },
       {
         question: "Do I need an account to browse members?",
@@ -59,7 +59,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What information do I need to create an account?",
         answer:
-          "You need access to a supported sign-in method (SMS or email), provide your date of birth for the adult check, and complete a display name and town or city. A profile photo is optional.",
+          "Registration requires your full name, email, password, phone number, country and age bracket. Your date of birth is used only for the adults-only eligibility check and is not stored. A profile photo is optional.",
       },
       {
         question: "What should I do after signing in?",
@@ -80,22 +80,22 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Do I need a password?",
         answer:
-          "No. Mingleza uses a one-time SMS code or a passwordless link sent to your email address.",
+          "Yes. Create an account with an email address and password. Email confirmation may be required by the authentication provider.",
       },
       {
-        question: "How do I sign in with my phone?",
+        question: "Can I sign in with my phone number?",
         answer:
-          "Choose phone sign-in, enter a supported Kenyan mobile number, request a code, and enter the code you receive. If delivery fails, check the number and connection, wait for the resend timer, and try again.",
+          "No. Sign in with the email address and password registered to your account. Your phone number is private account information.",
       },
       {
         question: "How do I sign in with email?",
         answer:
-          "Choose email sign-in and request a passwordless link. Open the link on the device or browser where you want to use Mingleza. If it expires or has already been used, request a new one.",
+          "Enter your registered email address and password on the sign-in screen. If you cannot remember your password, choose Forgot password?",
       },
       {
         question: "What if I forget my password?",
         answer:
-          "There is no Mingleza password to recover. Request a fresh SMS code or email sign-in link using the contact method on your account.",
+          "Choose Forgot password? and enter your email address. We show the same response whether or not an account can be recovered. Use the secure reset link to choose a new password.",
       },
       {
         question: "How does the 18+ check work?",
@@ -254,7 +254,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What should I do if something does not load or save?",
         answer:
-          "Check your connection and retry the action. For a sign-in code or email link, confirm your contact details and request a fresh credential after the resend timer. The app displays an error when several operations fail, but no public support route is available if retrying does not resolve the problem.",
+          "Check your connection and retry the action. For sign-in, confirm your email and password; if a reset or confirmation email is delayed, check spam and retry only after a short wait. The app displays an error when several operations fail, but no public support route is available if retrying does not resolve the problem.",
       },
     ],
   },

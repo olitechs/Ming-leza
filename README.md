@@ -1,8 +1,8 @@
 # Mingleza
 
-Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members sign in with an SMS verification code or an emailed passwordless link. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
+Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dating. Members register and sign in with an email address and password. Registration contact details and full name are stored in a private account-details table, separate from public profiles. Authenticated, age-verified members can set up a profile, discover people by enabled intent, send friend requests, and message accepted friends. New profiles stay out of Discover until they have a real display name and city. The app does not store birth dates or show age on profiles.
 
-Logged-out visitors see a public, crawler-visible landing page that links into the existing passwordless sign-up and sign-in flows. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
+Logged-out visitors see a public, crawler-visible landing page that links to password-based registration and sign-in. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
 
 Explore’s area map and location discovery are currently marked as coming soon. Dating likes and matches, real-time messaging, notifications, member-facing report/block controls, moderation workflows, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
 
@@ -30,7 +30,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional for local email sign-in redirects, which otherwise use the request origin. Set it to the public origin in deployment to emit absolute canonical/social URLs and the public sitemap; add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist. Configure Supabase Auth for phone OTP and passwordless email links, and apply database migrations before testing signed-in flows.
+Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to browser code or committed. `SITE_URL` is optional for local auth redirects, which otherwise use the request origin. Set it to the public origin in deployment to emit absolute canonical/social URLs and the public sitemap; add the production callback and exact preview callback patterns to Supabase Auth's redirect allowlist. Configure Supabase Auth email/password signup, email confirmation, reset-email template and provider throttling; apply database migrations before testing signed-in flows. Existing passwordless accounts keep their Auth user IDs and application data; users who have never set a password must use Forgot password? to establish one before the legacy passwordless login route is removed.
 
 ## Scripts
 
@@ -69,4 +69,4 @@ Set the Supabase project URL and publishable key in `.env.local`. `SUPABASE_SERV
 
 ## Deployment
 
-The project uses TanStack Start and Nitro for Vercel. Configure the public Supabase URL and publishable key, the server-only service-role key, and the public `SITE_URL` through Vercel environment settings. `SITE_URL` supplies canonical URLs, social metadata, `robots.txt`, and `sitemap.xml`. Add `<SITE_URL>/auth-callback` to the Supabase Auth redirect allowlist and confirm that the SMS provider and email sign-in template are configured. Do not put service-role credentials in `VITE_` variables.
+The project uses TanStack Start and Nitro for Vercel. Configure the public Supabase URL and publishable key, the server-only service-role key, and the public `SITE_URL` through Vercel environment settings. `SITE_URL` supplies canonical URLs, social metadata, `robots.txt`, and `sitemap.xml`; auth callbacks use the request origin on Vercel Preview. Add approved production and Preview callback URLs to the Supabase Auth redirect allowlist, configure confirmation and password-recovery email templates, and verify email deliverability and provider throttling in a non-production project. Do not put service-role credentials in `VITE_` variables.

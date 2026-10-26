@@ -75,7 +75,7 @@ export function getHomeHead(page: "marketing" | "discover", siteUrl: string | nu
 
   const title = "Mingleza | Meet friends and dates across Kenya";
   const description =
-    "Find friendship or dating in Kenya with Mingleza. Passwordless sign-in, adult verification, and profiles for people 18+.";
+    "Find friendship or dating in Kenya with Mingleza. Email and password sign-in, adult verification, and profiles for people 18+.";
   const homeUrl = siteUrl ? `${siteUrl}/` : undefined;
   const imageUrl = siteUrl ? `${siteUrl}/og-mingleza.png` : undefined;
   const websiteData = {

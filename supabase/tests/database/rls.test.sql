@@ -1,13 +1,17 @@
 begin;
-select plan(22);
+select plan(28);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
+select has_table('public', 'member_account_details', 'private account details table exists');
 select has_table('public', 'messages', 'messages table exists');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_read_self_or_discoverable'), 'profile discovery policy exists');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_insert_self'), 'profile insert is self-only');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_update_self'), 'profile update is self-only');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'age_verifications' and policyname = 'age_verification_read_self'), 'age verification is read-only to users');
+select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'member_account_details' and policyname = 'member_account_details_select_self'), 'private account details use a self-only read policy');
+select ok(has_table_privilege('authenticated', 'public.member_account_details', 'select'), 'authenticated users can read their own private details through RLS');
+select ok(not has_table_privilege('authenticated', 'public.member_account_details', 'insert'), 'authenticated users cannot insert private account details');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_read_members'), 'messages are participant-readable');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_insert_members'), 'message sends require membership');
 select ok(exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'messages' and policyname = 'messages_update_own'), 'message edits are sender-only');
@@ -26,6 +30,9 @@ insert into public.profiles (id, display_name, city, is_discoverable) values
 insert into public.age_verifications (user_id, is_18_plus) values
  ('10000000-0000-4000-8000-000000000001', true),
  ('10000000-0000-4000-8000-000000000002', true);
+insert into public.member_account_details (user_id, full_name, phone_e164, age_bracket) values
+ ('10000000-0000-4000-8000-000000000001', 'Test Person A', '+254712345678', '25-34'),
+ ('10000000-0000-4000-8000-000000000002', 'Test Person B', '+254723456789', '35-44');
 insert into public.user_preferences (user_id) values
  ('10000000-0000-4000-8000-000000000001'),
  ('10000000-0000-4000-8000-000000000002');
@@ -45,6 +52,8 @@ select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000001'), 1::bigint, 'user can read own profile');
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000002'), 1::bigint, 'verified discoverable profile can be read');
 select is((select count(*) from public.age_verifications where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'other users cannot read age-verification records');
+select is((select count(*) from public.member_account_details where user_id = '10000000-0000-4000-8000-000000000001'), 1::bigint, 'user can read their own private registration details');
+select is((select count(*) from public.member_account_details where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'user cannot read another member private registration details');
 select is((select count(*) from public.user_preferences where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'other users cannot read private preferences');
 select is((select count(*) from public.messages), 1::bigint, 'user sees only messages in conversations they belong to');
 insert into public.blocks (blocker_id, blocked_id) values ('10000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002');

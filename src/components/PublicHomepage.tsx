@@ -192,8 +192,8 @@ const trustItems = [
   },
   {
     icon: <LockKeyhole aria-hidden="true" className="size-5" />,
-    title: "No password",
-    text: "Use an SMS code or email link.",
+    title: "Password protected",
+    text: "Sign in securely with your email and password.",
   },
   {
     icon: <Heart aria-hidden="true" className="size-5" />,
@@ -236,7 +236,8 @@ const faqs = [
   },
   {
     question: "Do I need a password?",
-    answer: "No. Sign in with a one-time SMS code or a passwordless link sent to your email.",
+    answer:
+      "Yes. Create an account with your email and password, then use them each time you sign in.",
   },
   {
     question: "Who can join?",

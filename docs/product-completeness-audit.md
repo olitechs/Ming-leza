@@ -2,6 +2,8 @@
 
 **Scope:** repository review of `olitechs/Ming-leza` on the `feat/product-completeness-audit` branch, based on the merged `main` history available in this sandbox. This is a code and documentation audit, not a live production or external-provider certification.
 
+**Status note:** This is a historical audit snapshot from before the password-auth branch. The `/welcome`, `/login`, and `/auth-callback` descriptions below describe that baseline, not the current auth implementation. See [`docs/PHASE-2.md`](PHASE-2.md) for the password-auth branch's design and outstanding provider/migration verification gates. Other product launch blockers listed below still require resolution.
+
 ## Product and technical findings
 
 Mingleza is a Kenya-first, adults-only social application for friendship and opt-in dating. The implemented member journey is passwordless SMS or email-link sign-in, self-attested 18+ verification, profile setup, intent selection, adult-verified profile discovery, friendship requests, and one-to-one messaging after a request is accepted.

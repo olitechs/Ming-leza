@@ -1,174 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { isAtLeast18 } from "./age";
 import { getSupabaseAdminClient } from "../supabase/admin.server";
 import { getSupabaseServerClient } from "../supabase/server";
-
-const otpRequestSchema = z.discriminatedUnion("method", [
-  z.object({
-    method: z.literal("phone"),
-    identifier: z
-      .string()
-      .trim()
-      .regex(/^\+[1-9]\d{7,14}$/),
-  }),
-  z.object({ method: z.literal("email"), identifier: z.string().trim().email().max(254) }),
-]);
-const otpVerifySchema = z.object({
-  method: z.enum(["phone", "email"]),
-  identifier: z.string().trim().min(3).max(254),
-  token: z
-    .string()
-    .trim()
-    .regex(/^\d{6}$/),
-});
-
-/**
- * Public site origin used for emailed sign-in links. Prefer the SITE_URL setting; otherwise
- * use the origin of the current request so local, preview and production all work.
- */
-function getSiteUrl() {
-  const configured = process.env["SITE_URL"]?.trim();
-  if (configured) return configured.replace(/\/+$/, "");
-  return new URL(getRequest().url).origin;
-}
-
-export const sendOtp = createServerFn({ method: "POST" })
-  .validator(otpRequestSchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result =
-        data.method === "phone"
-          ? await supabase.auth.signInWithOtp({ phone: data.identifier })
-          : await supabase.auth.signInWithOtp({
-              email: data.identifier,
-              options: {
-                shouldCreateUser: true,
-                emailRedirectTo: `${getSiteUrl()}/auth-callback`,
-              },
-            });
-      if (result.error) {
-        return {
-          ok: false as const,
-          message:
-            data.method === "email"
-              ? "We could not send your sign-in link. Check the email address and try again."
-              : "We could not send a code. Check the details and try again.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "Authentication is not configured yet. Please try again later.",
-      };
-    }
-  });
-
-export const verifyOtp = createServerFn({ method: "POST" })
-  .validator(otpVerifySchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result =
-        data.method === "phone"
-          ? await supabase.auth.verifyOtp({
-              phone: data.identifier,
-              token: data.token,
-              type: "sms",
-            })
-          : await supabase.auth.verifyOtp({
-              email: data.identifier,
-              token: data.token,
-              type: "email",
-            });
-      if (result.error || !result.data.user) {
-        return {
-          ok: false as const,
-          message: "That code is invalid or expired. Request a new code and try again.",
-        };
-      }
-      const profile = await supabase.from("profiles").upsert(
-        {
-          id: result.data.user.id,
-          display_name: "New member",
-          friends_enabled: true,
-          dating_enabled: false,
-          is_discoverable: false,
-        },
-        { onConflict: "id", ignoreDuplicates: true },
-      );
-      if (profile.error) {
-        return {
-          ok: false as const,
-          message: "Your account was verified, but setup could not finish. Please retry.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "Authentication is not configured yet. Please try again later.",
-      };
-    }
-  });
-
-const magicLinkSchema = z.union([
-  z.object({ code: z.string().trim().min(1).max(4096) }),
-  z.object({
-    tokenHash: z.string().trim().min(1).max(4096),
-    type: z.enum(["magiclink", "email", "signup"]),
-  }),
-]);
-
-/** Accept both Supabase PKCE codes and token_hash confirmation links. */
-export const exchangeEmailMagicLink = createServerFn({ method: "POST" })
-  .validator(magicLinkSchema)
-  .handler(async ({ data }) => {
-    try {
-      const supabase = getSupabaseServerClient();
-      const result =
-        "code" in data
-          ? await supabase.auth.exchangeCodeForSession(data.code)
-          : await supabase.auth.verifyOtp({
-              token_hash: data.tokenHash,
-              type: data.type,
-            });
-      const authData = result.data;
-      const error = result.error;
-      if (error || !authData.user) {
-        return {
-          ok: false as const,
-          message: "This sign-in link is invalid, expired, or already used. Request a new link.",
-        };
-      }
-      const profile = await supabase.from("profiles").upsert(
-        {
-          id: authData.user.id,
-          display_name: "New member",
-          friends_enabled: true,
-          dating_enabled: false,
-          is_discoverable: false,
-        },
-        { onConflict: "id", ignoreDuplicates: true },
-      );
-      if (profile.error) {
-        return {
-          ok: false as const,
-          message: "You are signed in, but profile setup could not finish. Please retry.",
-        };
-      }
-      return { ok: true as const };
-    } catch {
-      return {
-        ok: false as const,
-        message: "We could not complete sign-in. Request a fresh link and try again.",
-      };
-    }
-  });
 
 export const verifyAdult = createServerFn({ method: "POST" })
   .validator(z.object({ dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }))
@@ -220,7 +55,7 @@ export const setMyIntent = createServerFn({ method: "POST" })
   .validator(
     z
       .object({ friendsEnabled: z.boolean(), datingEnabled: z.boolean() })
-      .refine((v) => v.friendsEnabled || v.datingEnabled),
+      .refine((value) => value.friendsEnabled || value.datingEnabled),
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
@@ -250,10 +85,7 @@ export const setMyIntent = createServerFn({ method: "POST" })
     }
     const updated = await supabase
       .from("profiles")
-      .update({
-        friends_enabled: data.friendsEnabled,
-        dating_enabled: data.datingEnabled,
-      })
+      .update({ friends_enabled: data.friendsEnabled, dating_enabled: data.datingEnabled })
       .eq("id", userData.user.id);
     if (updated.error)
       return {

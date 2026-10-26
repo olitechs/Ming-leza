@@ -22,7 +22,7 @@ describe("public homepage", () => {
     expect(screen.queryByLabelText(/phone number|email address/i)).not.toBeInTheDocument();
   });
 
-  it("routes all sign-up and log-in calls to the existing passwordless flow", () => {
+  it("routes all sign-up and log-in calls to the password authentication flow", () => {
     render(<PublicHomepage />);
 
     const signUpLinks = screen.getAllByRole("link", { name: "Sign up free" });
