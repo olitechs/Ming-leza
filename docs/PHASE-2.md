@@ -15,6 +15,8 @@ Registration first submits only age bracket and date of birth to the server-side
 5. In Supabase Auth, configure email/password sign-in, signup email confirmation, secure recovery email, redirect allowlists for exact production and Preview callback origins, provider-native rate limits, and email deliverability. Ensure Vercel Preview callbacks can be allowed safely. Do not use production test accounts.
 6. Run `pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, and `supabase test db`.
 
+For reliable cross-browser callbacks, configure the Supabase confirmation and recovery email templates to deliver the token hash to the app callback, not a normal magic-link login. Signup's `emailRedirectTo` contains `?flow=signup`; its confirmation template should link to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=signup`. Recovery's redirect contains `?flow=recovery`; its template should link to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=recovery`. Escape query separators as `&amp;` in HTML templates. Keep the corresponding exact callback URLs in the Auth redirect allowlist. The callback rejects old `type=email` passwordless tokens and requires the explicit `flow` value.
+
 The application uses the existing request-scoped Supabase SSR client for cookie-backed sessions. Passwords are sent only to Supabase Auth and are never written to app tables or logs. Recovery responses are intentionally generic. New passwords must be at least six characters; provider-side stronger policy may enforce more. Password changes use Supabase Auth and request sign-out from other sessions.
 
 ## Security model
