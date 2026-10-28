@@ -6,6 +6,7 @@ import { Avatar } from "@/components/Avatar";
 import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   listConversationMessages,
   openFriendConversation,
@@ -76,6 +77,7 @@ function Messages() {
   const [newGroupTitle, setNewGroupTitle] = useState("");
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [groupBusy, setGroupBusy] = useState(false);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
 
   const openFriend = useCallback(async (friend: Friend) => {
     setError("");
@@ -189,12 +191,49 @@ function Messages() {
         return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
       });
     };
-    const timer = window.setInterval(() => void refreshMessages(), 5000);
+    const supabase = getSupabaseBrowserClient();
+    setRealtimeConnected(false);
+    const channel = supabase
+      .channel(`conversation:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => void refreshMessages(),
+      )
+      .subscribe((status: string) => {
+        if (active) setRealtimeConnected(status === "SUBSCRIBED");
+      });
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (!conversationId || realtimeConnected) return;
+    let active = true;
+    const refresh = async () => {
+      const result = await listConversationMessages({ data: { conversationId, limit: 100 } }).catch(
+        () => null,
+      );
+      if (!active || !result?.ok) return;
+      setMessages((current) => {
+        const byId = new Map(current.map((message) => [message.id, message]));
+        for (const message of result.messages as Message[]) byId.set(message.id, message);
+        return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
+      });
+    };
+    const timer = window.setInterval(() => void refresh(), 5000);
     return () => {
       active = false;
       window.clearInterval(timer);
     };
-  }, [conversationId]);
+  }, [conversationId, realtimeConnected]);
 
   const createGroup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -277,7 +316,7 @@ function Messages() {
           <header className="bg-primary px-5 py-5 text-primary-foreground">
             <h1 className="text-2xl font-extrabold">Messages</h1>
             <p className="mt-1 text-sm opacity-85">
-              Private chats refresh automatically while open
+              Open chats use a live connection when available
             </p>
           </header>
           <details className="border-b p-4">
@@ -413,9 +452,10 @@ function Messages() {
                     {activeFriend?.display_name || activeGroupTitle}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    {activeFriend
-                      ? "Private conversation · checks for new messages every 5 seconds"
-                      : "Group conversation · members can see group messages"}
+                    {realtimeConnected
+                      ? "Live connection active"
+                      : "Reconnecting · checking for new messages every 5 seconds"}
+                    {!activeFriend && " · Group members can see group messages"}
                   </p>
                 </div>
               </header>
