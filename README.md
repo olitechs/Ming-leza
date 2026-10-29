@@ -4,7 +4,7 @@ Mingleza is a Kenya-first, adults-only social app for friendship and opt-in dati
 
 Logged-out visitors see a public, crawler-visible landing page that links into password-based sign-up and sign-in. Existing users from the former passwordless flow should use Forgot password to set a password; profile IDs and application data are preserved. Signed-in, age-verified members continue to see Discover at `/`. The public `/faq` page provides searchable answers; `/terms` and `/privacy` are clearly marked draft placeholders pending legal review.
 
-Explore’s area map and location discovery are currently marked as coming soon. Dating likes and passes are stored per member; mutual matching and a dating-matches inbox are not implemented. Real-time messaging, notifications, member-facing report/block controls, moderation workflows, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
+Explore’s area map and location discovery are currently marked as coming soon. Dating likes and passes are stored per member, and reciprocal likes create a mutual match shown in the member-scoped matches inbox. Dating-specific messaging, notifications, paid plans, and M-Pesa are not implemented. Support contact details and final legal text are still being prepared. The current in-app “Friend requests” area handles friendship requests; it is not a dating-matches inbox.
 
 ## Stack
 
