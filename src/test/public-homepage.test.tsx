@@ -34,12 +34,10 @@ describe("public homepage", () => {
     expect(logInLinks.every((link) => link.getAttribute("href") === "/login?mode=signin")).toBe(
       true,
     );
-    expect(
-      screen.getAllByRole("link", { name: "Join Mingleza" })[0]?.getAttribute("href"),
-    ).toBe("/login");
-    expect(
-      screen.getByRole("link", { name: "Read more FAQs" }),
-    ).toHaveAttribute("href", "/faq");
+    expect(screen.getAllByRole("link", { name: "Join Mingleza" })[0]?.getAttribute("href")).toBe(
+      "/login",
+    );
+    expect(screen.getByRole("link", { name: "Read more FAQs" })).toHaveAttribute("href", "/faq");
   });
 
   it("exposes a labeled, keyboard-operable mobile navigation toggle", () => {
