@@ -409,6 +409,8 @@ function Discover() {
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
   const [requestError, setRequestError] = useState("");
+  const [requestNotice, setRequestNotice] = useState("");
+  const [actedOnIds, setActedOnIds] = useState<string[]>([]);
   const [feed, setFeed] = useState<"for-you" | "nearby">("for-you");
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewProfile, setViewProfile] = useState(false);
@@ -434,6 +436,7 @@ function Discover() {
         if (!active) return;
         if (result.ok) {
           setProfiles(result.profiles);
+          setActedOnIds([]);
           setActiveIndex(0);
         } else {
           setProfiles([]);
@@ -505,7 +508,7 @@ function Discover() {
     },
   ];
   const shown = profiles.length
-    ? profiles.map((p, i) => ({
+    ? profiles.filter((p) => !actedOnIds.includes(p.id)).map((p, i) => ({
         id: p.id,
         name: p.displayName,
         age: undefined,
@@ -523,6 +526,7 @@ function Discover() {
   const decideCurrent = async (decision: "like" | "pass") => {
     if (!current) return;
     setRequestError("");
+    setRequestNotice("");
     if (!current.source) {
       setRequestError(
         "These are preview profiles. Real choices are only saved for available member profiles.",
@@ -540,7 +544,13 @@ function Discover() {
           setRequestError(result.message);
           return;
         }
-        advance();
+        if (result.matchId) {
+          setRequestNotice("It’s a match! Open Dating matches to see your connection.");
+        }
+        setActedOnIds((currentIds) =>
+          currentIds.includes(current.source!.id) ? currentIds : [...currentIds, current.source!.id],
+        );
+        setViewProfile(false);
       } catch {
         setRequestError("Your choice could not be saved. Please try again.");
       } finally {
@@ -550,10 +560,18 @@ function Discover() {
     }
     if (decision === "like") {
       const sent = await requestFriendship(current.source);
-      if (sent) advance();
+      if (sent) {
+        setActedOnIds((currentIds) =>
+          currentIds.includes(current.source!.id) ? currentIds : [...currentIds, current.source!.id],
+        );
+        setViewProfile(false);
+      }
       return;
     }
-    advance();
+    setActedOnIds((currentIds) =>
+      currentIds.includes(current.source.id) ? currentIds : [...currentIds, current.source.id],
+    );
+    setViewProfile(false);
   };
 
   return (
@@ -580,6 +598,11 @@ function Discover() {
         {requestError && (
           <p role="alert" className="mt-4 rounded-xl bg-[#ff4a6e]/10 p-3 text-sm text-[#ff8da4]">
             {requestError}
+          </p>
+        )}
+        {requestNotice && (
+          <p role="status" className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200">
+            {requestNotice}
           </p>
         )}
         {loading ? (
