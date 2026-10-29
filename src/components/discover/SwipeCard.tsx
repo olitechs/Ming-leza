@@ -71,7 +71,7 @@ export function SwipeCard({
           {profile.city}
         </div>
         <h2 className="font-display text-3xl font-extrabold tracking-tight">
-          {profile.name}{profile.age ? \`, \${profile.age}\` : ""}
+          {profile.name}{profile.age ? ", " + profile.age : ""}
           {profile.online && (
             <span className="ml-2 inline-block size-2.5 rounded-full bg-emerald-400 align-middle ring-4 ring-emerald-400/20" />
           )}
