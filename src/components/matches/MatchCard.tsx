@@ -21,15 +21,15 @@ export function MatchCard({
   onUnmatch: (matchId: string) => void;
 }) {
   return (
-    <article className="relative isolate flex min-h-64 flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#1c1c1e] p-4 text-white">
+    <article className="relative isolate flex min-h-64 flex-col overflow-hidden rounded-3xl border border-border bg-card p-4 text-card-foreground">
       <Avatar
         name={person.name}
         avatarPath={person.avatarPath}
-        className="mb-4 size-20 bg-white/10 text-2xl text-white"
+        className="mb-4 size-20 bg-muted text-2xl text-card-foreground"
       />
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-base font-extrabold sm:text-lg">{person.name}</h3>
-        <p className="mt-1 flex items-center gap-1 text-xs text-white/65">
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="size-3.5 shrink-0" />
           <span className="truncate">{person.city || "Mingleza member"}</span>
         </p>
@@ -40,14 +40,14 @@ export function MatchCard({
       <Link
         to="/u/$id"
         params={{ id: person.otherUserId }}
-        className="mt-4 flex items-center justify-center rounded-full bg-white/10 py-2.5 text-xs font-bold transition hover:bg-white/15"
+        className="mt-4 flex items-center justify-center rounded-full border border-border bg-secondary py-2.5 text-xs font-bold text-secondary-foreground transition hover:bg-muted"
       >
         View profile
       </Link>
       <Link
         to="/chat/$matchId"
         params={{ matchId: person.id }}
-        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#ff4a6e] py-2.5 text-xs font-bold text-white transition hover:bg-[#f3345b]"
+        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-xs font-bold text-primary-foreground transition hover:bg-primary/90"
       >
         <MessageCircle className="size-4" />
         Message
@@ -56,7 +56,7 @@ export function MatchCard({
         type="button"
         disabled={busy}
         onClick={() => onUnmatch(person.id)}
-        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 py-2.5 text-xs font-semibold text-white/65 transition hover:border-[#ff4a6e]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-[#ff4a6e]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
         <UserRoundX className="size-4" />
         {busy ? "Removing…" : "Unmatch"}
