@@ -8,6 +8,7 @@ export type DiscoverProfile = {
   bio: string;
   photo: string;
   online?: boolean;
+  preview?: boolean;
 };
 export function SwipeCard({
   profile,
@@ -64,6 +65,11 @@ export function SwipeCard({
         />
       )}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/25 via-transparent to-black/90" />
+      {profile.preview && (
+        <span className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+          Fictional preview
+        </span>
+      )}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
         <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-black/35 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
