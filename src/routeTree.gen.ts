@@ -130,10 +130,6 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/onboarding': typeof OnboardingRoute
   '/chat/$matchId': typeof ChatMatchIdRoute
-  '/onboarding': typeof OnboardingRoute
-  '/chat/$matchId': typeof ChatMatchIdRoute
-  '/onboarding': typeof OnboardingRoute
-  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
@@ -151,6 +147,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesById {
@@ -169,6 +167,8 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRouteTypes {
@@ -207,6 +207,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   id:
     | '__root__'
@@ -224,27 +226,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  ExploreRoute: typeof ExploreRoute
-  FaqRoute: typeof FaqRoute
-  LoginRoute: typeof LoginRoute
-  MatchesRoute: typeof MatchesRoute
-  MessagesRoute: typeof MessagesRoute
-  ModerationRoute: typeof ModerationRoute
-  PrivacyRoute: typeof PrivacyRoute
-  ProfileEditRoute: typeof ProfileEditRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TermsRoute: typeof TermsRoute
-  WelcomeRoute: typeof WelcomeRoute
-  UIdRoute: typeof UIdRoute
-}
-
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
