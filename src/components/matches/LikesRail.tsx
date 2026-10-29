@@ -45,25 +45,28 @@ export function LikesRail() {
     <section aria-labelledby="likes-heading" className="mt-6">
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8e8e93]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
             People who noticed you
           </p>
-          <h2 id="likes-heading" className="mt-1 text-xl font-extrabold text-white">
-            Likes <span className="text-[#ff4a6e]">{likes.length}</span>
+          <h2 id="likes-heading" className="mt-1 text-xl font-extrabold text-foreground">
+            Likes <span className="text-primary">{likes.length}</span>
           </h2>
         </div>
       </div>
 
       {error ? (
-        <p role="alert" className="rounded-2xl border border-white/10 p-4 text-sm text-white/70">
+        <p
+          role="alert"
+          className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
+        >
           {error}
         </p>
       ) : loading ? (
-        <p className="text-sm text-white/55" aria-live="polite">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
           Loading likes…
         </p>
       ) : likes.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/60">
+        <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
           No new likes yet. When another dating member likes your profile, you’ll see them here.
         </p>
       ) : (
@@ -80,18 +83,17 @@ export function LikesRail() {
                 aria-label={`View profile of ${person.display_name}, who liked you`}
                 className="flex shrink-0 flex-col items-center gap-2"
               >
-                <span className="relative block size-[4.25rem] rounded-full bg-gradient-to-br from-[#ff4a6e] to-[#ffe15a] p-[2px]">
+                <span className="relative block size-16 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
                   <Avatar
                     name={person.display_name}
                     avatarPath={person.avatar_path}
-                    className="size-full border-2 border-[#111113] bg-[#1c1c1e] text-sm text-white"
+                    className="size-full border-2 border-[#111113] bg-[#1c1c1e] text-sm text-foreground"
                   />
-                  <span className="absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-[#111113] bg-[#ff4a6e]" />
                 </span>
-                <span className="max-w-20 truncate text-xs font-semibold text-white/90">
+                <span className="max-w-20 truncate text-xs font-semibold text-foreground">
                   {person.display_name}
                 </span>
-                <span className="max-w-24 truncate text-[10px] text-white/45">
+                <span className="max-w-24 truncate text-[10px] text-muted-foreground">
                   {location || "Mingleza member"}
                 </span>
               </Link>
