@@ -24,7 +24,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as ChatMatchIdRouteImport } from './routes/chat.$matchId'
+import { Route as ChatMatchIdRouteImport } from './routes/chat/$matchId'
 import { Route as UIdRouteImport } from './routes/u.$id'
 
 const IndexRoute = IndexRouteImport.update({
