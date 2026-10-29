@@ -75,11 +75,11 @@ export function MatchGrid() {
     <section className="mt-8" aria-labelledby="dating-matches-heading">
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8e8e93]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Mutual interest
           </p>
-          <h2 id="dating-matches-heading" className="mt-1 text-xl font-extrabold text-white">
-            Dating matches <span className="text-[#ff4a6e]">{matches.length}</span>
+          <h2 id="dating-matches-heading" className="mt-1 text-xl font-extrabold text-foreground">
+            Dating matches <span className="text-primary">{matches.length}</span>
           </h2>
         </div>
       </div>
@@ -87,17 +87,17 @@ export function MatchGrid() {
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded-2xl border border-white/10 p-4 text-sm text-white/70"
+          className="mb-4 rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
         >
           {error}
         </p>
       )}
       {loading ? (
-        <p className="text-sm text-white/55" aria-live="polite">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
           Loading matches…
         </p>
       ) : matches.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/15 p-6 text-sm text-white/60">
+        <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
           No mutual matches yet. When you and another member both like each other, your match will
           appear here.
         </div>
