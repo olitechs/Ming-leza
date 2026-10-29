@@ -24,13 +24,17 @@ export function ViewProfileSheet({
           {profile.photo ? (
             <img src={profile.photo} alt={profile.name} className="size-full object-cover" />
           ) : (
-            <div aria-hidden="true" className="size-full bg-gradient-to-br from-[#3b202a] via-[#1c1c1e] to-[#302b18]" />
+            <div
+              aria-hidden="true"
+              className="size-full bg-gradient-to-br from-[#3b202a] via-[#1c1c1e] to-[#302b18]"
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] to-transparent" />
         </div>
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
-            {profile.name}{profile.age ? ", " + profile.age : ""}
+            {profile.name}
+            {profile.age ? ", " + profile.age : ""}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5 text-[#8e8e93]">
             <MapPin className="size-4" />

@@ -527,7 +527,9 @@ function Discover() {
     if (!current) return;
     setRequestError("");
     if (!current.source) {
-      setRequestError("These are preview profiles. Real choices are only saved for available member profiles.");
+      setRequestError(
+        "These are preview profiles. Real choices are only saved for available member profiles.",
+      );
       advance();
       return;
     }
