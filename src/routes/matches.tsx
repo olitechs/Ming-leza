@@ -1,5 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { AppShell } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { LikesRail } from "@/components/matches/LikesRail";
 import { MatchGrid } from "@/components/matches/MatchGrid";
