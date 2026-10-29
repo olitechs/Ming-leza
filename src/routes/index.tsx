@@ -508,15 +508,17 @@ function Discover() {
     },
   ];
   const shown = profiles.length
-    ? profiles.filter((p) => !actedOnIds.includes(p.id)).map((p, i) => ({
-        id: p.id,
-        name: p.displayName,
-        age: undefined,
-        city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
-        bio: p.bio || "Here to meet kind people and build genuine connections.",
-        photo: p.avatarPath || "",
-        source: p,
-      }))
+    ? profiles
+        .filter((p) => !actedOnIds.includes(p.id))
+        .map((p, i) => ({
+          id: p.id,
+          name: p.displayName,
+          age: undefined,
+          city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
+          bio: p.bio || "Here to meet kind people and build genuine connections.",
+          photo: p.avatarPath || "",
+          source: p,
+        }))
     : demo.map((p) => ({ ...p, name: p.displayName, source: null }));
   const current = shown.length ? shown[activeIndex % shown.length] : null;
   const advance = () => {
@@ -548,7 +550,9 @@ function Discover() {
           setRequestNotice("It’s a match! Open Dating matches to see your connection.");
         }
         setActedOnIds((currentIds) =>
-          currentIds.includes(current.source!.id) ? currentIds : [...currentIds, current.source!.id],
+          currentIds.includes(current.source!.id)
+            ? currentIds
+            : [...currentIds, current.source!.id],
         );
         setViewProfile(false);
       } catch {
@@ -562,7 +566,9 @@ function Discover() {
       const sent = await requestFriendship(current.source);
       if (sent) {
         setActedOnIds((currentIds) =>
-          currentIds.includes(current.source!.id) ? currentIds : [...currentIds, current.source!.id],
+          currentIds.includes(current.source!.id)
+            ? currentIds
+            : [...currentIds, current.source!.id],
         );
         setViewProfile(false);
       }
@@ -601,7 +607,10 @@ function Discover() {
           </p>
         )}
         {requestNotice && (
-          <p role="status" className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200">
+          <p
+            role="status"
+            className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200"
+          >
             {requestNotice}
           </p>
         )}

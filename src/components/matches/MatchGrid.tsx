@@ -85,12 +85,17 @@ export function MatchGrid() {
       </div>
 
       {error && (
-        <p role="alert" className="mb-4 rounded-2xl border border-white/10 p-4 text-sm text-white/70">
+        <p
+          role="alert"
+          className="mb-4 rounded-2xl border border-white/10 p-4 text-sm text-white/70"
+        >
           {error}
         </p>
       )}
       {loading ? (
-        <p className="text-sm text-white/55" aria-live="polite">Loading matches…</p>
+        <p className="text-sm text-white/55" aria-live="polite">
+          Loading matches…
+        </p>
       ) : matches.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 p-6 text-sm text-white/60">
           No mutual matches yet. When you and another member both like each other, your match will

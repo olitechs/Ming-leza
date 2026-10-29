@@ -59,7 +59,9 @@ export function LikesRail() {
           {error}
         </p>
       ) : loading ? (
-        <p className="text-sm text-white/55" aria-live="polite">Loading likes…</p>
+        <p className="text-sm text-white/55" aria-live="polite">
+          Loading likes…
+        </p>
       ) : likes.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/60">
           No new likes yet. When another dating member likes your profile, you’ll see them here.

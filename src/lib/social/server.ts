@@ -292,7 +292,6 @@ export const submitProfileSwipe = createServerFn({ method: "POST" })
     return { ok: true as const, matchId: matchId ?? null };
   });
 
-
 const unmatchSchema = z.object({ matchId: userIdSchema });
 
 export const listIncomingDatingLikes = createServerFn({ method: "GET" }).handler(async () => {
