@@ -1,22 +1,42 @@
 import { useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const avatarPathPattern = /^[0-9a-f-]{36}\/avatar\.(?:jpg|png|webp)$/i;
+const SIGNED_URL_TTL_SECONDS = 60;
+const SIGNED_URL_REFRESH_MS = 45_000;
 
-function getAvatarUrl(path: string | null | undefined) {
-  const configuredUrl = import.meta.env["VITE_SUPABASE_URL"];
-  if (!configuredUrl || !path || !avatarPathPattern.test(path)) return null;
+export function usePrivateAvatarUrl(path: string | null | undefined) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
-  try {
-    const baseUrl = new URL(configuredUrl);
-    if (baseUrl.protocol !== "http:" && baseUrl.protocol !== "https:") return null;
-    baseUrl.pathname = `${baseUrl.pathname.replace(/\/+$/, "")}/`;
-    baseUrl.search = "";
-    baseUrl.hash = "";
-    const encodedPath = path.split("/").map(encodeURIComponent).join("/");
-    return new URL(`storage/v1/object/public/profile-avatars/${encodedPath}`, baseUrl).toString();
-  } catch {
-    return null;
-  }
+  useEffect(() => {
+    let active = true;
+    let refreshTimer: ReturnType<typeof setInterval> | undefined;
+    setSignedUrl(null);
+
+    if (!path || !avatarPathPattern.test(path)) return;
+
+    const refreshSignedUrl = async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data, error } = await supabase.storage
+          .from("profile-avatars")
+          .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+        if (active) setSignedUrl(error ? null : (data?.signedUrl ?? null));
+      } catch {
+        if (active) setSignedUrl(null);
+      }
+    };
+
+    void refreshSignedUrl();
+    refreshTimer = setInterval(() => void refreshSignedUrl(), SIGNED_URL_REFRESH_MS);
+
+    return () => {
+      active = false;
+      if (refreshTimer) clearInterval(refreshTimer);
+    };
+  }, [path]);
+
+  return signedUrl;
 }
 
 function getInitials(name: string) {
@@ -38,7 +58,7 @@ export function Avatar({
   avatarPath?: string | null;
   className?: string;
 }) {
-  const imageUrl = getAvatarUrl(avatarPath);
+  const imageUrl = usePrivateAvatarUrl(avatarPath);
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
