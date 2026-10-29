@@ -19,6 +19,7 @@ import {
   getMyProfile,
   listSupportedCountries,
   setMyAvatarPath,
+  updateMyDiscoveryPreferences,
   updateMyProfile,
 } from "@/lib/profile/server";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -43,6 +44,11 @@ type FormState = {
 };
 
 type Country = { code: string; name: string };
+type DiscoveryPreferences = {
+  isDiscoverable: boolean;
+  friendsEnabled: boolean;
+  datingEnabled: boolean;
+};
 
 const emptyForm: FormState = {
   displayName: "",
@@ -54,11 +60,17 @@ const emptyForm: FormState = {
 
 function EditProfile() {
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [preferences, setPreferences] = useState<DiscoveryPreferences>({
+    isDiscoverable: false,
+    friendsEnabled: true,
+    datingEnabled: false,
+  });
   const [userId, setUserId] = useState("");
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingPreferences, setSavingPreferences] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -225,6 +237,11 @@ function EditProfile() {
           countryCode: result.profile.country_code ?? "KE",
         });
         setAvatarPath(result.profile.avatar_path);
+        setPreferences({
+          isDiscoverable: result.profile.is_discoverable === true,
+          friendsEnabled: result.profile.friends_enabled === true,
+          datingEnabled: result.profile.dating_enabled === true,
+        });
         setLoading(false);
       })
       .catch(() => {
@@ -259,6 +276,21 @@ function EditProfile() {
       setError("Profile could not be saved. Please retry.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const savePreferences = async () => {
+    setSavingPreferences(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await updateMyDiscoveryPreferences({ data: preferences });
+      if (!result.ok) setError(result.message);
+      else setNotice("Your visibility and connection preferences have been saved.");
+    } catch {
+      setError("Discovery preferences could not be saved. Please retry.");
+    } finally {
+      setSavingPreferences(false);
     }
   };
 
@@ -448,8 +480,84 @@ function EditProfile() {
                   <Save className="size-4" /> {saving ? "Saving…" : "Save profile"}
                 </button>
               </form>
+              <div className="mt-8 border-t pt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-extrabold">Visibility and connection preferences</h2>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    Control whether people can find your profile and which connections you want to make.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border p-4">
+                    <input
+                      type="checkbox"
+                      checked={preferences.isDiscoverable}
+                      onChange={(event) =>
+                        setPreferences({ ...preferences, isDiscoverable: event.target.checked })
+                      }
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block font-semibold">Show my profile in Discover</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">
+                        Turn this off to hide your profile from new discovery, without deleting your account or existing conversation history.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border p-4">
+                    <input
+                      type="checkbox"
+                      checked={preferences.friendsEnabled}
+                      onChange={(event) =>
+                        setPreferences({ ...preferences, friendsEnabled: event.target.checked })
+                      }
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block font-semibold">Open to friendship</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">
+                        Allow your profile to appear to members looking to make friends.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border p-4">
+                    <input
+                      type="checkbox"
+                      checked={preferences.datingEnabled}
+                      onChange={(event) =>
+                        setPreferences({ ...preferences, datingEnabled: event.target.checked })
+                      }
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block font-semibold">Open to dating</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">
+                        Opt in to dating discovery and mutual-match features. Dating is optional.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+                {error && (
+                  <p role="alert" className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+                    {error}
+                  </p>
+                )}
+                {notice && (
+                  <p role="status" className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text">
+                    {notice}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void savePreferences()}
+                  disabled={savingPreferences || saving || uploading}
+                  className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground hover:bg-primary-pressed disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Save className="size-4" />
+                  {savingPreferences ? "Saving preferences…" : "Save preferences"}
+                </button>
+              </div>
             </>
-          )}
         </section>
         <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft sm:p-8">
           <div className="flex items-start gap-3">
