@@ -28,4 +28,4 @@ Dark-first dating and friendship interface. Use semantic CSS variables in `src/s
 
 ## Data integrity
 
-Dating like/pass decisions are stored in `public.profile_swipes`; incoming likes and mutual matches now use member-scoped database RPCs. Do not show fabricated match percentages or online indicators, and do not represent preview chat messages as delivered or persisted. Existing Supabase authentication, adult verification, profile completion and friend-request server functions remain authoritative.
+Dating like/pass decisions are stored in `public.profile_swipes`; incoming likes and mutual matches now use member-scoped database RPCs. Active matches can be ended with the validated unmatch RPC; an ended match is hidden from both members and is not silently recreated. Do not show fabricated match percentages or online indicators, and do not represent preview chat messages as delivered or persisted. Existing Supabase authentication, adult verification, profile completion and friend-request server functions remain authoritative.
