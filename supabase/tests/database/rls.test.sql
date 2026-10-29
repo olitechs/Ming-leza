@@ -1,7 +1,10 @@
 begin;
-select plan(29);
+select plan(35);
 
 select has_table('public', 'profiles', 'profiles table exists');
+select ok(exists (select 1 from storage.buckets where id = 'profile-avatars' and public = false), 'profile avatar bucket is private');
+select ok(not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'profile_avatars_public_read'), 'public avatar read policy is removed');
+select ok(exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'profile_avatars_read_visible_profile' and cmd = 'SELECT'), 'visible-profile avatar read policy exists');
 select has_table('public', 'age_verifications', 'age verification table exists');
 select has_table('public', 'messages', 'messages table exists');
 select has_column('public', 'moderation_reports', 'status', 'moderation reports have workflow status');
@@ -30,6 +33,11 @@ values
 insert into public.profiles (id, display_name, city, is_discoverable) values
  ('10000000-0000-4000-8000-000000000001', 'Test A', 'Nairobi', true),
  ('10000000-0000-4000-8000-000000000002', 'Test B', 'Nairobi', true);
+update public.profiles set avatar_path = '10000000-0000-4000-8000-000000000001/avatar.jpg' where id = '10000000-0000-4000-8000-000000000001';
+update public.profiles set avatar_path = '10000000-0000-4000-8000-000000000002/avatar.jpg' where id = '10000000-0000-4000-8000-000000000002';
+insert into storage.objects (bucket_id, name) values
+ ('profile-avatars', '10000000-0000-4000-8000-000000000001/avatar.jpg'),
+ ('profile-avatars', '10000000-0000-4000-8000-000000000002/avatar.jpg');
 insert into public.age_verifications (user_id, is_18_plus) values
  ('10000000-0000-4000-8000-000000000001', true),
  ('10000000-0000-4000-8000-000000000002', true);
@@ -50,14 +58,18 @@ insert into public.messages (conversation_id, sender_id, body) values
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000001'), 1::bigint, 'user can read own profile');
+select is((select count(*) from storage.objects where bucket_id = 'profile-avatars' and name = '10000000-0000-4000-8000-000000000001/avatar.jpg'), 1::bigint, 'member can read own avatar object for signing');
+select is((select count(*) from storage.objects where bucket_id = 'profile-avatars' and name = '10000000-0000-4000-8000-000000000002/avatar.jpg'), 1::bigint, 'member can read discoverable adult avatar');
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000002'), 1::bigint, 'verified discoverable profile can be read');
 select is((select count(*) from public.age_verifications where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'other users cannot read age-verification records');
 select is((select count(*) from public.user_preferences where user_id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'other users cannot read private preferences');
 select is((select count(*) from public.messages), 1::bigint, 'user sees only messages in conversations they belong to');
 insert into public.blocks (blocker_id, blocked_id) values ('10000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002');
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000002'), 0::bigint, 'blocker no longer sees blocked profile');
+select is((select count(*) from storage.objects where bucket_id = 'profile-avatars' and name = '10000000-0000-4000-8000-000000000002/avatar.jpg'), 0::bigint, 'blocker cannot read blocked member avatar for signing');
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000001'), 0::bigint, 'blocked user also cannot see the blocker profile');
+select is((select count(*) from storage.objects where bucket_id = 'profile-avatars' and name = '10000000-0000-4000-8000-000000000001/avatar.jpg'), 0::bigint, 'blocked member cannot read blocker avatar for signing');
 select ok(public.is_blocked_between('10000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001'), 'block lookup is symmetric for the blocked user');
 select * from finish();
 rollback;
