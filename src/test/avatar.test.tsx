@@ -26,14 +26,20 @@ describe("Avatar private image delivery", () => {
     });
   });
 
-  it("renders an authorized short-lived signed URL for a valid existing avatar path", async () => {
+  it("signs a valid existing avatar path with a short expiration", async () => {
     render(
-      <Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />,
+      <Avatar
+        name="Test Member"
+        avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg"
+      />,
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("img", { name: "Test Member's profile photo" }).querySelector("img"))
-        .toHaveAttribute("src", expect.stringContaining("/object/sign/"));
+      const avatar = screen.getByRole("img", { name: "Test Member's profile photo" });
+      expect(avatar.querySelector("img")).toHaveAttribute(
+        "src",
+        expect.stringContaining("/object/sign/"),
+      );
     });
     expect(createSignedUrl).toHaveBeenCalledWith(
       "10000000-0000-4000-8000-000000000001/avatar.jpg",
@@ -53,7 +59,12 @@ describe("Avatar private image delivery", () => {
   it("falls back to initials when storage refuses to sign the avatar", async () => {
     createSignedUrl.mockResolvedValue({ data: null, error: { message: "not authorized" } });
 
-    render(<Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />);
+    render(
+      <Avatar
+        name="Test Member"
+        avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg"
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole("img", { name: "Test Member's profile photo" })).toHaveTextContent(
@@ -61,9 +72,7 @@ describe("Avatar private image delivery", () => {
       );
     });
     expect(
-      screen
-        .getByRole("img", { name: "Test Member's profile photo" })
-        .querySelector("img"),
+      screen.getByRole("img", { name: "Test Member's profile photo" }).querySelector("img"),
     ).not.toBeInTheDocument();
   });
 });
