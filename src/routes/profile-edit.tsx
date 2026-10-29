@@ -71,6 +71,8 @@ function EditProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingPreferences, setSavingPreferences] = useState(false);
+  const [preferencesError, setPreferencesError] = useState("");
+  const [preferencesNotice, setPreferencesNotice] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -281,14 +283,14 @@ function EditProfile() {
 
   const savePreferences = async () => {
     setSavingPreferences(true);
-    setError("");
-    setNotice("");
+    setPreferencesError("");
+    setPreferencesNotice("");
     try {
       const result = await updateMyDiscoveryPreferences({ data: preferences });
-      if (!result.ok) setError(result.message);
-      else setNotice("Your visibility and connection preferences have been saved.");
+      if (!result.ok) setPreferencesError(result.message);
+      else setPreferencesNotice("Your visibility and connection preferences have been saved.");
     } catch {
-      setError("Discovery preferences could not be saved. Please retry.");
+      setPreferencesError("Discovery preferences could not be saved. Please retry.");
     } finally {
       setSavingPreferences(false);
     }
@@ -509,7 +511,14 @@ function EditProfile() {
                       type="checkbox"
                       checked={preferences.friendsEnabled}
                       onChange={(event) =>
-                        setPreferences({ ...preferences, friendsEnabled: event.target.checked })
+                        setPreferences({
+                          ...preferences,
+                          friendsEnabled: event.target.checked,
+                          isDiscoverable:
+                            event.target.checked || preferences.datingEnabled
+                              ? preferences.isDiscoverable
+                              : false,
+                        })
                       }
                       className="mt-1 size-4 accent-primary"
                     />
@@ -525,7 +534,14 @@ function EditProfile() {
                       type="checkbox"
                       checked={preferences.datingEnabled}
                       onChange={(event) =>
-                        setPreferences({ ...preferences, datingEnabled: event.target.checked })
+                        setPreferences({
+                          ...preferences,
+                          datingEnabled: event.target.checked,
+                          isDiscoverable:
+                            event.target.checked || preferences.friendsEnabled
+                              ? preferences.isDiscoverable
+                              : false,
+                        })
                       }
                       className="mt-1 size-4 accent-primary"
                     />
@@ -537,14 +553,14 @@ function EditProfile() {
                     </span>
                   </label>
                 </div>
-                {error && (
+                {preferencesError && (
                   <p role="alert" className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
-                    {error}
+                    {preferencesError}
                   </p>
                 )}
-                {notice && (
+                {preferencesNotice && (
                   <p role="status" className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text">
-                    {notice}
+                    {preferencesNotice}
                   </p>
                 )}
                 <button
