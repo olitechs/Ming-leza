@@ -7,6 +7,7 @@ import { Button, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { cancelFriendRequest, respondToFriendRequest } from "@/lib/social/server";
 import { listFriendRequests } from "@/lib/social/requests";
+import { listMessageRequests, respondToMessageRequest } from "@/lib/social/server";
 
 export const Route = createFileRoute("/matches")({
   beforeLoad: async () => {
@@ -38,18 +39,32 @@ type RequestItem = {
     country_code: string | null;
   };
 };
+type ChatRequest = {
+  id: string;
+  note: string;
+  created_at: string;
+  profile: {
+    id: string;
+    display_name: string;
+    avatar_path: string | null;
+    city: string | null;
+    region: string | null;
+    country_code: string | null;
+  } | null;
+};
 
 function Matches() {
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
+  const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const result = await listFriendRequests();
+      const [result, chatResult] = await Promise.all([listFriendRequests(), listMessageRequests()]);
       if (!result.ok) {
         setError(
           result.reason === "unauthenticated"
@@ -60,6 +75,7 @@ function Matches() {
       } else {
         setRequests(result.requests as RequestItem[]);
       }
+      if (chatResult.ok) setChatRequests(chatResult.requests as ChatRequest[]);
     } catch {
       setError("We could not load friend requests. Please try again.");
       setRequests([]);
@@ -97,6 +113,24 @@ function Matches() {
     }
   };
 
+  const respondToChat = async (request: ChatRequest, accept: boolean) => {
+    setBusyId(request.id);
+    setError("");
+    try {
+      const result = await respondToMessageRequest({ data: { requestId: request.id, accept } });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      setChatRequests((current) => current.filter((item) => item.id !== request.id));
+      if (accept) setError("Request accepted. Open Messages to start the conversation.");
+    } catch {
+      setError("That message request could not be updated. Refresh and try again.");
+    } finally {
+      setBusyId("");
+    }
+  };
+
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
@@ -111,6 +145,54 @@ function Matches() {
             </Button>
           }
         />
+
+        {chatRequests.length > 0 && (
+          <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft">
+            <h2 className="text-lg font-bold">Message requests</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Accept a request before a private chat can open. You may decline at any time.
+            </p>
+            <div className="mt-4 space-y-3">
+              {chatRequests.map(
+                (request) =>
+                  request.profile && (
+                    <article
+                      key={request.id}
+                      className="flex flex-wrap items-center gap-3 rounded-2xl border p-3"
+                    >
+                      <Avatar
+                        name={request.profile.display_name}
+                        avatarPath={request.profile.avatar_path}
+                        className="size-12"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold">{request.profile.display_name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {request.note || "Would like to start a conversation."}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={busyId === request.id}
+                        onClick={() => void respondToChat(request, false)}
+                        className="min-h-10 rounded-full border px-4 text-sm"
+                      >
+                        Decline
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyId === request.id}
+                        onClick={() => void respondToChat(request, true)}
+                        className="min-h-10 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+                      >
+                        Accept
+                      </button>
+                    </article>
+                  ),
+              )}
+            </div>
+          </section>
+        )}
 
         {error && (
           <p

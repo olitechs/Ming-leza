@@ -6,7 +6,7 @@ describe("public FAQ page", () => {
   it("contains a substantive categorized FAQ and links to the existing sign-up flow", () => {
     render(<PublicFAQPage />);
 
-    expect(screen.getByText("41 answers across 7 topics.")).toBeVisible();
+    expect(screen.getByText("42 answers across 7 topics.")).toBeVisible();
     expect(
       screen.getByRole("heading", { level: 1, name: /frequently asked questions/i }),
     ).toBeVisible();

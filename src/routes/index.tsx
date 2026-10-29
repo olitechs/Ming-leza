@@ -1,13 +1,23 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
+import {
+  AlertCircle,
+  Heart,
+  MapPin,
+  RotateCcw,
+  Users,
+  UserPlus,
+  UserRoundPlus,
+  Check,
+  ExternalLink,
+} from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
 import { getMyProfile } from "@/lib/profile/server";
-import { sendFriendRequest } from "@/lib/social/server";
+import { listMyFollowedIds, sendFriendRequest, setFollow } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
 import { getHomePageMode } from "@/lib/homepage-routing";
 import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
@@ -74,6 +84,8 @@ function Discover() {
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
   const [requestError, setRequestError] = useState("");
+  const [followedIds, setFollowedIds] = useState<string[]>([]);
+  const [followBusyId, setFollowBusyId] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -94,8 +106,11 @@ function Discover() {
         }
         const result = await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
-        if (result.ok) setProfiles(result.profiles);
-        else {
+        if (result.ok) {
+          setProfiles(result.profiles);
+          const follows = await listMyFollowedIds();
+          if (active && follows.ok) setFollowedIds(follows.ids);
+        } else {
           setProfiles([]);
           setError(result.reason !== "unauthenticated");
         }
@@ -130,6 +145,24 @@ function Discover() {
       setRequestError("We could not send the friend request. Please try again.");
     } finally {
       setRequestingId("");
+    }
+  };
+
+  const toggleFollow = async (profileId: string) => {
+    const following = followedIds.includes(profileId);
+    setFollowBusyId(profileId);
+    setRequestError("");
+    try {
+      const result = await setFollow({ data: { userId: profileId, following: !following } });
+      if (!result.ok) setRequestError(result.message);
+      else
+        setFollowedIds((current) =>
+          following ? current.filter((id) => id !== profileId) : [...current, profileId],
+        );
+    } catch {
+      setRequestError("We could not update your following list. Please try again.");
+    } finally {
+      setFollowBusyId("");
     }
   };
 
@@ -236,6 +269,35 @@ function Discover() {
                     <div className="mt-4 flex flex-wrap gap-2">
                       {profile.friendsEnabled && <Chip>Friends</Chip>}
                       {profile.datingEnabled && <Chip>Dating</Chip>}
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={followBusyId === profile.id}
+                        onClick={() => void toggleFollow(profile.id)}
+                        className="flex-1 rounded-full px-3"
+                      >
+                        {followedIds.includes(profile.id) ? (
+                          <Check className="size-4" />
+                        ) : (
+                          <UserRoundPlus className="size-4" />
+                        )}
+                        {followBusyId === profile.id
+                          ? "Saving…"
+                          : followedIds.includes(profile.id)
+                            ? "Following"
+                            : "Follow"}
+                      </Button>
+                      <Button asChild type="button" variant="outline" className="rounded-full px-3">
+                        <Link
+                          to="/u/$id"
+                          params={{ id: profile.id }}
+                          aria-label={`View ${profile.displayName}'s profile`}
+                        >
+                          <ExternalLink className="size-4" /> Profile
+                        </Link>
+                      </Button>
                     </div>
                     <button
                       disabled={requested || requestingId === profile.id}
