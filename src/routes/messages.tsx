@@ -137,10 +137,16 @@ function Messages() {
   }, [openFriend]);
 
   const handleRealtimeMessage = useCallback((message: Message) => {
-    setMessages((current) => current.some((item) => item.id === message.id) ? current : [...current, message]);
+    setMessages((current) =>
+      current.some((item) => item.id === message.id) ? current : [...current, message],
+    );
   }, []);
 
-  useRealtimeConversationMessages({ conversationId, table: "messages", onMessage: handleRealtimeMessage });
+  useRealtimeConversationMessages({
+    conversationId,
+    table: "messages",
+    onMessage: handleRealtimeMessage,
+  });
 
   const loadEarlier = useCallback(async () => {
     if (!conversationId || !hasMore || loadingEarlier || !messageCursor) return;
@@ -177,7 +183,11 @@ function Messages() {
         setError(result.message);
         return;
       }
-      setMessages((current) => current.some((item) => item.id === (result.message as Message).id) ? current : [...current, result.message as Message]);
+      setMessages((current) =>
+        current.some((item) => item.id === (result.message as Message).id)
+          ? current
+          : [...current, result.message as Message],
+      );
       setDraft("");
     } catch {
       setError("Your message could not be sent. Please try again.");

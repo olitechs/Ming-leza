@@ -95,10 +95,16 @@ function DatingChatPage() {
   }, [matchId]);
 
   const handleRealtimeMessage = useCallback((message: DatingMessage) => {
-    setMessages((current) => current.some((item) => item.id === message.id) ? current : [...current, message]);
+    setMessages((current) =>
+      current.some((item) => item.id === message.id) ? current : [...current, message],
+    );
   }, []);
 
-  useRealtimeConversationMessages({ conversationId, table: "dating_messages", onMessage: handleRealtimeMessage });
+  useRealtimeConversationMessages({
+    conversationId,
+    table: "dating_messages",
+    onMessage: handleRealtimeMessage,
+  });
 
   useEffect(() => {
     void load();
@@ -115,7 +121,11 @@ function DatingChatPage() {
         setError(result.message);
         return;
       }
-      setMessages((current) => current.some((item) => item.id === (result.message as DatingMessage).id) ? current : [...current, result.message as DatingMessage]);
+      setMessages((current) =>
+        current.some((item) => item.id === (result.message as DatingMessage).id)
+          ? current
+          : [...current, result.message as DatingMessage],
+      );
       setDraft("");
     } catch {
       setError("Your message could not be sent. Please try again.");

@@ -22,11 +22,7 @@ type Options = {
  * Postgres Changes applies the table's RLS policies; the server functions remain
  * the authority for opening conversations and sending messages.
  */
-export function useRealtimeConversationMessages({
-  conversationId,
-  table,
-  onMessage,
-}: Options) {
+export function useRealtimeConversationMessages({ conversationId, table, onMessage }: Options) {
   useEffect(() => {
     if (!conversationId) return;
 
@@ -53,7 +49,8 @@ export function useRealtimeConversationMessages({
             typeof row.sender_id !== "string" ||
             typeof row.body !== "string" ||
             typeof row.created_at !== "string"
-          ) return;
+          )
+            return;
           onMessage({ ...row, mine: row.sender_id === userId });
         },
       )
