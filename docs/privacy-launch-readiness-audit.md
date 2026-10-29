@@ -19,6 +19,7 @@ Anyone with an avatar URL can fetch that image, even if its profile is hidden
 from discovery. UI visibility is not equivalent to private image storage.
 
 Required remediation:
+
 1. Use a private bucket and short-lived signed URLs or an authenticated image
    endpoint.
 2. Enforce profile visibility and block rules at the image-serving boundary.
@@ -35,6 +36,7 @@ the current avatar component depends on public URLs.
 The page `src/routes/privacy.tsx` labels the policy as a draft.
 
 Required remediation:
+
 - Obtain review for the actual operating entity and target jurisdictions.
 - Accurately describe data, purposes, legal basis where applicable, retention,
   processors, transfers, user rights, contact details, and safety processes.
@@ -50,6 +52,7 @@ a self-service deletion handler; trace the complete application flow before
 concluding the feature is absent.
 
 Required remediation:
+
 - Use a trusted server-only administrative path, recent authentication,
   explicit confirmation, idempotency, and a clear completion state.
 - Audit cascades and storage objects, identities, messages, reports, support
@@ -65,6 +68,7 @@ of `moderator` or `admin`. The queue alone does not provide staffed coverage,
 response guarantees, or emergency escalation.
 
 Required remediation:
+
 - Provision trusted roles through an audited administrator process.
 - Define ownership, coverage hours, severity, response targets, appeals,
   escalation, and retention.
