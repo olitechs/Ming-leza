@@ -1,0 +1,67 @@
+name: Repair formatting and verify redesign
+
+on:
+  push:
+    branches:
+      - feat/ui-redesign-dating-inspired
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repair-formatting-{{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  format-and-verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Format changed source files
+        shell: bash
+        run: |
+          git fetch origin main
+          mapfile -t files < <(git diff --name-only origin/main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.css' '*.json' '*.md' '*.yml' '*.yaml')
+          if [ "${#files[@]}" -gt 0 ]; then
+            pnpm exec prettier --write "${files[@]}"
+          fi
+      - name: Commit formatting corrections
+        shell: bash
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -u
+            git commit -m "Fix formatting in redesign changes"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+      - name: Formatting check
+        run: pnpm format:check
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.75.0
+      - name: Start local Supabase
+        run: supabase start
+      - name: Database and RLS tests
+        run: supabase test db
