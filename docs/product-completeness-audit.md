@@ -73,7 +73,7 @@ Unknown routes use the existing root not-found handling. The audit did not chang
 2. What should blocking do to existing friend requests, accepted friendships, and prior messages? How can a member safely review and undo a block?
 3. What data-deletion request process, retention exceptions, and avatar cleanup rules should be supported?
 4. Are profile avatars intentionally accessible by public storage URL, or should they use private storage and signed access?
-5. Which ongoing controls must members have for discoverability and friendship/dating intent?
+5. What default privacy and connection-intent settings should apply to newly completed profiles?
 6. Is Mingleza available only to Kenyan phone numbers, and what countries should be enabled for email-only accounts?
 7. What final Terms, Privacy, business identity, and contact details have been approved for publication?
 
