@@ -3,7 +3,7 @@ import { MapPin } from "lucide-react";
 export type DiscoverProfile = {
   id: string;
   name: string;
-  age?: number;
+  age?: number | undefined;
   city: string;
   bio: string;
   photo: string;
