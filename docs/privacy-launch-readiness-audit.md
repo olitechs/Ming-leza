@@ -1,8 +1,8 @@
 # Privacy and launch-readiness audit
 
-**Status:** Engineering review; not a legal opinion or launch approval.  
-**Reviewed:** 2026-10-29  
-**Scope:** Repository implementation only. Production Supabase settings, deployed environment variables, legal entity details, staffing, and operational procedures were not independently verified.
+- **Status:** Engineering review; not a legal opinion or launch approval.
+- **Reviewed:** 2026-10-29
+- **Scope:** Repository implementation only. Production Supabase settings, deployed environment variables, legal entity details, staffing, and operational procedures were not independently verified.
 
 ## Confirmed findings
 
