@@ -33,6 +33,12 @@ const profileSetupInput = z.object({
 
 const publicProfileInput = z.object({ id: z.string().uuid() });
 
+const discoveryPreferencesInput = z.object({
+  isDiscoverable: z.boolean(),
+  friendsEnabled: z.boolean(),
+  datingEnabled: z.boolean(),
+});
+
 async function getVerifiedUser() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
@@ -197,6 +203,45 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         message: "Profile service is temporarily unavailable.",
+      };
+    }
+  });
+
+export const updateMyDiscoveryPreferences = createServerFn({ method: "POST" })
+  .validator(discoveryPreferencesInput)
+  .handler(async ({ data }) => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message };
+      const { error } = await supabase.rpc("update_my_discovery_preferences", {
+        p_is_discoverable: data.isDiscoverable,
+        p_friends_enabled: data.friendsEnabled,
+        p_dating_enabled: data.datingEnabled,
+      });
+      if (error) {
+        const detail = error.message.toLowerCase();
+        if (detail.includes("complete your display name and city")) {
+          return {
+            ok: false as const,
+            message: "Add your display name and city before making your profile discoverable.",
+          };
+        }
+        if (detail.includes("enable friendship or dating")) {
+          return {
+            ok: false as const,
+            message: "Choose at least one connection intent before making your profile discoverable.",
+          };
+        }
+        return {
+          ok: false as const,
+          message: "Your discovery preferences could not be saved. Please retry.",
+        };
+      }
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "Profile preferences are temporarily unavailable.",
       };
     }
   });
