@@ -484,7 +484,6 @@ function Discover() {
       bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine connection.",
       photo:
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=85",
-      match: 95,
     },
     {
       id: "demo-zuri",
@@ -494,7 +493,6 @@ function Discover() {
       bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
       photo:
         "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85",
-      match: 91,
     },
     {
       id: "demo-njeri",
@@ -504,7 +502,6 @@ function Discover() {
       bio: "Good music, spontaneous road trips and conversations that go past midnight.",
       photo:
         "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85",
-      match: 88,
     },
   ];
   const shown = profiles.length
@@ -614,6 +611,7 @@ function Discover() {
                 city: current.city,
                 bio: current.bio,
                 photo: current.photo,
+                preview: !profiles.length,
               }}
               onView={() => setViewProfile((value) => !value)}
               onSwipe={(direction) => {
@@ -637,7 +635,12 @@ function Discover() {
               <ProfileActions
                 onPass={() => void decideCurrent("pass")}
                 onLike={() => void decideCurrent("like")}
-                onMessage={() => void navigate({ to: "/messages" })}
+                onMessage={() => {
+                  if (intent === "friends") void navigate({ to: "/messages" });
+                  else setRequestError("Dating matches and dating messages are not available yet.");
+                }}
+                passLabel={intent === "friends" ? "Skip profile" : "Pass profile"}
+                likeLabel={intent === "friends" ? "Send friend request" : "Like profile"}
                 disabled={Boolean(
                   current.source &&
                   (requestingId === current.source.id || requestedIds.includes(current.source.id)),
