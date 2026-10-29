@@ -314,7 +314,7 @@ export function PublicHomepage() {
               />
               <div className="absolute left-0 top-10 z-20 hidden w-44 -rotate-6 rounded-3xl border border-white/10 bg-[#19191c] p-3 shadow-2xl sm:block">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
-                  <img src={previewProfiles[1].photo} alt="" className="size-full object-cover" />
+                  <img src={previewProfiles[1]?.photo} alt="" className="size-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
                     <p className="font-bold">Zuri, 25</p>
@@ -325,7 +325,7 @@ export function PublicHomepage() {
               <div className="relative z-10 w-[min(76vw,310px)] rotate-2 rounded-[2.6rem] border border-white/15 bg-[#171719] p-2.5 shadow-[0_35px_100px_-30px_rgba(255,74,110,0.35)]">
                 <div className="relative aspect-[0.59] overflow-hidden rounded-[2.1rem] bg-[#26262a]">
                   <img
-                    src={previewProfiles[0].photo}
+                    src={previewProfiles[0]?.photo}
                     alt=""
                     className="absolute inset-0 size-full object-cover object-[center_30%]"
                   />
