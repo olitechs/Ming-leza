@@ -15,7 +15,7 @@ import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/
 import { getMyAccess } from "@/lib/auth/server";
 import { getDiscoverableProfiles } from "@/lib/discovery/server";
 import { getMyProfile } from "@/lib/profile/server";
-import { sendFriendRequest } from "@/lib/social/server";
+import { sendFriendRequest, submitProfileSwipe } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
 import { getHomePageMode } from "@/lib/homepage-routing";
 import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
@@ -509,11 +509,9 @@ function Discover() {
     ? profiles.map((p, i) => ({
         id: p.id,
         name: p.displayName,
-        age: 25 + (i % 7),
         city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
         bio: p.bio || "Here to meet kind people and build genuine connections.",
-        photo: p.avatarPath || demo[i % demo.length].photo,
-        match: [95, 89, 84, 81][i % 4],
+        photo: p.avatarPath || "",
         source: p,
       }))
     : demo.map((p) => ({ ...p, name: p.displayName, source: null }));
@@ -522,8 +520,37 @@ function Discover() {
     setViewProfile(false);
     setActiveIndex((index) => (index + 1) % Math.max(shown.length, 1));
   };
-  const likeCurrent = async () => {
-    if (current?.source) await requestFriendship(current.source);
+  const decideCurrent = async (decision: "like" | "pass") => {
+    if (!current) return;
+    setRequestError("");
+    if (!current.source) {
+      setRequestError("These are preview profiles. Real choices are only saved for available member profiles.");
+      advance();
+      return;
+    }
+    if (intent === "dating") {
+      setRequestingId(current.source.id);
+      try {
+        const result = await submitProfileSwipe({
+          data: { userId: current.source.id, decision },
+        });
+        if (!result.ok) {
+          setRequestError(result.message);
+          return;
+        }
+        advance();
+      } catch {
+        setRequestError("Your choice could not be saved. Please try again.");
+      } finally {
+        setRequestingId("");
+      }
+      return;
+    }
+    if (decision === "like") {
+      await requestFriendship(current.source);
+      advance();
+      return;
+    }
     advance();
   };
 
@@ -579,16 +606,13 @@ function Discover() {
                 id: current.id,
                 name: current.name,
                 age: current.age,
-                city: feed === "nearby" ? current.city : current.city,
+                city: current.city,
                 bio: current.bio,
                 photo: current.photo,
-                online: true,
-                match: current.match,
               }}
               onView={() => setViewProfile((value) => !value)}
               onSwipe={(direction) => {
-                if (direction === "right") void likeCurrent();
-                else advance();
+                void decideCurrent(direction === "right" ? "like" : "pass");
               }}
             />
             <ViewProfileSheet
@@ -606,8 +630,8 @@ function Discover() {
             />
             <div className="mt-5">
               <ProfileActions
-                onPass={advance}
-                onLike={() => void likeCurrent()}
+                onPass={() => void decideCurrent("pass")}
+                onLike={() => void decideCurrent("like")}
                 onMessage={() => void navigate({ to: "/messages" })}
                 disabled={Boolean(
                   current.source &&
@@ -620,7 +644,7 @@ function Discover() {
             )}
             {!profiles.length && (
               <p className="mt-4 text-center text-[11px] text-white/40">
-                Preview profiles · real profiles appear when available
+                Fictional preview only · no real member choices are saved
               </p>
             )}
           </div>
