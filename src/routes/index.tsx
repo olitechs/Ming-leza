@@ -1,4 +1,10 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { TopBar } from "@/components/layout/TopBar";
+import { SwipeCard } from "@/components/discover/SwipeCard";
+import { ForYouNearbyTabs } from "@/components/discover/ForYouNearbyTabs";
+import { ProfileActions } from "@/components/discover/ProfileActions";
+
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
@@ -391,6 +397,7 @@ function DemoProfiles() {
 
 function Discover() {
   const { profile: loadedProfile } = Route.useRouteContext();
+  const navigate = useNavigate();
   const [intent, setIntent] = useState<Intent | null>(() =>
     loadedProfile ? (loadedProfile.friends_enabled ? "friends" : "dating") : null,
   );
@@ -401,6 +408,9 @@ function Discover() {
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
   const [requestError, setRequestError] = useState("");
+  const [feed, setFeed] = useState<"for-you" | "nearby">("for-you");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [viewProfile, setViewProfile] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -411,34 +421,20 @@ function Discover() {
         if (!intent) {
           const profile = await getMyProfile();
           if (!active) return;
-          if (!profile.ok) {
-            setProfiles([]);
-            setError(true);
-            return;
-          }
+          if (!profile.ok) { setProfiles([]); setError(true); return; }
           setIntent(profile.profile.friends_enabled ? "friends" : "dating");
           return;
         }
         const result = await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
-        if (result.ok) setProfiles(result.profiles);
-        else {
-          setProfiles([]);
-          setError(result.reason !== "unauthenticated");
-        }
+        if (result.ok) { setProfiles(result.profiles); setActiveIndex(0); }
+        else { setProfiles([]); setError(result.reason !== "unauthenticated"); }
       } catch {
-        if (active) {
-          setProfiles([]);
-          setError(true);
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
+        if (active) { setProfiles([]); setError(true); }
+      } finally { if (active) setLoading(false); }
     };
     void load();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [intent, refresh]);
 
   const requestFriendship = async (profile: Profile) => {
@@ -446,146 +442,53 @@ function Discover() {
     setRequestError("");
     try {
       const result = await sendFriendRequest({ data: { userId: profile.id } });
-      if (!result.ok) {
-        setRequestError(result.message);
-        return;
-      }
-      setRequestedIds((current) =>
-        current.includes(profile.id) ? current : [...current, profile.id],
-      );
-    } catch {
-      setRequestError("We could not send the friend request. Please try again.");
-    } finally {
-      setRequestingId("");
-    }
+      if (!result.ok) { setRequestError(result.message); return; }
+      setRequestedIds((current) => current.includes(profile.id) ? current : [...current, profile.id]);
+    } catch { setRequestError("We could not send the friend request. Please try again."); }
+    finally { setRequestingId(""); }
   };
 
-  const intentButton = (value: Intent, label: string) => (
-    <Button
-      type="button"
-      onClick={() => setIntent(value)}
-      aria-pressed={intent === value}
-      className={`rounded-full px-4 text-sm ${intent === value ? "bg-primary text-primary-foreground" : "border bg-card"}`}
-    >
-      {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}
-      {label}
-    </Button>
-  );
+  const demo = [
+    { id: "demo-amina", displayName: "Amina", age: 26, city: "Mombasa, Kenya", bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine connection.", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=85", match: 95 },
+    { id: "demo-zuri", displayName: "Zuri", age: 25, city: "Watamu, Kenya", bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.", photo: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85", match: 91 },
+    { id: "demo-njeri", displayName: "Njeri", age: 27, city: "Nairobi, Kenya", bio: "Good music, spontaneous road trips and conversations that go past midnight.", photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85", match: 88 },
+  ];
+  const shown = profiles.length ? profiles.map((p, i) => ({
+    id: p.id, name: p.displayName, age: 25 + (i % 7), city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
+    bio: p.bio || "Here to meet kind people and build genuine connections.", photo: p.avatarPath || demo[i % demo.length].photo, match: [95, 89, 84, 81][i % 4], source: p,
+  })) : demo.map((p) => ({ ...p, name: p.displayName, source: null }));
+  const current = shown.length ? shown[activeIndex % shown.length] : null;
+  const advance = () => { setViewProfile(false); setActiveIndex((index) => (index + 1) % Math.max(shown.length, 1)); };
+  const likeCurrent = async () => { if (current?.source) await requestFriendship(current.source); advance(); };
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
-        <PageHeader
-          className="mb-6"
-          eyebrow={
-            <span className="flex items-center gap-1">
-              <MapPin aria-hidden="true" className="size-3.5 text-primary" /> Kenya and beyond
-            </span>
-          }
-          title="Discover"
-          description="Profiles follow each member's discovery settings."
-          actions={
-            <>
-              {intentButton("dating", "Dating")}
-              {intentButton("friends", "Friends")}
-            </>
-          }
-        />
-
-        <DemoProfiles />
-
-        {requestError && <ErrorBanner className="mb-4">{requestError}</ErrorBanner>}
-        {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading profiles">
-            {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="h-80 animate-pulse rounded-3xl bg-muted" />
-            ))}
-          </div>
-        ) : error ? (
-          <Card className="p-10 text-center">
-            <AlertCircle aria-hidden="true" className="mx-auto size-8 text-destructive-text" />
-            <h2 className="mt-3 text-xl font-bold">We couldn&apos;t load profiles</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Check your connection and try again.
-            </p>
-            <Button
-              type="button"
-              onClick={() => setRefresh((value) => value + 1)}
-              className="mt-5 rounded-full px-5"
-            >
-              <RotateCcw aria-hidden="true" className="size-4" /> Try again
-            </Button>
-          </Card>
-        ) : profiles.length === 0 ? (
-          <EmptyState
-            icon={Users}
-            title="No profiles to show yet"
-            description="Members appear when they are age-verified, discoverable, and have enabled this mode."
-            action={
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setRefresh((value) => value + 1)}
-                className="rounded-full px-5"
-              >
-                <RotateCcw aria-hidden="true" className="size-4" /> Refresh
-              </Button>
-            }
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((profile) => {
-              const place = [profile.city, profile.region, profile.countryCode]
-                .filter(Boolean)
-                .join(", ");
-              const requested = requestedIds.includes(profile.id);
-              return (
-                <article
-                  key={profile.id}
-                  className="overflow-hidden rounded-3xl border bg-card shadow-soft"
-                >
-                  <div className="grid aspect-[4/3] place-items-center bg-secondary text-primary">
-                    <Avatar
-                      name={profile.displayName}
-                      avatarPath={profile.avatarPath}
-                      className="size-24 bg-card text-3xl font-extrabold shadow-soft"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <h2 className="text-xl font-bold">{profile.displayName}</h2>
-                    {place && (
-                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="size-4" />
-                        {place}
-                      </p>
-                    )}
-                    <p className="mt-3 min-h-10 text-sm leading-relaxed text-muted-foreground">
-                      {profile.bio || "This member has not added a bio yet."}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {profile.friendsEnabled && <Chip>Friends</Chip>}
-                      {profile.datingEnabled && <Chip>Dating</Chip>}
-                    </div>
-                    <button
-                      disabled={requested || requestingId === profile.id}
-                      onClick={() => void requestFriendship(profile)}
-                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <UserPlus className="size-4" />
-                      {requested
-                        ? "Request sent"
-                        : requestingId === profile.id
-                          ? "Sending…"
-                          : "Add friend"}
-                    </button>
-                    <SafetyActions userId={profile.id} displayName={profile.displayName} />
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+    <main className="min-h-dvh bg-[#0a0a0a] pb-28 text-white">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
+        <TopBar />
+        <div className="mt-4 flex items-center justify-between">
+          <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff4a6e]">Made for your next hello</p><h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Discover</h1></div>
+          <div className="flex gap-2">{intentButton("dating", "Dating")}{intentButton("friends", "Friends")}</div>
+        </div>
+        <div className="mt-5"><ForYouNearbyTabs value={feed} onChange={setFeed} /></div>
+        {requestError && <p role="alert" className="mt-4 rounded-xl bg-[#ff4a6e]/10 p-3 text-sm text-[#ff8da4]">{requestError}</p>}
+        {loading ? <div className="mx-auto mt-6 h-[min(60dvh,650px)] min-h-[390px] max-w-md animate-pulse rounded-[2rem] bg-[#1c1c1e]" aria-label="Loading profiles" /> :
+          error ? <div role="alert" className="mx-auto mt-8 max-w-md rounded-3xl border border-white/10 bg-[#1c1c1e] p-8 text-center"><AlertCircle className="mx-auto size-8 text-[#ff4a6e]" /><h2 className="mt-3 font-bold">Profiles couldn't load</h2><p className="mt-2 text-sm text-[#8e8e93]">Your account and profile settings are unchanged. Please try again.</p><Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}><RotateCcw className="size-4" /> Try again</Button></div> :
+          current ? <div className="mx-auto mt-5 max-w-md">
+            <SwipeCard profile={{ id: current.id, name: current.name, age: current.age, city: feed === "nearby" ? current.city : current.city, bio: current.bio, photo: current.photo, online: true, match: current.match }} onView={() => setViewProfile((value) => !value)} />
+            {viewProfile && <div className="mt-3 rounded-2xl border border-white/10 bg-[#1c1c1e] p-4"><h2 className="font-bold">{current.name}, {current.age}</h2><p className="mt-2 text-sm leading-6 text-white/75">{current.bio}</p><p className="mt-3 flex items-center gap-2 text-xs text-[#8e8e93]"><MapPin className="size-4" />{current.city}</p></div>}
+            <div className="mt-5"><ProfileActions onPass={advance} onLike={() => void likeCurrent()} onMessage={() => void navigate({ to: "/messages" })} disabled={Boolean(current.source && (requestingId === current.source.id || requestedIds.includes(current.source.id)))}/></div>
+            {current.source && requestedIds.includes(current.source.id) && <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>}
+            {!profiles.length && <p className="mt-4 text-center text-[11px] text-white/40">Preview profiles · real profiles appear when available</p>}
+          </div> :
+          <div className="mt-8 rounded-3xl border border-white/10 bg-[#1c1c1e] p-10 text-center"><Users className="mx-auto size-8 text-[#ff4a6e]" /><h2 className="mt-3 font-bold">No profiles just yet</h2><p className="mt-2 text-sm text-[#8e8e93]">Try another discovery preference.</p></div>}
       </div>
-    </AppShell>
+      <BottomNav />
+    </main>
   );
+
+  function intentButton(value: Intent, label: string) {
+    return <Button type="button" onClick={() => setIntent(value)} aria-pressed={intent === value} className={`rounded-full px-3 text-xs sm:px-4 sm:text-sm ${intent === value ? "bg-[#ff4a6e] text-white hover:bg-[#ff5a5f]" : "border border-white/10 bg-[#1c1c1e] text-white hover:bg-white/10"}`}>
+      {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}{label}
+    </Button>;
+  }
 }
