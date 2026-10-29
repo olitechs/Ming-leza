@@ -56,11 +56,9 @@ export function useRealtimeConversationMessages({ conversationId, table, onMessa
       )
       .subscribe();
 
-    void supabase.auth
-      .getUser()
-      .then((result: { data: { user: { id: string } | null } }) => {
-        if (!disposed) userId = result.data.user?.id ?? null;
-      });
+    void supabase.auth.getUser().then((result: { data: { user: { id: string } | null } }) => {
+      if (!disposed) userId = result.data.user?.id ?? null;
+    });
 
     return () => {
       disposed = true;
