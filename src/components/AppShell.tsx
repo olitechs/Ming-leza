@@ -15,7 +15,7 @@ import type { ReactNode } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
 
 type NavItem = {
-  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id" | "/profile-edit";
+  to: "/" | "/explore" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
   label: string;
   icon: LucideIcon;
   badge?: number;
@@ -25,9 +25,9 @@ const main: NavItem[] = [
   { to: "/explore", label: "Explore", icon: Map },
   { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
+  { to: "/notifications", label: "Notifications", icon: Bell },
 ];
 const soon: { label: string; icon: LucideIcon }[] = [
-  { label: "Notifications", icon: Bell },
   { label: "Premium", icon: Crown },
   { label: "Settings", icon: Settings },
 ];
