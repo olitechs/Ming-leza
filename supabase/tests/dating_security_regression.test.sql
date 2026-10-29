@@ -98,7 +98,7 @@ select is(
   'a member whose adult verification is revoked cannot read notifications'
 );
 select throws_ok(
-  $select public.send_dating_message(current_setting('test.conversation_id')::uuid, 'unverified send attempt')$,
+  $$select public.send_dating_message(current_setting('test.conversation_id')::uuid, 'unverified send attempt')$$,
   '42501', null, 'a member whose adult verification is revoked cannot send dating messages'
 );
 
