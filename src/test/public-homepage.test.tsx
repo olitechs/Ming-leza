@@ -35,10 +35,10 @@ describe("public homepage", () => {
       true,
     );
     expect(
-      screen.getByRole("link", { name: "Create your free account" }).getAttribute("href"),
+      screen.getAllByRole("link", { name: "Join Mingleza" })[0]?.getAttribute("href"),
     ).toBe("/login");
     expect(
-      screen.getByRole("link", { name: "Read all frequently asked questions" }),
+      screen.getByRole("link", { name: "Read more FAQs" }),
     ).toHaveAttribute("href", "/faq");
   });
 
