@@ -155,6 +155,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/notifications': typeof NotificationsRoute
   '/moderation': typeof ModerationRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
@@ -176,6 +177,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/notifications': typeof NotificationsRoute
   '/moderation': typeof ModerationRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
@@ -219,6 +221,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/notifications'
     | '/moderation'
     | '/privacy'
     | '/profile-edit'
@@ -239,6 +242,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/notifications'
     | '/moderation'
     | '/privacy'
     | '/profile-edit'
