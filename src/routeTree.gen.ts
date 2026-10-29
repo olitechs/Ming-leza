@@ -23,6 +23,8 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ChatMatchIdRouteImport } from './routes/chat.$matchId'
 import { Route as UIdRouteImport } from './routes/u.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +97,16 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatMatchIdRoute = ChatMatchIdRouteImport.update({
+  id: '/chat/$matchId',
+  path: '/chat/$matchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
@@ -116,6 +128,8 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
@@ -170,6 +184,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -357,6 +373,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
+  OnboardingRoute: OnboardingRoute,
+  ChatMatchIdRoute: ChatMatchIdRoute,
   UIdRoute: UIdRoute,
 }
 export const routeTree = rootRouteImport
