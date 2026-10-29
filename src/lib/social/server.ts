@@ -278,7 +278,7 @@ export const submitProfileSwipe = createServerFn({ method: "POST" })
     if (user.id === data.userId) {
       return { ok: false as const, message: "You cannot swipe on your own profile." };
     }
-    const { error } = await supabase.rpc("submit_profile_swipe", {
+    const { data: matchId, error } = await supabase.rpc("submit_profile_swipe", {
       p_target_id: data.userId,
       p_decision: data.decision,
     });
@@ -288,6 +288,39 @@ export const submitProfileSwipe = createServerFn({ method: "POST" })
           ? "This profile is no longer available."
           : "Your choice could not be saved. Please try again.";
       return { ok: false as const, message };
+    }
+    return { ok: true as const, matchId: matchId ?? null };
+  });
+
+
+const unmatchSchema = z.object({ matchId: userIdSchema });
+
+export const listIncomingDatingLikes = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase, user } = await authenticatedClient();
+  if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+  const { data, error } = await supabase.rpc("list_incoming_dating_likes");
+  if (error) return { ok: false as const, reason: "unavailable" as const };
+  return { ok: true as const, likes: data ?? [] };
+});
+
+export const listMyDatingMatches = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase, user } = await authenticatedClient();
+  if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+  const { data, error } = await supabase.rpc("list_my_dating_matches");
+  if (error) return { ok: false as const, reason: "unavailable" as const };
+  return { ok: true as const, matches: data ?? [] };
+});
+
+export const unmatchDatingProfile = createServerFn({ method: "POST" })
+  .validator(unmatchSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to manage your matches." };
+    const { error } = await supabase.rpc("unmatch_dating_profile", {
+      p_match_id: data.matchId,
+    });
+    if (error) {
+      return { ok: false as const, message: "That match is no longer available." };
     }
     return { ok: true as const };
   });
