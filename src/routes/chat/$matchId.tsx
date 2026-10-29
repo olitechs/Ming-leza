@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppShell } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatBubble } from "@/components/chat/ChatBubble";
