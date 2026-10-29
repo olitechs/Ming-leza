@@ -130,6 +130,10 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/onboarding': typeof OnboardingRoute
   '/chat/$matchId': typeof ChatMatchIdRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
@@ -346,6 +350,20 @@ declare module '@tanstack/react-router' {
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$matchId': {
+      id: '/chat/$matchId'
+      path: '/chat/$matchId'
+      fullPath: '/chat/$matchId'
+      preLoaderRoute: typeof ChatMatchIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/u/$id': {
