@@ -14,6 +14,7 @@ import {
 import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { deleteMyAccount, exportMyData, getMyAccess } from "@/lib/auth/server";
 import { AppShell } from "@/components/AppShell";
+import { usePrivateAvatarUrl } from "@/components/Avatar";
 import { Button, Field as BrandField, Input as BrandInput } from "@/components/brand";
 import {
   getMyProfile,
@@ -257,13 +258,7 @@ function EditProfile() {
     };
   }, []);
 
-  const avatarUrl = (() => {
-    if (!avatarPath) return "";
-    const { data } = getSupabaseBrowserClient()
-      .storage.from("profile-avatars")
-      .getPublicUrl(avatarPath);
-    return data.publicUrl;
-  })();
+  const avatarUrl = usePrivateAvatarUrl(avatarPath) ?? "";
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
