@@ -1,6 +1,20 @@
 import { Heart, MessageCircle, X } from "lucide-react";
-type Props = { onPass: () => void; onLike: () => void; onMessage: () => void; disabled?: boolean; passLabel?: string; likeLabel?: string };
-export function ProfileActions({ onPass, onLike, onMessage, disabled = false, passLabel = "Pass profile", likeLabel = "Like profile" }: Props) {
+type Props = {
+  onPass: () => void;
+  onLike: () => void;
+  onMessage: () => void;
+  disabled?: boolean;
+  passLabel?: string;
+  likeLabel?: string;
+};
+export function ProfileActions({
+  onPass,
+  onLike,
+  onMessage,
+  disabled = false,
+  passLabel = "Pass profile",
+  likeLabel = "Like profile",
+}: Props) {
   return (
     <div className="flex items-center justify-center gap-5">
       <button
