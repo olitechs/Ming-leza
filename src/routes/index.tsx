@@ -461,7 +461,7 @@ function Discover() {
       const result = await sendFriendRequest({ data: { userId: profile.id } });
       if (!result.ok) {
         setRequestError(result.message);
-        return;
+        return false;
       }
       setRequestedIds((current) =>
         current.includes(profile.id) ? current : [...current, profile.id],
