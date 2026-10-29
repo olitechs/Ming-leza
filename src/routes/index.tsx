@@ -454,7 +454,7 @@ function Discover() {
     };
   }, [intent, refresh]);
 
-  const requestFriendship = async (profile: Profile) => {
+  const requestFriendship = async (profile: Profile): Promise<boolean> => {
     setRequestingId(profile.id);
     setRequestError("");
     try {
@@ -466,8 +466,10 @@ function Discover() {
       setRequestedIds((current) =>
         current.includes(profile.id) ? current : [...current, profile.id],
       );
+      return true;
     } catch {
       setRequestError("We could not send the friend request. Please try again.");
+      return false;
     } finally {
       setRequestingId("");
     }
@@ -509,6 +511,7 @@ function Discover() {
     ? profiles.map((p, i) => ({
         id: p.id,
         name: p.displayName,
+        age: undefined,
         city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
         bio: p.bio || "Here to meet kind people and build genuine connections.",
         photo: p.avatarPath || "",
@@ -547,8 +550,8 @@ function Discover() {
       return;
     }
     if (decision === "like") {
-      await requestFriendship(current.source);
-      advance();
+      const sent = await requestFriendship(current.source);
+      if (sent) advance();
       return;
     }
     advance();
