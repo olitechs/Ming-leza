@@ -13,10 +13,12 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
   const [systemTheme, setSystemTheme] = useState<"dark" | "light">("dark");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("mingleza-theme");
     if (saved === "dark" || saved === "light" || saved === "system") setTheme(saved);
+    setReady(true);
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const updateSystemTheme = () => setSystemTheme(media.matches ? "dark" : "light");
@@ -28,12 +30,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
+    if (!ready) return;
     const root = document.documentElement;
     root.classList.toggle("dark", resolvedTheme === "dark");
     root.classList.toggle("light", resolvedTheme === "light");
     root.style.colorScheme = resolvedTheme;
     window.localStorage.setItem("mingleza-theme", theme);
-  }, [theme, resolvedTheme]);
+  }, [theme, resolvedTheme, ready]);
 
   const value = useMemo(() => ({ theme, setTheme, resolvedTheme }), [theme, resolvedTheme]);
 
