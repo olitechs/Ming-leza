@@ -264,7 +264,6 @@ export const reportMember = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-
 const swipeSchema = z.object({
   userId: userIdSchema,
   decision: z.enum(["like", "pass"]),
