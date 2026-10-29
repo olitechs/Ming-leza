@@ -3,7 +3,7 @@ name: Repair formatting and verify redesign
 on:
   push:
     branches:
-      - feat/ui-redesign-dating-inspired
+      - 'feat/**'
 
 permissions:
   contents: write
