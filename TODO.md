@@ -25,3 +25,14 @@
 
 - Keep reporting/blocking and moderation requirements visible; implement group/message-request controls without weakening existing block checks.
 - Validate schema/RLS on disposable Supabase and leave production configuration and provider-dependent media calls gated.
+
+## Realtime chat
+
+- Replace normal five-second message polling with a Supabase Realtime WebSocket subscription filtered to the active conversation; keep polling only as a fallback while disconnected, show connection/reconnection state, and preserve existing conversation membership/RLS authorization.
+- Ensure `messages` is included in the `supabase_realtime` publication; do not weaken message read/write policies to make the WebSocket work.
+
+## Premium phone visibility and payment
+
+- Implement a paid Premium entitlement whose active state is updated only by verified provider webhook events; support checkout, renewal, cancellation, and failure/expiry behavior.
+- Keep phone numbers private by default. A profile owner must explicitly opt in before active Premium members can see the number; fetch it only through a server-authorized path, never through profile/discovery payloads or Realtime messages.
+- Do not publish a purchasable tier until the owner selects the payment provider, the Premium amount/currency/billing interval, and whether Kenya M-Pesa renewals are manual or card auto-renewal is offered. No charge or live payment configuration is authorized before that choice.

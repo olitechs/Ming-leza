@@ -182,7 +182,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Are messages real time?",
         answer:
-          "Open conversations refresh about every five seconds while the page remains open. This is polling, not instant real-time delivery, and there are no push notifications yet. Group chats are available to create with at least two accepted friends.",
+          "Open conversations use a secure live connection for new messages. If the connection drops, the app checks for updates every five seconds until it reconnects. Push notifications are not available yet. Group chats are available with at least two accepted friends.",
       },
       {
         question: "Can I edit or delete a message?",
