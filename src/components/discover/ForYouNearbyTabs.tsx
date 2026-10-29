@@ -13,10 +13,12 @@ export function ForYouNearbyTabs({ value, onChange }: Props) {
           type="button"
           role="tab"
           aria-selected={value === tab.value}
+          aria-label={tab.value === "nearby" ? "Nearby discovery coming soon" : tab.label}
+          disabled={tab.value === "nearby"}
           onClick={() => onChange(tab.value)}
-          className={`relative pb-3 text-sm font-bold transition ${value === tab.value ? "text-white after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#ff4a6e]" : "text-[#8e8e93]"}`}
+          className={`relative pb-3 text-sm font-bold transition ${value === tab.value ? "text-white after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#ff4a6e]" : "text-[#8e8e93]"} disabled:cursor-not-allowed disabled:opacity-50`}
         >
-          {tab.label}
+          {tab.value === "nearby" ? "Nearby · soon" : tab.label}
         </button>
       ))}
     </div>
