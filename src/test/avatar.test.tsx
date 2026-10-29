@@ -57,10 +57,7 @@ describe("Avatar private image delivery", () => {
     createSignedUrl.mockResolvedValue({ data: null, error: { message: "not authorized" } });
 
     render(
-      <Avatar
-        name="Test Member"
-        avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg"
-      />,
+      <Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />,
     );
 
     await waitFor(() => {
