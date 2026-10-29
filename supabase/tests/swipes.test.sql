@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(10);
 
 insert into auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -39,6 +39,11 @@ select is(
   (select decision from public.profile_swipes where swiper_id = auth.uid() and target_id = '20000000-0000-4000-8000-000000000002'),
   'pass',
   'upsert changes the previous decision to pass'
+);
+select is(
+  (select count(*)::int from public.discover_profiles('dating',20)),
+  0,
+  'previously swiped dating profiles are removed from the discovery feed'
 );
 select throws_ok(
   $$select public.submit_profile_swipe('20000000-0000-4000-8000-000000000001','like')$$,
