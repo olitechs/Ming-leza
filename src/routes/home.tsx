@@ -4,6 +4,6 @@ import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/home")({
   loader: () => getPublicSiteUrl(),
-  head: ({ loaderData }) => getHomeHead("marketing", loaderData),
+  head: ({ loaderData }) => getHomeHead("marketing", loaderData ?? null),
   component: PublicHomepage,
 });
