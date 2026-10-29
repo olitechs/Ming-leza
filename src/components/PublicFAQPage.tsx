@@ -28,7 +28,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Is Mingleza only for dating?",
         answer:
-          "No. Friendship is an available way to connect. Dating is also available as a profile intent, but dating likes and matches are not implemented yet.",
+          "No. Friendship requests are available, and dating likes or passes are saved privately to your account. Mutual matches and a dating-matches inbox are not available yet.",
       },
       {
         question: "Where is Mingleza available?",
