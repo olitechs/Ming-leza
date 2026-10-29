@@ -151,7 +151,7 @@ const faqs = [
   {
     question: "Are likes, matches, and premium boosts available?",
     answer:
-      "The current product supports friendship requests and messaging after acceptance. Dating likes, match percentages, and paid boosts are not available yet.",
+      "Friendship requests are available. Dating likes and passes can be saved, but mutual matches, match percentages, and paid boosts are not available yet.",
   },
 ];
 
