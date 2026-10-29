@@ -490,8 +490,7 @@ export function PublicHomepage() {
                       connection.
                     </p>
                     <div className="mt-6 flex items-center gap-2 text-xs font-bold text-white/70">
-                      <Heart aria-hidden="true" className="size-4 text-primary" /> Discover
-                      preview
+                      <Heart aria-hidden="true" className="size-4 text-primary" /> Discover preview
                     </div>
                   </div>
                 </article>
