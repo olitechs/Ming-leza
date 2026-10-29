@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
+import { useRealtimeConversationMessages } from "@/lib/social/use-realtime-messages";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import {
   listConversationMessages,
@@ -135,6 +136,12 @@ function Messages() {
     };
   }, [openFriend]);
 
+  const handleRealtimeMessage = useCallback((message: Message) => {
+    setMessages((current) => current.some((item) => item.id === message.id) ? current : [...current, message]);
+  }, []);
+
+  useRealtimeConversationMessages({ conversationId, table: "messages", onMessage: handleRealtimeMessage });
+
   const loadEarlier = useCallback(async () => {
     if (!conversationId || !hasMore || loadingEarlier || !messageCursor) return;
     setLoadingEarlier(true);
@@ -170,7 +177,7 @@ function Messages() {
         setError(result.message);
         return;
       }
-      setMessages((current) => [...current, result.message as Message]);
+      setMessages((current) => current.some((item) => item.id === (result.message as Message).id) ? current : [...current, result.message as Message]);
       setDraft("");
     } catch {
       setError("Your message could not be sent. Please try again.");
