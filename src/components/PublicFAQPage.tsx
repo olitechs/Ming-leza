@@ -28,7 +28,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Is Mingleza only for dating?",
         answer:
-          "No. Friendship requests are available, and dating likes or passes are saved privately to your account. Mutual matches and a dating-matches inbox are not available yet.",
+          "Friendship requests and dating likes or passes are available. A mutual match appears when both members like each other; dating-specific messaging is not available yet.",
       },
       {
         question: "Where is Mingleza available?",
