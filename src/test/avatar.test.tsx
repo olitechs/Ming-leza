@@ -27,14 +27,13 @@ describe("Avatar private image delivery", () => {
   });
 
   it("renders an authorized short-lived signed URL for a valid existing avatar path", async () => {
-    render(<Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />);
+    render(
+      <Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />,
+    );
 
     await waitFor(() => {
-      expect(
-        screen
-          .getByRole("img", { name: "Test Member's profile photo" })
-          .querySelector("img"),
-      ).toHaveAttribute("src", expect.stringContaining("/object/sign/"));
+      expect(screen.getByRole("img", { name: "Test Member's profile photo" }).querySelector("img"))
+        .toHaveAttribute("src", expect.stringContaining("/object/sign/"));
     });
     expect(createSignedUrl).toHaveBeenCalledWith(
       "10000000-0000-4000-8000-000000000001/avatar.jpg",
