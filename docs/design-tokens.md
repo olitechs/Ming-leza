@@ -4,17 +4,17 @@ Mingleza is a mobile-first dating and friendship app. The default experience is 
 
 ## Core palette
 
-| Token / use | Light theme | Dark theme |
-| --- | --- | --- |
-| Primary action / like | `#FF4A6E` · `oklch(0.645 0.246 16.439)` | Same pink |
-| Accent yellow | `#FFE15A` · `oklch(0.9 0.165 92.918)` | Same yellow |
-| Online indicator | `#34C759` | `#34C759` |
-| App background | `#FFFFFF` | `#0A0A0A` |
-| Card / elevated surface | `#FFFFFF` | `#1C1C1E` |
-| Main text | Near-black | `#FFFFFF` |
-| Muted text | Neutral grey with accessible contrast | Soft neutral grey |
-| Border | Light neutral grey | Subtle white at 11% opacity |
-| Radius | `1.5rem` base | `1.5rem` base |
+| Token / use             | Light theme                             | Dark theme                  |
+| ----------------------- | --------------------------------------- | --------------------------- |
+| Primary action / like   | `#FF4A6E` · `oklch(0.645 0.246 16.439)` | Same pink                   |
+| Accent yellow           | `#FFE15A` · `oklch(0.9 0.165 92.918)`   | Same yellow                 |
+| Online indicator        | `#34C759`                               | `#34C759`                   |
+| App background          | `#FFFFFF`                               | `#0A0A0A`                   |
+| Card / elevated surface | `#FFFFFF`                               | `#1C1C1E`                   |
+| Main text               | Near-black                              | `#FFFFFF`                   |
+| Muted text              | Neutral grey with accessible contrast   | Soft neutral grey           |
+| Border                  | Light neutral grey                      | Subtle white at 11% opacity |
+| Radius                  | `1.5rem` base                           | `1.5rem` base               |
 
 The supplied primary OKLCH value is the canonical CSS token. Hex references are design-reference labels; render semantic `bg-primary`, `text-primary`, and `ring-primary` utilities instead of duplicating color values.
 
