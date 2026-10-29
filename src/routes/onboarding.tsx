@@ -7,6 +7,14 @@ export const Route = createFileRoute("/onboarding")({
     const access = await getMyAccess();
     if (access.authenticated && access.adultVerified) throw redirect({ to: "/" });
   },
-  head: () => ({ meta: [{ title: "Endless Motivation · Mingleza" }, { name: "description", content: "Discover meaningful connections across Kenya with Mingleza." }] }),
+  head: () => ({
+    meta: [
+      { title: "Endless Motivation · Mingleza" },
+      {
+        name: "description",
+        content: "Discover meaningful connections across Kenya with Mingleza.",
+      },
+    ],
+  }),
   component: MotivationScreen,
 });

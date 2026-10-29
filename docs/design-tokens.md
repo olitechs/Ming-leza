@@ -4,17 +4,17 @@ Dark-first dating and friendship interface. Use semantic CSS variables in `src/s
 
 ## Core palette
 
-| Token / use | Value |
-| --- | --- |
-| App background | `#0A0A0A` |
-| Cards / elevated surfaces | `#1C1C1E` |
-| Primary (like / CTA) | `#FF4A6E` |
-| Primary alternate | `#FF5A5F` |
-| Accent / onboarding CTA | `#FFE15A` |
-| Main text | `#FFFFFF` |
-| Muted text | `#8E8E93` |
-| Online indicator | `#34D399` |
-| Subtle border | `rgba(255,255,255,0.11)` |
+| Token / use               | Value                    |
+| ------------------------- | ------------------------ |
+| App background            | `#0A0A0A`                |
+| Cards / elevated surfaces | `#1C1C1E`                |
+| Primary (like / CTA)      | `#FF4A6E`                |
+| Primary alternate         | `#FF5A5F`                |
+| Accent / onboarding CTA   | `#FFE15A`                |
+| Main text                 | `#FFFFFF`                |
+| Muted text                | `#8E8E93`                |
+| Online indicator          | `#34D399`                |
+| Subtle border             | `rgba(255,255,255,0.11)` |
 
 ## Interaction and layout
 

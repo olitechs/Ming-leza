@@ -107,17 +107,17 @@ function Matches() {
         <LikesRail />
         <MatchGrid />
         <div className="mt-8 border-t border-white/10 pt-6">
-        <PageHeader
-          title="Friend requests"
-          description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
-          actions={
-            <Button asChild variant="outline" className="rounded-full">
-              <Link to="/messages">
-                <MessageCircle aria-hidden="true" className="size-4" /> Messages
-              </Link>
-            </Button>
-          }
-        />
+          <PageHeader
+            title="Friend requests"
+            description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
+            actions={
+              <Button asChild variant="outline" className="rounded-full">
+                <Link to="/messages">
+                  <MessageCircle aria-hidden="true" className="size-4" /> Messages
+                </Link>
+              </Button>
+            }
+          />
         </div>
 
         {error && (
