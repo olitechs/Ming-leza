@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(18);
 
 insert into auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -80,6 +80,40 @@ select is(
   1,
   'only the message recipient receives a dating-message notification'
 );
+
+reset role;
+delete from public.age_verifications
+where user_id = '60000000-0000-4000-8000-000000000002';
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub','60000000-0000-4000-8000-000000000002',true);
+select is(
+  (select count(*)::int from public.dating_messages where conversation_id = current_setting('test.conversation_id')::uuid),
+  0,
+  'a member whose adult verification is revoked cannot read dating messages'
+);
+select is(
+  (select count(*)::int from public.notifications),
+  0,
+  'a member whose adult verification is revoked cannot read notifications'
+);
+select throws_ok(
+  $select public.send_dating_message(current_setting('test.conversation_id')::uuid, 'unverified send attempt')$,
+  '42501', null, 'a member whose adult verification is revoked cannot send dating messages'
+);
+
+select set_config('request.jwt.claim.sub','60000000-0000-4000-8000-000000000001',true);
+select is(
+  (select count(*)::int from public.list_my_dating_matches()),
+  0,
+  'verified members do not receive match details for an unverified participant'
+);
+
+reset role;
+insert into public.age_verifications (user_id, is_18_plus)
+values ('60000000-0000-4000-8000-000000000002',true);
+set local role authenticated;
+select set_config('request.jwt.claim.sub','60000000-0000-4000-8000-000000000002',true);
 select throws_ok(
   $$insert into public.dating_messages (conversation_id, sender_id, body)
     values (current_setting('test.conversation_id')::uuid, auth.uid(), 'direct insert attempt')$$,
