@@ -1,9 +1,8 @@
 import { Heart, SlidersHorizontal } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { MinglezaLogo } from "@/components/MinglezaLogo";
-import { Link } from "@tanstack/react-router";
 
-export function TopBar({ title = "mingleza" }: { title?: string }) {
+export function TopBar() {
   return (
     <header className="flex items-center justify-between py-3">
       <MinglezaLogo className="text-2xl" />
