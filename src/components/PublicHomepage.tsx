@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/brand";
+import { MinglezaLogo } from "@/components/MinglezaLogo";
 import {
   Accordion,
   AccordionContent,
@@ -66,18 +67,7 @@ function LoginLink({ className, onClick }: { className?: string; onClick?: () =>
 }
 
 function Wordmark({ compact = false }: { compact?: boolean }) {
-  return (
-    <a
-      href="/home"
-      aria-label="Mingleza home"
-      className="inline-flex min-h-11 items-center gap-2.5 rounded-full font-display text-xl font-extrabold tracking-tight text-white"
-    >
-      <span className="grid size-10 place-items-center rounded-full bg-accent text-ink">
-        <Heart aria-hidden="true" className="size-5 fill-current" />
-      </span>
-      {!compact && <span>Mingleza</span>}
-    </a>
-  );
+  return <MinglezaLogo className={compact ? "text-xl" : "text-2xl"} />;
 }
 
 function HeaderLink({
