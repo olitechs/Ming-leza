@@ -39,9 +39,9 @@ export function useRealtimeConversationMessages({ conversationId, table, onMessa
           table,
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           if (disposed) return;
-          const row = payload.new as RealtimeMessageRow;
+          const row = payload.new as unknown as RealtimeMessageRow;
           if (
             !row ||
             typeof row.id !== "string" ||
@@ -56,9 +56,11 @@ export function useRealtimeConversationMessages({ conversationId, table, onMessa
       )
       .subscribe();
 
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!disposed) userId = data.user?.id ?? null;
-    });
+    void supabase.auth
+      .getUser()
+      .then((result: { data: { user: { id: string } | null } }) => {
+        if (!disposed) userId = result.data.user?.id ?? null;
+      });
 
     return () => {
       disposed = true;
