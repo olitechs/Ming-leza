@@ -4,6 +4,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { SwipeCard } from "@/components/discover/SwipeCard";
 import { ForYouNearbyTabs } from "@/components/discover/ForYouNearbyTabs";
 import { ProfileActions } from "@/components/discover/ProfileActions";
+import { ViewProfileSheet } from "@/components/discover/ViewProfileSheet";
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
@@ -475,7 +476,7 @@ function Discover() {
           error ? <div role="alert" className="mx-auto mt-8 max-w-md rounded-3xl border border-white/10 bg-[#1c1c1e] p-8 text-center"><AlertCircle className="mx-auto size-8 text-[#ff4a6e]" /><h2 className="mt-3 font-bold">Profiles couldn't load</h2><p className="mt-2 text-sm text-[#8e8e93]">Your account and profile settings are unchanged. Please try again.</p><Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}><RotateCcw className="size-4" /> Try again</Button></div> :
           current ? <div className="mx-auto mt-5 max-w-md">
             <SwipeCard profile={{ id: current.id, name: current.name, age: current.age, city: feed === "nearby" ? current.city : current.city, bio: current.bio, photo: current.photo, online: true, match: current.match }} onView={() => setViewProfile((value) => !value)} />
-            {viewProfile && <div className="mt-3 rounded-2xl border border-white/10 bg-[#1c1c1e] p-4"><h2 className="font-bold">{current.name}, {current.age}</h2><p className="mt-2 text-sm leading-6 text-white/75">{current.bio}</p><p className="mt-3 flex items-center gap-2 text-xs text-[#8e8e93]"><MapPin className="size-4" />{current.city}</p></div>}
+            <ViewProfileSheet profile={{ id: current.id, name: current.name, age: current.age, city: current.city, bio: current.bio, photo: current.photo, match: current.match }} open={viewProfile} onOpenChange={setViewProfile} />
             <div className="mt-5"><ProfileActions onPass={advance} onLike={() => void likeCurrent()} onMessage={() => void navigate({ to: "/messages" })} disabled={Boolean(current.source && (requestingId === current.source.id || requestedIds.includes(current.source.id)))}/></div>
             {current.source && requestedIds.includes(current.source.id) && <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>}
             {!profiles.length && <p className="mt-4 text-center text-[11px] text-white/40">Preview profiles · real profiles appear when available</p>}
