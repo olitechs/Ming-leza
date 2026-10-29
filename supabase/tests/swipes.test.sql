@@ -63,7 +63,7 @@ select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000002'
 select is(
   (select count(*)::int from public.profile_swipes),
   0,
-  'another member cannot read someone else\'s swipe history'
+  'another member cannot read another member swipe history'
 );
 
 reset role;
