@@ -41,6 +41,11 @@ export function ViewProfileSheet({
             {profile.city}
           </DialogDescription>
         </DialogHeader>
+        {profile.preview && (
+          <p className="rounded-xl border border-[#ffe15a]/20 bg-[#ffe15a]/10 p-3 text-xs font-semibold text-[#ffe15a]">
+            Fictional preview profile — this is not a real member.
+          </p>
+        )}
         <p className="text-sm leading-6 text-white/80">{profile.bio}</p>
         <div className="rounded-2xl bg-white/5 p-3 text-xs leading-5 text-white/60">
           Profiles and connections are subject to Mingleza's age-verification and community safety
