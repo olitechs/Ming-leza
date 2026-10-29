@@ -10,7 +10,7 @@ export function usePrivateAvatarUrl(path: string | null | undefined) {
 
   useEffect(() => {
     let active = true;
-    let refreshTimer: ReturnType<typeof setInterval> | undefined;
+
     setSignedUrl(null);
 
     if (!path || !avatarPathPattern.test(path)) return;
@@ -28,7 +28,7 @@ export function usePrivateAvatarUrl(path: string | null | undefined) {
     };
 
     void refreshSignedUrl();
-    refreshTimer = setInterval(() => void refreshSignedUrl(), SIGNED_URL_REFRESH_MS);
+    const refreshTimer = setInterval(() => void refreshSignedUrl(), SIGNED_URL_REFRESH_MS);
 
     return () => {
       active = false;
