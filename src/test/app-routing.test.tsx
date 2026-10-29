@@ -22,4 +22,20 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).toBe("/home");
   });
+
+  it("matches the notifications inbox", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    const matches = router.matchRoutes("/notifications");
+
+    expect(matches.at(-1)?.routeId).toBe("/notifications");
+  });
+
+  it("matches a match-specific dating chat route", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    const matches = router.matchRoutes("/chat/40000000-0000-4000-8000-000000000001");
+
+    expect(matches.at(-1)?.routeId).toBe("/chat/$matchId");
+  });
 });
