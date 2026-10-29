@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: repair-formatting-{{ github.ref }}
-  cancel-in-progress: false
+  group: repair-formatting-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   format-and-verify:
