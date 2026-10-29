@@ -486,7 +486,8 @@ function EditProfile() {
                 <div className="mb-4">
                   <h2 className="text-lg font-extrabold">Visibility and connection preferences</h2>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Control whether people can find your profile and which connections you want to make.
+                    Control whether people can find your profile and which connections you want to
+                    make.
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -502,7 +503,8 @@ function EditProfile() {
                     <span>
                       <span className="block font-semibold">Show my profile in Discover</span>
                       <span className="mt-1 block text-sm text-muted-foreground">
-                        Turn this off to hide your profile from new discovery, without deleting your account or existing conversation history.
+                        Turn this off to hide your profile from new discovery, without deleting your
+                        account or existing conversation history.
                       </span>
                     </span>
                   </label>
@@ -554,12 +556,18 @@ function EditProfile() {
                   </label>
                 </div>
                 {preferencesError && (
-                  <p role="alert" className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text">
+                  <p
+                    role="alert"
+                    className="mt-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+                  >
                     {preferencesError}
                   </p>
                 )}
                 {preferencesNotice && (
-                  <p role="status" className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text">
+                  <p
+                    role="status"
+                    className="mt-4 rounded-xl bg-success/10 p-3 text-sm text-success-text"
+                  >
                     {preferencesNotice}
                   </p>
                 )}

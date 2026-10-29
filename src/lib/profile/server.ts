@@ -229,7 +229,8 @@ export const updateMyDiscoveryPreferences = createServerFn({ method: "POST" })
         if (detail.includes("enable friendship or dating")) {
           return {
             ok: false as const,
-            message: "Choose at least one connection intent before making your profile discoverable.",
+            message:
+              "Choose at least one connection intent before making your profile discoverable.",
           };
         }
         return {
