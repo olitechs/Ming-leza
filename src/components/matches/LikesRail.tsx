@@ -55,7 +55,10 @@ export function LikesRail() {
       </div>
 
       {error ? (
-        <p role="alert" className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
+        <p
+          role="alert"
+          className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
+        >
           {error}
         </p>
       ) : loading ? (
