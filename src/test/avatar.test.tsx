@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Avatar } from "@/components/Avatar";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const { createSignedUrl } = vi.hoisted(() => ({
   createSignedUrl: vi.fn(),
@@ -31,17 +30,16 @@ describe("Avatar private image delivery", () => {
     render(<Avatar name="Test Member" avatarPath="10000000-0000-4000-8000-000000000001/avatar.jpg" />);
 
     await waitFor(() => {
-      expect(screen.getByRole("img", { name: "Test Member's profile photo" })).toBeInTheDocument();
+      expect(
+        screen
+          .getByRole("img", { name: "Test Member's profile photo" })
+          .querySelector("img"),
+      ).toHaveAttribute("src", expect.stringContaining("/object/sign/"));
     });
     expect(createSignedUrl).toHaveBeenCalledWith(
       "10000000-0000-4000-8000-000000000001/avatar.jpg",
       60,
     );
-    expect(
-      screen
-        .getByRole("img", { name: "Test Member's profile photo" })
-        .querySelector("img"),
-    ).toHaveAttribute("src", expect.stringContaining("/object/sign/"));
   });
 
   it("does not request a signed URL for an invalid object path", () => {
