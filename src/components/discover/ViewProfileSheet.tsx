@@ -30,7 +30,7 @@ export function ViewProfileSheet({
         </div>
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
-            {profile.name}{profile.age ? \`, \${profile.age}\` : ""}
+            {profile.name}{profile.age ? ", " + profile.age : ""}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5 text-[#8e8e93]">
             <MapPin className="size-4" />
