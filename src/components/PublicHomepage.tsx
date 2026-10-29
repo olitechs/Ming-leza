@@ -36,7 +36,7 @@ function SignUpLink({
       asChild
       size="lg"
       className={cn(
-        "min-h-12 cursor-pointer rounded-full bg-accent px-6 font-extrabold text-ink hover:bg-accent/90",
+        "min-h-12 cursor-pointer rounded-full bg-primary px-6 font-extrabold text-primary-foreground shadow-[0_12px_36px_-12px_rgba(255,74,110,0.7)] hover:bg-primary/90",
         className,
       )}
     >
@@ -242,7 +242,7 @@ export function PublicHomepage() {
         <section aria-labelledby="hero-title" className="relative isolate">
           <div
             aria-hidden="true"
-            className="absolute -right-32 top-8 size-[28rem] rounded-full bg-[#ff4a6e]/15 blur-[100px]"
+            className="absolute -right-32 top-8 size-[28rem] rounded-full bg-primary/20 blur-[100px]"
           />
           <div
             aria-hidden="true"
@@ -261,7 +261,7 @@ export function PublicHomepage() {
                 className="mt-7 font-display text-5xl font-extrabold leading-[1.02] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl"
               >
                 Real people.
-                <span className="mt-1 block text-[#ffe15a]">Meaningful</span>
+                <span className="mt-1 block text-primary">Meaningful</span>
                 <span className="block">connections.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
@@ -312,7 +312,7 @@ export function PublicHomepage() {
                   </div>
                 </div>
               </div>
-              <div className="relative z-10 w-[min(76vw,310px)] rotate-2 rounded-[2.6rem] border border-white/15 bg-[#171719] p-2.5 shadow-[0_35px_100px_-30px_rgba(255,74,110,0.35)]">
+              <div className="relative z-10 w-[min(76vw,310px)] rotate-2 rounded-[2.6rem] border border-white/15 bg-[#171719] p-2.5 shadow-[0_35px_100px_-30px_rgba(255,74,110,0.4)]">
                 <div className="relative aspect-[0.59] overflow-hidden rounded-[2.1rem] bg-[#26262a]">
                   <img
                     src={previewProfiles[0]?.photo}
@@ -490,8 +490,7 @@ export function PublicHomepage() {
                       connection.
                     </p>
                     <div className="mt-6 flex items-center gap-2 text-xs font-bold text-white/70">
-                      <Heart aria-hidden="true" className="size-4 text-[#ff4a6e]" /> Discover
-                      preview
+                      <Heart aria-hidden="true" className="size-4 text-primary" /> Discover preview
                     </div>
                   </div>
                 </article>
