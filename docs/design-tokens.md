@@ -28,4 +28,4 @@ Dark-first dating and friendship interface. Use semantic CSS variables in `src/s
 
 ## Data integrity
 
-Likes and match cards currently use clearly illustrative local data until a dedicated likes/matches query is available. Do not represent preview chat messages as delivered or persisted. Existing Supabase authentication, adult verification, profile completion and friend-request server functions remain authoritative.
+Dating like/pass decisions are stored in `public.profile_swipes`; the Likes rail and match cards remain illustrative until a member-scoped query and mutual-match workflow are implemented. Do not represent preview chat messages as delivered or persisted. Existing Supabase authentication, adult verification, profile completion and friend-request server functions remain authoritative.
