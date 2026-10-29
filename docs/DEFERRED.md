@@ -26,8 +26,8 @@ The Terms and Privacy pages are placeholders, not final legal text or legal advi
 - Operationalize the safety workflow: assign trusted moderator accounts through Supabase Auth `app_metadata`, staff the queue, define response-time expectations, escalation and evidence-retention rules, and verify the production workflow. Code and a restricted queue exist, but monitoring is not configured by repository changes alone.
 - Publish a verified external support contact and obtain legal approval for data-retention rules. In-app support intake, personal-data export, and account deletion are implemented; verify avatar cleanup, cascaded deletion, and support handling in the deployed Supabase project before launch.
 - Ongoing controls to turn profile discoverability and connection intents on or off after onboarding.
-- Dating-specific messaging and notifications for mutual matches; reciprocal likes and the member-scoped likes/matches inbox are implemented.
-- Real-time messaging, message notifications, and message-management controls.
+- Real-time updates for both friend and dating conversations; current chat screens refresh on open and after sending rather than subscribing to live events.
+- External email/push notifications, notification preferences, and message-management controls.
 - Explore map and location/distance-based discovery.
 - Final Terms and Privacy text after legal review; privacy review for publicly retrievable profile-avatar assets.
 - Product decisions for availability outside Kenya, support and safety escalation, pricing, premium payments, and M-Pesa.
