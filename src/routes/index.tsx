@@ -626,7 +626,7 @@ function Discover() {
                 city: current.city,
                 bio: current.bio,
                 photo: current.photo,
-                match: current.match,
+                preview: !profiles.length,
               }}
               open={viewProfile}
               onOpenChange={setViewProfile}
