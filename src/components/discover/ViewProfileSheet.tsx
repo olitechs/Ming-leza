@@ -21,12 +21,16 @@ export function ViewProfileSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85dvh] overflow-y-auto border-white/10 bg-[#1c1c1e] text-white sm:max-w-md">
         <div className="relative -mx-6 -mt-6 mb-2 h-64 overflow-hidden">
-          <img src={profile.photo} alt={profile.name} className="size-full object-cover" />
+          {profile.photo ? (
+            <img src={profile.photo} alt={profile.name} className="size-full object-cover" />
+          ) : (
+            <div aria-hidden="true" className="size-full bg-gradient-to-br from-[#3b202a] via-[#1c1c1e] to-[#302b18]" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] to-transparent" />
         </div>
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
-            {profile.name}, {profile.age}
+            {profile.name}{profile.age ? \`, \${profile.age}\` : ""}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5 text-[#8e8e93]">
             <MapPin className="size-4" />
