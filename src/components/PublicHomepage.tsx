@@ -68,7 +68,7 @@ function LoginLink({ className, onClick }: { className?: string; onClick?: () =>
 function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <a
-      href="/"
+      href="/home"
       aria-label="Mingleza home"
       className="inline-flex min-h-11 items-center gap-2.5 rounded-full font-display text-xl font-extrabold tracking-tight text-white"
     >
