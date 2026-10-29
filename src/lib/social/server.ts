@@ -263,3 +263,31 @@ export const reportMember = createServerFn({ method: "POST" })
     }
     return { ok: true as const };
   });
+
+const swipeSchema = z.object({
+  userId: userIdSchema,
+  decision: z.enum(["like", "pass"]),
+});
+
+/** Persist a dating decision through the database's authenticated, policy-checked RPC. */
+export const submitProfileSwipe = createServerFn({ method: "POST" })
+  .validator(swipeSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to save your dating choices." };
+    if (user.id === data.userId) {
+      return { ok: false as const, message: "You cannot swipe on your own profile." };
+    }
+    const { error } = await supabase.rpc("submit_profile_swipe", {
+      p_target_id: data.userId,
+      p_decision: data.decision,
+    });
+    if (error) {
+      const message =
+        error.code === "42501"
+          ? "This profile is no longer available."
+          : "Your choice could not be saved. Please try again.";
+      return { ok: false as const, message };
+    }
+    return { ok: true as const };
+  });

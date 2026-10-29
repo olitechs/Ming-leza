@@ -16,7 +16,7 @@ describe("public homepage", () => {
     render(<PublicHomepage />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: /meet your people in kenya/i }),
+      screen.getByRole("heading", { level: 1, name: /real people\. meaningful connections\./i }),
     ).toBeInTheDocument();
     expect(document.querySelectorAll("main")).toHaveLength(1);
     expect(screen.queryByLabelText(/phone number|email address/i)).not.toBeInTheDocument();
@@ -25,21 +25,19 @@ describe("public homepage", () => {
   it("routes all sign-up and log-in calls to password-based authentication", () => {
     render(<PublicHomepage />);
 
-    const signUpLinks = screen.getAllByRole("link", { name: "Sign up free" });
+    const signUpLinks = screen.getAllByRole("link", { name: "Join Mingleza" });
     expect(signUpLinks.length).toBeGreaterThanOrEqual(2);
     expect(signUpLinks.every((link) => link.getAttribute("href") === "/login")).toBe(true);
 
-    const logInLinks = screen.getAllByRole("link", { name: "Log in" });
+    const logInLinks = screen.getAllByRole("link", { name: "Sign in" });
     expect(logInLinks.length).toBeGreaterThanOrEqual(2);
     expect(logInLinks.every((link) => link.getAttribute("href") === "/login?mode=signin")).toBe(
       true,
     );
-    expect(
-      screen.getByRole("link", { name: "Create your free account" }).getAttribute("href"),
-    ).toBe("/login");
-    expect(
-      screen.getByRole("link", { name: "Read all frequently asked questions" }),
-    ).toHaveAttribute("href", "/faq");
+    expect(screen.getAllByRole("link", { name: "Join Mingleza" })[0]?.getAttribute("href")).toBe(
+      "/login",
+    );
+    expect(screen.getByRole("link", { name: "Read more FAQs" })).toHaveAttribute("href", "/faq");
   });
 
   it("exposes a labeled, keyboard-operable mobile navigation toggle", () => {

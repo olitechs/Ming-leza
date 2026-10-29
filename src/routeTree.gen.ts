@@ -23,6 +23,8 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ChatMatchIdRouteImport } from './routes/chat/$matchId'
 import { Route as UIdRouteImport } from './routes/u.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +97,16 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatMatchIdRoute = ChatMatchIdRouteImport.update({
+  id: '/chat/$matchId',
+  path: '/chat/$matchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
@@ -116,6 +128,8 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +147,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRoutesById {
@@ -151,6 +167,8 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/onboarding': typeof OnboardingRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/u/$id': typeof UIdRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +188,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +207,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   id:
     | '__root__'
@@ -204,27 +226,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/onboarding'
+    | '/chat/$matchId'
     | '/u/$id'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  ExploreRoute: typeof ExploreRoute
-  FaqRoute: typeof FaqRoute
-  LoginRoute: typeof LoginRoute
-  MatchesRoute: typeof MatchesRoute
-  MessagesRoute: typeof MessagesRoute
-  ModerationRoute: typeof ModerationRoute
-  PrivacyRoute: typeof PrivacyRoute
-  ProfileEditRoute: typeof ProfileEditRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TermsRoute: typeof TermsRoute
-  WelcomeRoute: typeof WelcomeRoute
-  UIdRoute: typeof UIdRoute
-}
-
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
@@ -332,6 +338,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$matchId': {
+      id: '/chat/$matchId'
+      path: '/chat/$matchId'
+      fullPath: '/chat/$matchId'
+      preLoaderRoute: typeof ChatMatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$id': {
       id: '/u/$id'
       path: '/u/$id'
@@ -357,6 +377,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
+  OnboardingRoute: OnboardingRoute,
+  ChatMatchIdRoute: ChatMatchIdRoute,
   UIdRoute: UIdRoute,
 }
 export const routeTree = rootRouteImport

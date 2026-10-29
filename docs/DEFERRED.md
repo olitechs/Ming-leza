@@ -4,7 +4,7 @@
 
 The app includes email/password sign-up and sign-in, password recovery, account metadata capture, adult verification, validated profile setup, Supabase-backed profiles and discovery, friend requests, and direct messages between accepted friends. Incomplete profiles remain out of Discover; friend and pending-request relationships are excluded. Profile photos use the existing profile-avatar storage bucket with an initials fallback. Explore is a privacy-safe coming-soon state rather than a demo map.
 
-Logged-out visitors see the public marketing homepage and a searchable, categorized FAQ at `/faq`; signed-in, age-verified members continue to see Discover at `/`. Public `/terms` and `/privacy` pages are clearly marked draft placeholders pending legal review. The public sitemap lists `/`, `/faq`, `/terms`, and `/privacy`; application and member-profile routes remain excluded from crawler discovery. Member navigation calls the `/matches` destination “Friend requests” because dating matches are not implemented.
+Logged-out visitors see the public marketing homepage and a searchable, categorized FAQ at `/faq`; signed-in, age-verified members continue to see Discover at `/`. Public `/terms` and `/privacy` pages are clearly marked draft placeholders pending legal review. The public sitemap lists `/`, `/faq`, `/terms`, and `/privacy`; application and member-profile routes remain excluded from crawler discovery. Member navigation calls the `/matches` destination “Friend requests”; persistent dating likes/passes exist, but mutual matches and a dating-matches inbox are not implemented.
 
 The app stores only a derived adult-verification result and check time; it does not store a date of birth or birth year and does not display member ages. The current age check is self-attestation, not identity-document or biometric verification. Do not add age storage or display without an approved product decision.
 
@@ -26,7 +26,7 @@ The Terms and Privacy pages are placeholders, not final legal text or legal advi
 - Operationalize the safety workflow: assign trusted moderator accounts through Supabase Auth `app_metadata`, staff the queue, define response-time expectations, escalation and evidence-retention rules, and verify the production workflow. Code and a restricted queue exist, but monitoring is not configured by repository changes alone.
 - Publish a verified external support contact and obtain legal approval for data-retention rules. In-app support intake, personal-data export, and account deletion are implemented; verify avatar cleanup, cascaded deletion, and support handling in the deployed Supabase project before launch.
 - Ongoing controls to turn profile discoverability and connection intents on or off after onboarding.
-- Dating likes, matches, and dating-specific workflows.
+- Mutual dating matches, a member-scoped likes inbox, and a dating-matches inbox; persistent like/pass decisions are available.
 - Real-time messaging, message notifications, and message-management controls.
 - Explore map and location/distance-based discovery.
 - Final Terms and Privacy text after legal review; privacy review for publicly retrievable profile-avatar assets.

@@ -2,6 +2,9 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Clock3, MessageCircle, UserRound, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { LikesRail } from "@/components/matches/LikesRail";
+import { MatchGrid } from "@/components/matches/MatchGrid";
+import { TopBar } from "@/components/layout/TopBar";
 import { Avatar } from "@/components/Avatar";
 import { Button, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
@@ -100,17 +103,22 @@ function Matches() {
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
-        <PageHeader
-          title="Friend requests"
-          description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
-          actions={
-            <Button asChild variant="outline" className="rounded-full">
-              <Link to="/messages">
-                <MessageCircle aria-hidden="true" className="size-4" /> Messages
-              </Link>
-            </Button>
-          }
-        />
+        <TopBar />
+        <LikesRail />
+        <MatchGrid />
+        <div className="mt-8 border-t border-white/10 pt-6">
+          <PageHeader
+            title="Friend requests"
+            description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
+            actions={
+              <Button asChild variant="outline" className="rounded-full">
+                <Link to="/messages">
+                  <MessageCircle aria-hidden="true" className="size-4" /> Messages
+                </Link>
+              </Button>
+            }
+          />
+        </div>
 
         {error && (
           <p

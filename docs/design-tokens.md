@@ -1,37 +1,31 @@
 # Mingleza design tokens
 
-Preserve these tokens when changing layouts or components.
+Dark-first dating and friendship interface. Use semantic CSS variables in `src/styles.css` for shadcn/Radix surfaces and the hex values below for the reference-specific profile surfaces.
 
-## Brand colors
+## Core palette
 
-| Token / use                     | Value     |
-| ------------------------------- | --------- |
-| Primary                         | `#6C47FF` |
-| Primary pressed                 | `#5233E0` |
-| Primary tint                    | `#F0ECFF` |
-| Accent (like, match, promotion) | `#FF6B5A` |
-| Success                         | `#1FA971` |
-| Danger                          | `#D92D20` |
-| Light text                      | `#14121F` |
-| Light surface                   | `#FFFFFF` |
+| Token / use               | Value                    |
+| ------------------------- | ------------------------ |
+| App background            | `#0A0A0A`                |
+| Cards / elevated surfaces | `#1C1C1E`                |
+| Primary (like / CTA)      | `#FF4A6E`                |
+| Primary alternate         | `#FF5A5F`                |
+| Accent / onboarding CTA   | `#FFE15A`                |
+| Main text                 | `#FFFFFF`                |
+| Muted text                | `#8E8E93`                |
+| Online indicator          | `#34D399`                |
+| Subtle border             | `rgba(255,255,255,0.11)` |
 
-## Typography
+## Interaction and layout
 
-- Body and UI: Manrope
-- Display headings: Sora
+- Default theme is dark; preserve `color-scheme: dark` and the mobile safe-area insets.
+- Profile imagery uses rounded 2xl/3xl cards, full-bleed photos and a bottom gradient scrim.
+- Primary like actions use coral; onboarding's primary action uses yellow with dark foreground.
+- Online status is always accompanied by a textual label where needed; don't rely on color alone.
+- Mobile navigation is fixed at the bottom and must not obscure scrollable page content.
+- Keep the existing Manrope body font and Sora display font.
+- Maintain accessible keyboard focus, readable contrast and reduced-motion-friendly transitions.
 
-Use existing CSS variables in `src/styles.css` where possible. Maintain accessible controls and readable contrast across mobile, tablet and desktop.
+## Data integrity
 
-## Batch 2 accessibility contrast record
-
-Ratios below use the WCAG 2 relative-luminance formula against the rendered sRGB colors. The tint surfaces are the corresponding brand color at 10% opacity over the light background.
-
-| Pair                                           |      Ratio | Result                |
-| ---------------------------------------------- | ---------: | --------------------- |
-| White on primary violet fill                   | **5.44:1** | Passes normal-text AA |
-| Ink on coral accent fill                       | **6.42:1** | Passes normal-text AA |
-| `--success-text` on `bg-success/10`            | **4.58:1** | Passes normal-text AA |
-| `--destructive-text` on `bg-destructive/10`    | **4.54:1** | Passes normal-text AA |
-| White 10px timestamp on primary message bubble | **5.44:1** | Passes small-text AA  |
-
-The darker `--success-text` and `--destructive-text` companions are used for text on tinted banners while the existing success, danger, coral, and violet fills remain available for controls and status indicators.
+Dating like/pass decisions are stored in `public.profile_swipes`; the Likes rail and match cards remain illustrative until a member-scoped query and mutual-match workflow are implemented. Do not represent preview chat messages as delivered or persisted. Existing Supabase authentication, adult verification, profile completion and friend-request server functions remain authoritative.
