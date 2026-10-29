@@ -574,6 +574,7 @@ function EditProfile() {
                 </button>
               </div>
             </>
+          )}
         </section>
         <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft sm:p-8">
           <div className="flex items-start gap-3">
