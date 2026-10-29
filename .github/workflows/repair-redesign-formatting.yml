@@ -3,7 +3,7 @@ name: Repair formatting and verify redesign
 on:
   push:
     branches:
-      - feat/ui-redesign-dating-inspired
+      - "feat/**"
 
 permissions:
   contents: write
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           git fetch origin main
-          mapfile -t files < <(git diff --name-only origin/main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.css' '*.json' '*.md' '*.yml' '*.yaml')
+          mapfile -t files < <(git diff --name-only origin/main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.css' '*.json' '*.md' '*.yml' '*.yaml' | grep -v '^\.github/workflows/repair-redesign-formatting\.yml$')
           if [ "${#files[@]}" -gt 0 ]; then
             pnpm exec prettier --write "${files[@]}"
           fi
