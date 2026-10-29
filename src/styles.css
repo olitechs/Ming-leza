@@ -164,8 +164,13 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { min-height: 100%; background: var(--color-background); }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    min-height: 100%;
+    background: var(--color-background);
+  }
   body {
     min-height: 100dvh;
     background-color: var(--color-background);
@@ -176,30 +181,60 @@
     outline: 2px solid var(--color-ring);
     outline-offset: 3px;
   }
-  :where(button, a, [role="button"]) { cursor: pointer; }
-  :where(button, a, [role="button"]) { min-width: 44px; min-height: 44px; touch-action: manipulation; }
-  :where(input, select, textarea) { min-height: 44px; }
-  :where(button:disabled, a[aria-disabled="true"], [role="button"][aria-disabled="true"]) { cursor: not-allowed; }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  :where(button, a, [role="button"]) {
+    cursor: pointer;
+  }
+  :where(button, a, [role="button"]) {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  :where(input, select, textarea) {
+    min-height: 44px;
+  }
+  :where(button:disabled, a[aria-disabled="true"], [role="button"][aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
 
-@utility bg-brand { background-image: var(--gradient-brand); }
-@utility bg-scrim { background-image: var(--gradient-scrim); }
-@utility shadow-card { box-shadow: var(--shadow-card); }
-@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility bg-brand {
+  background-image: var(--gradient-brand);
+}
+@utility bg-scrim {
+  background-image: var(--gradient-scrim);
+}
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
 @utility bg-map {
   background-color: oklch(0.96 0.01 290);
   background-image:
     linear-gradient(oklch(1 0 0) 2px, transparent 2px),
     linear-gradient(90deg, oklch(1 0 0) 2px, transparent 2px),
     linear-gradient(30deg, transparent 48%, oklch(1 0 0) 48%, oklch(1 0 0) 52%, transparent 52%);
-  background-size: 64px 64px, 64px 64px, 220px 220px;
+  background-size:
+    64px 64px,
+    64px 64px,
+    220px 220px;
 }
 
-.safe-area-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
