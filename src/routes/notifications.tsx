@@ -110,7 +110,10 @@ function NotificationsPage() {
 
         <section aria-label="Notification list" className="space-y-3">
           {loading ? (
-            <p className="rounded-2xl border p-8 text-center text-sm text-muted-foreground" aria-live="polite">
+            <p
+              className="rounded-2xl border p-8 text-center text-sm text-muted-foreground"
+              aria-live="polite"
+            >
               Loading notifications…
             </p>
           ) : items.length === 0 && !error ? (
@@ -120,7 +123,10 @@ function NotificationsPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 New mutual matches and messages will appear here.
               </p>
-              <Link to="/matches" className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">
+              <Link
+                to="/matches"
+                className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+              >
                 View dating matches
               </Link>
             </div>
@@ -147,7 +153,9 @@ function NotificationsPage() {
                     </p>
                     <p className="mt-2 text-xs text-muted-foreground">
                       {new Date(item.created_at).toLocaleString()}
-                      {!item.read_at && <span className="ml-2 font-semibold text-primary">New</span>}
+                      {!item.read_at && (
+                        <span className="ml-2 font-semibold text-primary">New</span>
+                      )}
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <Link

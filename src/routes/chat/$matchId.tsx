@@ -65,7 +65,9 @@ function DatingChatPage() {
         setError("We could not load your dating matches. Please try again.");
         return;
       }
-      const current = (matchesResult.matches as MatchRow[]).find((item) => item.match_id === matchId);
+      const current = (matchesResult.matches as MatchRow[]).find(
+        (item) => item.match_id === matchId,
+      );
       if (!current) {
         setMatch(null);
         setError("This dating match is no longer active or is unavailable.");
@@ -128,7 +130,11 @@ function DatingChatPage() {
           </Link>
           {match ? (
             <>
-              <Avatar name={match.display_name} avatarPath={match.avatar_path} className="size-12" />
+              <Avatar
+                name={match.display_name}
+                avatarPath={match.avatar_path}
+                className="size-12"
+              />
               <div className="min-w-0 flex-1">
                 <h1 className="truncate font-bold">{match.display_name}</h1>
                 <p className="truncate text-xs text-muted-foreground">
@@ -146,7 +152,10 @@ function DatingChatPage() {
         </header>
 
         {error && (
-          <div role="alert" className="mb-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <div
+            role="alert"
+            className="mb-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm"
+          >
             {error}
             <div className="mt-3">
               <Button variant="outline" onClick={() => void load()} disabled={loading}>
@@ -156,7 +165,10 @@ function DatingChatPage() {
           </div>
         )}
 
-        <section aria-label="Dating conversation" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-card">
+        <section
+          aria-label="Dating conversation"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-card"
+        >
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
             {loading ? (
               <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">
@@ -174,8 +186,13 @@ function DatingChatPage() {
               </div>
             ) : (
               messages.map((message) => (
-                <div key={message.id} className={`flex ${message.mine ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${message.mine ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm ${message.mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}
+                  >
                     {message.body}
                     <p className="mt-1 text-[10px] opacity-65">
                       {new Date(message.created_at).toLocaleString()}
