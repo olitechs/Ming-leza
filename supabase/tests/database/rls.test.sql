@@ -1,5 +1,5 @@
 begin;
-select plan(35);
+select plan(36);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select ok(exists (select 1 from storage.buckets where id = 'profile-avatars' and public = false), 'profile avatar bucket is private');
