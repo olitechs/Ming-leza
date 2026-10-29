@@ -44,7 +44,7 @@ export function MotivationScreen() {
           </span>
         </div>
         <Link
-          to="/welcome"
+          to="/welcome" search={{ authComplete: false, authError: "" }}
           className="mt-8 flex w-full items-center justify-between rounded-full bg-[#ffe15a] py-2 pl-6 pr-2 text-sm font-extrabold text-[#171719] shadow-xl transition hover:brightness-95"
         >
           Get started
