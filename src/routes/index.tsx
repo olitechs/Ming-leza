@@ -668,8 +668,11 @@ function Discover() {
                 onPass={() => void decideCurrent("pass")}
                 onLike={() => void decideCurrent("like")}
                 onMessage={() => {
-                  if (intent === "friends") void navigate({ to: "/messages" });
-                  else setRequestError("Dating matches and dating messages are not available yet.");
+                  if (intent === "friends") {
+                    void navigate({ to: "/messages" });
+                  } else {
+                    void navigate({ to: "/matches" });
+                  }
                 }}
                 passLabel={intent === "friends" ? "Skip profile" : "Pass profile"}
                 likeLabel={intent === "friends" ? "Send friend request" : "Like profile"}
