@@ -537,8 +537,8 @@ export function PublicHomepage() {
                 </span>
                 <h3 className="mt-5 font-display text-2xl font-extrabold">Explore dating</h3>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  Let people know you’re open to dating. Dating-specific likes, match scores, and
-                  boosts are still being developed.
+                  Let people know you’re open to dating, like profiles, and build a mutual match before starting
+                  a private conversation. Match scores and paid boosts are not available.
                 </p>
                 <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-bold text-muted-foreground">
                   <Sparkles aria-hidden="true" className="size-3.5" /> More discovery tools planned
@@ -565,7 +565,7 @@ export function PublicHomepage() {
               </h2>
               <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
                 Add the town or city you call home and discover members by the connection intent
-                they have enabled. Live distance-based matching is not available yet.
+                they have enabled. Map-based and distance-filtered discovery are still in development.
               </p>
             </div>
             <ul
