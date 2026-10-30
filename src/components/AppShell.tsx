@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   Flame,
   Map,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
+import { listMyNotifications } from "@/lib/social/server";
 
 type NavItem = {
   to: "/" | "/explore" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
@@ -38,6 +40,31 @@ export function AppShell({
   aside?: ReactNode;
   hideTabs?: boolean;
 }) {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const refreshUnreadCount = useCallback(async () => {
+    try {
+      const result = await listMyNotifications();
+      if (result.ok) {
+        setUnreadCount(
+          result.notifications.filter((notification) => !notification.read_at).length,
+        );
+      }
+    } catch {
+      // Keep navigation usable if the notification service is temporarily unavailable.
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshUnreadCount();
+    window.addEventListener("focus", refreshUnreadCount);
+    return () => window.removeEventListener("focus", refreshUnreadCount);
+  }, [refreshUnreadCount]);
+
+  const navItems = main.map((item) =>
+    item.to === "/notifications" ? { ...item, badge: unreadCount } : item,
+  );
+
   return (
     <div className="min-h-dvh bg-background lg:flex">
       <nav
@@ -51,7 +78,7 @@ export function AppShell({
         >
           M
         </Link>
-        {main.map(({ to, label, icon: Icon, badge }) => (
+        {navItems.map(({ to, label, icon: Icon, badge }) => (
           <Link
             key={to}
             to={to}
@@ -108,13 +135,21 @@ export function AppShell({
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6 lg:px-8">
           <Link
             to="/notifications"
-            aria-label="Notifications"
-            title="Notifications"
+            aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+            title={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
             activeOptions={{ exact: true }}
             className="relative inline-flex size-10 items-center justify-center rounded-full border bg-card text-foreground transition hover:bg-secondary"
             activeProps={{ className: "!border-primary !text-primary" }}
           >
             <Bell aria-hidden="true" className="size-5" />
+            {unreadCount > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground"
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Link>
           <Link
             to="/profile-edit"
@@ -141,7 +176,7 @@ export function AppShell({
           aria-label="Mobile navigation"
           className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full bg-ink p-2 shadow-card lg:hidden"
         >
-          {main.map(({ to, label, icon: Icon, badge }) => (
+          {navItems.map(({ to, label, icon: Icon, badge }) => (
             <Link
               key={to}
               to={to}
