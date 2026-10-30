@@ -14,7 +14,11 @@ export function ChatBubble({
       >
         {message}
         {time && (
-          <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>{time}</p>
+          <p
+            className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}
+          >
+            {time}
+          </p>
         )}
       </div>
     </div>

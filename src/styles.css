@@ -190,7 +190,10 @@
     linear-gradient(oklch(1 0 0) 2px, transparent 2px),
     linear-gradient(90deg, oklch(1 0 0) 2px, transparent 2px),
     linear-gradient(30deg, transparent 48%, oklch(1 0 0) 48%, oklch(1 0 0) 52%, transparent 52%);
-  background-size: 64px 64px, 64px 64px, 220px 220px;
+  background-size:
+    64px 64px,
+    64px 64px,
+    220px 220px;
 }
 
 .safe-area-bottom {

@@ -4,17 +4,17 @@ Mingleza is a mobile-first dating and friendship app. Pink is the primary action
 
 ## Core palette
 
-| Token / use | Light mode | Dark mode |
-| --- | --- | --- |
-| Primary action / likes / active state | `#FF4A6E` · `oklch(0.645 0.246 16.439)` | `#FF5C7A` · `oklch(0.68 0.23 16.5)` |
-| Background | `#FFFFFF` · `oklch(1 0 0)` | `#0A0A0A` · `oklch(0.09 0 0)` |
-| Card / popover | `#FFFFFF` | `#1C1C1E` |
-| Foreground | `#111113` · `oklch(0.145 0 0)` | `#FFFFFF` |
-| Border / input | `#E9E9EB` · `oklch(0.92 0.004 286.32)` | `#27272A` |
-| Secondary / muted | `#F4F4F5` | `#26262A` |
-| Accent | `#FFF1F2` | Muted pink tint |
-| Online indicator | `#34C759` only for verified live presence | `#34C759` only for verified live presence |
-| Radius | `1.5rem` base | `1.5rem` base |
+| Token / use                           | Light mode                                | Dark mode                                 |
+| ------------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| Primary action / likes / active state | `#FF4A6E` · `oklch(0.645 0.246 16.439)`   | `#FF5C7A` · `oklch(0.68 0.23 16.5)`       |
+| Background                            | `#FFFFFF` · `oklch(1 0 0)`                | `#0A0A0A` · `oklch(0.09 0 0)`             |
+| Card / popover                        | `#FFFFFF`                                 | `#1C1C1E`                                 |
+| Foreground                            | `#111113` · `oklch(0.145 0 0)`            | `#FFFFFF`                                 |
+| Border / input                        | `#E9E9EB` · `oklch(0.92 0.004 286.32)`    | `#27272A`                                 |
+| Secondary / muted                     | `#F4F4F5`                                 | `#26262A`                                 |
+| Accent                                | `#FFF1F2`                                 | Muted pink tint                           |
+| Online indicator                      | `#34C759` only for verified live presence | `#34C759` only for verified live presence |
+| Radius                                | `1.5rem` base                             | `1.5rem` base                             |
 
 ## Interaction color rules
 
