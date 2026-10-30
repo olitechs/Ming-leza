@@ -1,11 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Compass, Heart, House, MessageCircle } from "lucide-react";
+import { Compass, Heart, MessageCircle, Settings } from "lucide-react";
 
 const items = [
   { to: "/", label: "Discover", Icon: Compass },
   { to: "/matches", label: "Likes", Icon: Heart },
   { to: "/messages", label: "Chat", Icon: MessageCircle },
-  { to: "/profile-edit", label: "Profile", Icon: House },
+  { to: "/profile-edit", label: "Settings", Icon: Settings },
 ] as const;
 
 export function BottomNav() {
@@ -23,9 +23,9 @@ export function BottomNav() {
               key={to}
               to={to}
               aria-current={active ? "page" : undefined}
-              className={`flex min-w-14 flex-col items-center gap-1 text-[11px] font-semibold transition ${active ? "text-primary" : "text-muted-foreground"}`}
+              className={`flex min-w-14 flex-col items-center gap-1 text-[11px] font-semibold transition focus-visible:rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "text-primary" : "text-muted-foreground"}`}
             >
-              <Icon className="size-5" strokeWidth={active ? 2.5 : 1.8} />
+              <Icon aria-hidden="true" className="size-5" strokeWidth={active ? 2.5 : 1.8} />
               <span>{label}</span>
             </Link>
           );
