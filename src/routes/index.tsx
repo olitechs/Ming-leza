@@ -13,7 +13,7 @@ import { SafetyActions } from "@/components/SafetyActions";
 import { Avatar } from "@/components/Avatar";
 import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
-import { getDiscoverableProfiles } from "@/lib/discovery/server";
+import { getDiscoverableProfiles, getNearbyProfiles } from "@/lib/discovery/server";
 import { getMyProfile } from "@/lib/profile/server";
 import { sendFriendRequest, submitProfileSwipe } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
@@ -432,7 +432,7 @@ function Discover() {
           setIntent(profile.profile.friends_enabled ? "friends" : "dating");
           return;
         }
-        const result = await getDiscoverableProfiles({ data: { intent, limit: 30 } });
+        const result = feed === "nearby" ? await getNearbyProfiles({ data: { intent, limit: 30 } }) : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
         if (result.ok) {
           setProfiles(result.profiles);
@@ -455,7 +455,7 @@ function Discover() {
     return () => {
       active = false;
     };
-  }, [intent, refresh]);
+  }, [intent, refresh, feed]);
 
   const requestFriendship = async (profile: Profile): Promise<boolean> => {
     setRequestingId(profile.id);
@@ -507,7 +507,10 @@ function Discover() {
         "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85",
     },
   ];
-  const shown = profiles.length
+  const shown = feed === "nearby" ? profiles
+    .filter((p) => !actedOnIds.includes(p.id))
+    .map((p) => ({ id: p.id, name: p.displayName, age: undefined, city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya", bio: p.bio || "Here to meet kind people and build genuine connections.", photo: p.avatarPath || "", source: p }))
+    : profiles.length
     ? profiles
         .filter((p) => !actedOnIds.includes(p.id))
         .map((p, i) => ({
@@ -614,7 +617,13 @@ function Discover() {
             {requestNotice}
           </p>
         )}
-        {loading ? (
+        {feed === "nearby" && !loading && !error && !profiles.length ? (
+          <div className="mx-auto mt-8 max-w-md rounded-3xl border bg-card p-8 text-center">
+            <MapPin className="mx-auto size-8 text-primary" />
+            <h2 className="mt-3 font-bold">No nearby profiles yet</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Nearby shows eligible members who share your city. Your exact location is never requested or shown. Try For You to discover members from other places.</p>
+          </div>
+        ) : loading ? (
           <div
             className="mx-auto mt-6 h-[min(60dvh,650px)] min-h-[390px] max-w-md animate-pulse rounded-[2rem] bg-card"
             aria-label="Loading profiles"
