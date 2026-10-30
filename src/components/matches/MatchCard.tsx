@@ -33,7 +33,7 @@ export function MatchCard({
           <MapPin className="size-3.5 shrink-0" />
           <span className="truncate">{person.city || "Mingleza member"}</span>
         </p>
-        <p className="mt-2 text-xs text-white/45">
+        <p className="mt-2 text-xs text-muted-foreground">
           Matched {new Date(person.matchedAt).toLocaleDateString()}
         </p>
       </div>
@@ -56,7 +56,7 @@ export function MatchCard({
         type="button"
         disabled={busy}
         onClick={() => onUnmatch(person.id)}
-        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-[#ff4a6e]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         <UserRoundX className="size-4" />
         {busy ? "Removing…" : "Unmatch"}
