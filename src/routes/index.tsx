@@ -8,7 +8,7 @@ import { ViewProfileSheet } from "@/components/discover/ViewProfileSheet";
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
-import { AppShell, Chip } from "@/components/AppShell";
+import { Chip } from "@/components/AppShell";
 import { SafetyActions } from "@/components/SafetyActions";
 import { Avatar } from "@/components/Avatar";
 import { Button, Card, EmptyState, ErrorBanner, PageHeader } from "@/components/brand";
