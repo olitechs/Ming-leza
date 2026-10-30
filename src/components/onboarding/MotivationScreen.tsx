@@ -14,14 +14,14 @@ export function MotivationScreen() {
       </div>
       <section className="relative z-10 mx-auto w-full max-w-lg px-6 pb-[max(env(safe-area-inset-bottom),2rem)] pt-24 sm:rounded-[2rem] sm:bg-black/20 sm:p-10 sm:backdrop-blur-sm">
         <div className="mb-8 flex gap-2" aria-label="Onboarding page 1 of 3">
-          <span className="h-1.5 w-8 rounded-full bg-[#ffe15a]" />
+          <span className="h-1.5 w-8 rounded-full bg-primary" />
           <span className="h-1.5 w-5 rounded-full bg-white/35" />
           <span className="h-1.5 w-5 rounded-full bg-white/35" />
         </div>
-        <div className="mb-5 flex size-12 items-center justify-center rounded-2xl bg-[#ffe15a] text-[#171719]">
+        <div className="mb-5 flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           <Heart className="size-6 fill-current" />
         </div>
-        <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.25em] text-[#ffe15a]">
+        <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
           Real connections, closer to home
         </p>
         <h1 className="font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
@@ -49,7 +49,7 @@ export function MotivationScreen() {
           className="mt-8 flex w-full items-center justify-between rounded-full bg-[#ffe15a] py-2 pl-6 pr-2 text-sm font-extrabold text-[#171719] shadow-xl transition hover:brightness-95"
         >
           Get started
-          <span className="grid size-11 place-items-center rounded-full bg-[#171719] text-white">
+          <span className="grid size-11 place-items-center rounded-full bg-primary-foreground text-primary">
             <ArrowRight className="size-5" />
           </span>
         </Link>
