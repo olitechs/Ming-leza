@@ -7,20 +7,24 @@ export function ForYouNearbyTabs({ value, onChange }: Props) {
           { value: "for-you", label: "For You" },
           { value: "nearby", label: "Nearby" },
         ] as const
-      ).map((tab) => (
-        <button
-          key={tab.value}
-          type="button"
-          role="tab"
-          aria-selected={value === tab.value}
-          aria-label={tab.value === "nearby" ? "Nearby discovery coming soon" : tab.label}
-          disabled={tab.value === "nearby"}
-          onClick={() => onChange(tab.value)}
-          className={`relative pb-3 text-sm font-bold transition ${value === tab.value ? "text-foreground after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-primary" : "text-muted-foreground"} disabled:cursor-not-allowed disabled:opacity-50`}
-        >
-          {tab.value === "nearby" ? "Nearby · soon" : tab.label}
-        </button>
-      ))}
+      ).map((tab) => {
+        const unavailable = tab.value === "nearby";
+        return (
+          <button
+            key={tab.value}
+            type="button"
+            role="tab"
+            aria-selected={value === tab.value}
+            aria-label={unavailable ? "Nearby discovery is not available yet" : tab.label}
+            title={unavailable ? "Nearby discovery is not available yet" : tab.label}
+            disabled={unavailable}
+            onClick={() => onChange(tab.value)}
+            className={`relative pb-3 text-sm font-bold transition ${value === tab.value ? "text-foreground after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-primary" : "text-muted-foreground"} disabled:cursor-not-allowed disabled:opacity-50`}
+          >
+            {unavailable ? "Nearby · soon" : tab.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
