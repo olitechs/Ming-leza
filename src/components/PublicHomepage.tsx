@@ -12,6 +12,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/brand";
 import { MinglezaLogo } from "@/components/MinglezaLogo";
 import {
@@ -55,7 +56,7 @@ function LoginLink({ className, onClick }: { className?: string; onClick?: () =>
       size="lg"
       variant="outline"
       className={cn(
-        "min-h-12 cursor-pointer rounded-full border-white/20 bg-white/[0.04] px-6 text-white hover:bg-white/10",
+        "min-h-12 cursor-pointer rounded-full border-border bg-muted px-6 text-foreground hover:bg-muted",
         className,
       )}
     >
@@ -83,7 +84,7 @@ function HeaderLink({
     <a
       href={href}
       onClick={onClick}
-      className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-white/75 transition-colors hover:bg-white/[0.07] hover:text-white"
+      className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground"
     >
       {children}
     </a>
@@ -102,10 +103,10 @@ function SectionIntro({
   return (
     <div className="mx-auto mb-10 max-w-2xl text-center">
       <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
-      <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+      <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
         {title}
       </h2>
-      <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-white/60 sm:text-lg">
+      <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
         {description}
       </p>
     </div>
@@ -173,15 +174,15 @@ export function PublicHomepage() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-dvh overflow-hidden bg-[#0a0a0b] text-white">
+    <div className="public-home min-h-dvh overflow-hidden bg-background text-foreground">
       <a
         href="#main-content"
-        className="sr-only fixed left-3 top-3 z-50 rounded-full bg-white px-5 py-3 font-semibold text-black focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="sr-only fixed left-3 top-3 z-50 rounded-full bg-white px-5 py-3 font-semibold text-primary-foreground focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#0a0a0b]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex min-h-[76px] items-center justify-between gap-4">
             <Wordmark />
@@ -192,14 +193,17 @@ export function PublicHomepage() {
               <HeaderLink href="#faq">FAQ</HeaderLink>
             </nav>
             <div className="hidden items-center gap-2 sm:flex">
+              <ThemeToggle />
               <LoginLink />
               <SignUpLink />
             </div>
+            <div className="flex items-center gap-2 sm:hidden">
+            <ThemeToggle />
             <Button
               type="button"
               variant="outline"
               size="icon"
-              className="min-h-11 min-w-11 rounded-full border-white/15 bg-white/[0.04] text-white sm:hidden"
+              className="min-h-11 min-w-11 rounded-full border-border bg-card text-foreground"
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
@@ -211,12 +215,13 @@ export function PublicHomepage() {
                 <Menu aria-hidden="true" className="size-5" />
               )}
             </Button>
+            </div>
           </div>
           <nav
             id="mobile-navigation"
             aria-label="Mobile navigation"
             hidden={!menuOpen}
-            className="space-y-2 border-t border-white/10 py-4 sm:hidden"
+            className="space-y-2 border-t border-border py-4 sm:hidden"
           >
             <HeaderLink href="#how-it-works" onClick={closeMenu}>
               How it works
@@ -246,25 +251,25 @@ export function PublicHomepage() {
           />
           <div
             aria-hidden="true"
-            className="absolute -left-32 bottom-0 size-[26rem] rounded-full bg-[#ffe15a]/10 blur-[100px]"
+            className="absolute -left-32 bottom-0 size-[26rem] rounded-full bg-primary/10 blur-[100px]"
           />
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#ffe15a]/25 bg-[#ffe15a]/[0.08] px-4 py-2 text-xs font-extrabold uppercase tracking-[0.15em] text-[#ffe15a]">
-                <span className="grid size-6 place-items-center rounded-full bg-[#ffe15a] text-[10px] text-black">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.08] px-4 py-2 text-xs font-extrabold uppercase tracking-[0.15em] text-primary">
+                <span className="grid size-6 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground">
                   18+
                 </span>
                 Kenya’s adults-only social app
               </div>
               <h1
                 id="hero-title"
-                className="mt-7 font-display text-5xl font-extrabold leading-[1.02] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl"
+                className="mt-7 font-display text-5xl font-extrabold leading-[1.02] tracking-[-0.055em] text-foreground sm:text-6xl lg:text-7xl"
               >
                 Real people.
                 <span className="mt-1 block text-primary">Meaningful</span>
                 <span className="block">connections.</span>
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
+              <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
                 Meet singles and make new friends across Nairobi, Mombasa, Kisumu, and beyond.
                 Choose the connection you want—on your terms.
               </p>
@@ -272,19 +277,19 @@ export function PublicHomepage() {
                 <SignUpLink />
                 <LoginLink />
               </div>
-              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/55">
+              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-[#ffe15a]" aria-hidden="true" /> Adults 18+
+                  <ShieldCheck className="size-4 text-primary" aria-hidden="true" /> Adults 18+
                   only
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <MapPin className="size-4 text-[#ffe15a]" aria-hidden="true" /> Made with Kenya in
+                  <MapPin className="size-4 text-primary" aria-hidden="true" /> Made with Kenya in
                   mind
                 </span>
               </div>
               <a
                 href="#how-it-works"
-                className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-white/70 hover:text-white"
+                className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground"
               >
                 See how it works <ArrowDown aria-hidden="true" className="size-4" />
               </a>
@@ -296,24 +301,24 @@ export function PublicHomepage() {
             >
               <div
                 aria-hidden="true"
-                className="absolute left-1/2 top-1/2 size-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.07] sm:size-[470px]"
+                className="absolute left-1/2 top-1/2 size-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border sm:size-[470px]"
               />
               <div
                 aria-hidden="true"
-                className="absolute left-1/2 top-1/2 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.07] sm:size-[370px]"
+                className="absolute left-1/2 top-1/2 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border sm:size-[370px]"
               />
-              <div className="absolute left-0 top-10 z-20 hidden w-44 -rotate-6 rounded-3xl border border-white/10 bg-[#19191c] p-3 shadow-2xl sm:block">
+              <div className="absolute left-0 top-10 z-20 hidden w-44 -rotate-6 rounded-3xl border border-border bg-card p-3 shadow-2xl sm:block">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <img src={previewProfiles[1]?.photo} alt="" className="size-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
                     <p className="font-bold">Zuri, 25</p>
-                    <p className="mt-1 text-xs text-white/70">Watamu · Friendship</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Watamu · Friendship</p>
                   </div>
                 </div>
               </div>
-              <div className="relative z-10 w-[min(76vw,310px)] rotate-2 rounded-[2.6rem] border border-white/15 bg-[#171719] p-2.5 shadow-[0_35px_100px_-30px_rgba(255,74,110,0.4)]">
-                <div className="relative aspect-[0.59] overflow-hidden rounded-[2.1rem] bg-[#26262a]">
+              <div className="relative z-10 w-[min(76vw,310px)] rotate-2 rounded-[2.6rem] border border-border bg-card p-2.5 shadow-[0_35px_100px_-30px_rgba(255,74,110,0.4)]">
+                <div className="relative aspect-[0.59] overflow-hidden rounded-[2.1rem] bg-muted">
                   <img
                     src={previewProfiles[0]?.photo}
                     alt=""
@@ -321,10 +326,10 @@ export function PublicHomepage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/5" />
                   <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
-                    <span className="rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] backdrop-blur">
+                    <span className="rounded-full border border-border bg-black/35 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] backdrop-blur">
                       MINGLEZA
                     </span>
-                    <span className="rounded-full bg-[#ffe15a] px-2.5 py-1.5 text-[10px] font-extrabold text-black">
+                    <span className="rounded-full bg-primary px-2.5 py-1.5 text-[10px] font-extrabold text-primary-foreground">
                       18+
                     </span>
                   </div>
@@ -333,33 +338,33 @@ export function PublicHomepage() {
                       <MapPin className="size-3" /> Mombasa, Kenya
                     </span>
                     <h2 className="mt-3 font-display text-3xl font-extrabold">Amina, 26</h2>
-                    <p className="mt-2 text-sm leading-5 text-white/80">
+                    <p className="mt-2 text-sm leading-5 text-foreground">
                       Beach walks, good food, and genuine conversations.
                     </p>
                     <div className="mt-4 flex items-center gap-2">
-                      <span className="grid size-12 place-items-center rounded-full border border-white/15 bg-white/10 text-white">
+                      <span className="grid size-12 place-items-center rounded-full border border-border bg-muted text-foreground">
                         <X className="size-5" />
                       </span>
-                      <span className="grid size-14 flex-1 place-items-center rounded-full bg-[#ff4a6e] text-white shadow-lg shadow-[#ff4a6e]/25">
+                      <span className="grid size-14 flex-1 place-items-center rounded-full bg-primary text-foreground shadow-lg shadow-[#ff4a6e]/25">
                         <Heart className="size-6 fill-current" />
                       </span>
-                      <span className="grid size-12 place-items-center rounded-full border border-white/15 bg-white/10 text-white">
+                      <span className="grid size-12 place-items-center rounded-full border border-border bg-muted text-foreground">
                         <MessageCircle className="size-5" />
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="absolute bottom-8 right-0 z-20 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#19191c]/95 p-3 shadow-2xl backdrop-blur sm:right-1">
-                <span className="grid size-10 place-items-center rounded-full bg-[#ffe15a] text-black">
+              <div className="absolute bottom-8 right-0 z-20 flex items-center gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur sm:right-1">
+                <span className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground">
                   <Heart className="size-5 fill-current" />
                 </span>
                 <span>
                   <span className="block text-sm font-extrabold">Your kind of connection</span>
-                  <span className="mt-0.5 block text-xs text-white/55">Friendship or dating</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Friendship or dating</span>
                 </span>
               </div>
-              <p className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center text-[10px] text-white/35">
+              <p className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center text-[10px] text-muted-foreground">
                 Illustrative interface preview · profiles shown are examples
               </p>
             </div>
@@ -368,7 +373,7 @@ export function PublicHomepage() {
 
         <section
           aria-label="Mingleza at a glance"
-          className="border-y border-white/[0.08] bg-white/[0.025]"
+          className="border-y border-border bg-muted/40"
         >
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-7 sm:px-6 md:grid-cols-4 lg:px-8">
             {[
@@ -378,12 +383,12 @@ export function PublicHomepage() {
               { icon: Heart, title: "Your choice", copy: "Connection on your terms" },
             ].map((item) => (
               <div key={item.title} className="flex items-center gap-3 rounded-2xl p-2 sm:p-3">
-                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/[0.06] text-[#ffe15a]">
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-muted text-primary">
                   <item.icon className="size-5" aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block text-sm font-extrabold text-white">{item.title}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{item.copy}</span>
+                  <span className="block text-sm font-extrabold text-foreground">{item.title}</span>
+                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">{item.copy}</span>
                 </span>
               </div>
             ))}
@@ -424,18 +429,18 @@ export function PublicHomepage() {
               ].map((step) => (
                 <li
                   key={step.number}
-                  className="rounded-3xl border border-white/10 bg-[#141416] p-6 sm:p-8"
+                  className="rounded-3xl border border-border bg-card p-6 sm:p-8"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="grid size-12 place-items-center rounded-2xl bg-[#ffe15a] text-black">
+                    <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
                       <step.icon className="size-6" aria-hidden="true" />
                     </span>
-                    <span className="font-display text-sm font-extrabold tracking-[0.2em] text-[#ffe15a]">
+                    <span className="font-display text-sm font-extrabold tracking-[0.2em] text-primary">
                       {step.number}
                     </span>
                   </div>
                   <h3 className="mt-6 font-display text-xl font-extrabold">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-white/55">{step.copy}</p>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{step.copy}</p>
                 </li>
               ))}
             </ol>
@@ -445,7 +450,7 @@ export function PublicHomepage() {
         <section
           id="discover"
           aria-labelledby="discover-title"
-          className="scroll-mt-24 border-y border-white/[0.07] bg-[#111113] px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          className="scroll-mt-24 border-y border-border bg-muted px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
         >
           <div className="mx-auto max-w-7xl">
             <SectionIntro
@@ -457,7 +462,7 @@ export function PublicHomepage() {
               {previewProfiles.map((person) => (
                 <article
                   key={person.name}
-                  className="group grid grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] overflow-hidden rounded-3xl border border-white/10 bg-[#19191c]"
+                  className="group grid grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] overflow-hidden rounded-3xl border border-border bg-card"
                 >
                   <div className="relative min-h-[250px] overflow-hidden sm:min-h-[320px]">
                     <img
@@ -470,26 +475,26 @@ export function PublicHomepage() {
                       )}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 text-[10px] font-bold text-white backdrop-blur">
+                    <span className="absolute bottom-3 left-3 rounded-full border border-border bg-black/40 px-3 py-1.5 text-[10px] font-bold text-foreground backdrop-blur">
                       Example profile
                     </span>
                   </div>
                   <div className="flex flex-col justify-center p-4 sm:p-7">
-                    <span className="w-fit rounded-full bg-[#ffe15a]/10 px-3 py-1.5 text-[11px] font-extrabold text-[#ffe15a]">
+                    <span className="w-fit rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-extrabold text-primary">
                       {person.intent}
                     </span>
                     <h3 className="mt-4 font-display text-2xl font-extrabold sm:text-3xl">
                       {person.name}, {person.age}
                     </h3>
-                    <p className="mt-2 flex items-center gap-1.5 text-sm text-white/50">
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
                       <MapPin aria-hidden="true" className="size-4" />
                       {person.city}, Kenya
                     </p>
-                    <p className="mt-4 text-sm leading-6 text-white/60">
+                    <p className="mt-4 text-sm leading-6 text-muted-foreground">
                       Find people who share your intent and take the first step toward a genuine
                       connection.
                     </p>
-                    <div className="mt-6 flex items-center gap-2 text-xs font-bold text-white/70">
+                    <div className="mt-6 flex items-center gap-2 text-xs font-bold text-muted-foreground">
                       <Heart aria-hidden="true" className="size-4 text-primary" /> Discover preview
                     </div>
                   </div>
@@ -510,14 +515,14 @@ export function PublicHomepage() {
               description="Be clear about what you’re looking for, and explore profiles that have enabled the same intent."
             />
             <div className="grid gap-5 md:grid-cols-2">
-              <article className="rounded-3xl border border-white/10 bg-[#141416] p-7 sm:p-9">
-                <span className="grid size-14 place-items-center rounded-2xl bg-white/[0.06] text-[#ffe15a]">
+              <article className="rounded-3xl border border-border bg-card p-7 sm:p-9">
+                <span className="grid size-14 place-items-center rounded-2xl bg-muted text-primary">
                   <Users aria-hidden="true" className="size-7" />
                 </span>
                 <h3 id="intent-title" className="mt-5 font-display text-2xl font-extrabold">
                   Find your people
                 </h3>
-                <p className="mt-3 text-sm leading-7 text-white/55">
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   Make new friends, meet people with shared interests, and build a circle at your
                   own pace.
                 </p>
@@ -526,16 +531,16 @@ export function PublicHomepage() {
                   available
                 </p>
               </article>
-              <article className="rounded-3xl border border-white/10 bg-[#141416] p-7 sm:p-9">
-                <span className="grid size-14 place-items-center rounded-2xl bg-[#ff4a6e]/10 text-[#ff718b]">
+              <article className="rounded-3xl border border-border bg-card p-7 sm:p-9">
+                <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-[#ff718b]">
                   <Heart aria-hidden="true" className="size-7 fill-current" />
                 </span>
                 <h3 className="mt-5 font-display text-2xl font-extrabold">Explore dating</h3>
-                <p className="mt-3 text-sm leading-7 text-white/55">
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   Let people know you’re open to dating. Dating-specific likes, match scores, and
                   boosts are still being developed.
                 </p>
-                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-4 py-2 text-xs font-bold text-white/60">
+                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-bold text-muted-foreground">
                   <Sparkles aria-hidden="true" className="size-3.5" /> More discovery tools planned
                 </p>
               </article>
@@ -545,11 +550,11 @@ export function PublicHomepage() {
 
         <section
           aria-labelledby="cities-title"
-          className="border-y border-white/[0.07] bg-[#111113] px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          className="border-y border-border bg-muted px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
         >
           <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#ffe15a]">
+              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-primary">
                 Kenya-first by design
               </p>
               <h2
@@ -558,7 +563,7 @@ export function PublicHomepage() {
               >
                 From coast to city, connections start close to home.
               </h2>
-              <p className="mt-4 max-w-xl leading-7 text-white/55">
+              <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
                 Add the town or city you call home and discover members by the connection intent
                 they have enabled. Live distance-based matching is not available yet.
               </p>
@@ -571,11 +576,11 @@ export function PublicHomepage() {
                 <li
                   key={city}
                   className={cn(
-                    "flex min-h-20 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm font-bold",
+                    "flex min-h-20 items-center gap-2 rounded-2xl border border-border bg-white/[0.03] px-4 text-sm font-bold",
                     index % 2 === 1 && "sm:translate-y-3",
                   )}
                 >
-                  <MapPin aria-hidden="true" className="size-4 shrink-0 text-[#ffe15a]" />
+                  <MapPin aria-hidden="true" className="size-4 shrink-0 text-primary" />
                   {city}
                 </li>
               ))}
@@ -590,7 +595,7 @@ export function PublicHomepage() {
         >
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#ffe15a]">
+              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-primary">
                 Safety matters
               </p>
               <h2
@@ -599,7 +604,7 @@ export function PublicHomepage() {
               >
                 Connection should feel considered.
               </h2>
-              <p className="mt-4 max-w-xl leading-7 text-white/55">
+              <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
                 Mingleza puts adult access and clear member choices first. We’re transparent about
                 the safety controls available today and the ones still to come.
               </p>
@@ -625,14 +630,14 @@ export function PublicHomepage() {
               ].map((item) => (
                 <article
                   key={item.title}
-                  className="flex gap-4 rounded-3xl border border-white/10 bg-[#141416] p-5 sm:p-6"
+                  className="flex gap-4 rounded-3xl border border-border bg-card p-5 sm:p-6"
                 >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/[0.06] text-[#ffe15a]">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-muted text-primary">
                     <item.icon aria-hidden="true" className="size-6" />
                   </span>
                   <div>
                     <h3 className="font-extrabold">{item.title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-white/55">{item.copy}</p>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.copy}</p>
                   </div>
                 </article>
               ))}
@@ -643,7 +648,7 @@ export function PublicHomepage() {
         <section
           id="faq"
           aria-labelledby="faq-title"
-          className="scroll-mt-24 border-y border-white/[0.07] bg-[#111113] px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
+          className="scroll-mt-24 border-y border-border bg-muted px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
         >
           <div className="mx-auto max-w-3xl">
             <SectionIntro
@@ -654,18 +659,18 @@ export function PublicHomepage() {
             <Accordion
               type="single"
               collapsible
-              className="rounded-3xl border border-white/10 bg-[#171719] px-5 sm:px-7"
+              className="rounded-3xl border border-border bg-card px-5 sm:px-7"
             >
               {faqs.map((faq, index) => (
                 <AccordionItem
                   key={faq.question}
                   value={"faq-" + index}
-                  className="border-white/10"
+                  className="border-border"
                 >
-                  <AccordionTrigger className="min-h-14 py-4 text-left text-base font-bold text-white hover:no-underline">
+                  <AccordionTrigger className="min-h-14 py-4 text-left text-base font-bold text-foreground hover:no-underline">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="pb-5 text-sm leading-6 text-white/55">
+                  <AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -673,7 +678,7 @@ export function PublicHomepage() {
             </Accordion>
             <a
               href="/faq"
-              className="mt-5 inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-[#ffe15a] underline underline-offset-4 hover:text-white"
+              className="mt-5 inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-primary underline underline-offset-4 hover:text-foreground"
             >
               Read more FAQs <ArrowRight aria-hidden="true" className="ml-2 size-4" />
             </a>
@@ -681,20 +686,20 @@ export function PublicHomepage() {
         </section>
 
         <section aria-labelledby="final-cta-title" className="px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
-          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#171719] px-6 py-14 text-center sm:px-12 sm:py-20">
+          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-14 text-center sm:px-12 sm:py-20">
             <div
               aria-hidden="true"
-              className="absolute -right-16 -top-24 size-64 rounded-full bg-[#ff4a6e]/20 blur-3xl"
+              className="absolute -right-16 -top-24 size-64 rounded-full bg-primary/20 blur-3xl"
             />
             <div
               aria-hidden="true"
-              className="absolute -bottom-28 -left-16 size-72 rounded-full bg-[#ffe15a]/10 blur-3xl"
+              className="absolute -bottom-28 -left-16 size-72 rounded-full bg-primary/10 blur-3xl"
             />
             <div className="relative mx-auto max-w-2xl">
-              <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#ffe15a] text-black">
+              <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground">
                 <Heart aria-hidden="true" className="size-7 fill-current" />
               </span>
-              <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.2em] text-[#ffe15a]">
+              <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.2em] text-primary">
                 Your next chapter can start here
               </p>
               <h2
@@ -703,7 +708,7 @@ export function PublicHomepage() {
               >
                 Meet people on your wavelength.
               </h2>
-              <p className="mt-4 leading-7 text-white/60">
+              <p className="mt-4 leading-7 text-muted-foreground">
                 Create your profile, choose your intent, and explore connections across Kenya.
                 Adults 18+ only.
               </p>
@@ -716,51 +721,51 @@ export function PublicHomepage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/[0.08] bg-[#080809]">
+      <footer className="border-t border-border bg-background">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr] lg:px-8">
           <div>
             <Wordmark />
-            <p className="mt-3 max-w-sm text-sm leading-6 text-white/45">
+            <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
               A Kenya-first place to find friendship or dating. For adults 18+.
             </p>
           </div>
           <nav aria-label="Footer links" className="grid content-start gap-2">
-            <h2 className="text-sm font-extrabold text-white">Explore</h2>
+            <h2 className="text-sm font-extrabold text-foreground">Explore</h2>
             <a
-              className="inline-flex min-h-11 items-center text-sm text-white/55 hover:text-[#ffe15a]"
+              className="inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary"
               href="/faq"
             >
               FAQ and help
             </a>
             <a
-              className="inline-flex min-h-11 items-center text-sm text-white/55 hover:text-[#ffe15a]"
+              className="inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary"
               href="/terms"
             >
               Terms of service
             </a>
             <a
-              className="inline-flex min-h-11 items-center text-sm text-white/55 hover:text-[#ffe15a]"
+              className="inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary"
               href="/privacy"
             >
               Privacy policy
             </a>
             <a
-              className="inline-flex min-h-11 items-center text-sm text-white/55 hover:text-[#ffe15a]"
+              className="inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary"
               href="#safety"
             >
               Safety
             </a>
           </nav>
           <div>
-            <h2 className="text-sm font-extrabold text-white">Adults-only community</h2>
-            <p className="mt-3 text-sm leading-6 text-white/45">
+            <h2 className="text-sm font-extrabold text-foreground">Adults-only community</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Keep it kind, respect boundaries, and report behavior that makes the community less
               safe.
             </p>
-            <p className="mt-4 text-sm font-extrabold text-[#ffe15a]">18+ only</p>
+            <p className="mt-4 text-sm font-extrabold text-primary">18+ only</p>
           </div>
         </div>
-        <div className="border-t border-white/[0.08] px-4 py-4 text-center text-xs text-white/35">
+        <div className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} Mingleza
         </div>
       </footer>
