@@ -1,5 +1,5 @@
 import { useRef, useState, type PointerEvent } from "react";
-import { MapPin } from "lucide-react";
+import { Heart, MapPin, X } from "lucide-react";
 export type DiscoverProfile = {
   id: string;
   name: string;
@@ -49,7 +49,7 @@ export function SwipeCard({
         transition: dragging ? "none" : "transform 180ms ease-out",
         touchAction: "pan-y",
       }}
-      className={`relative isolate mx-auto h-[min(60dvh,650px)] min-h-[390px] w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-[#1c1c1e] shadow-2xl ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+      className={`relative isolate mx-auto h-[min(60dvh,650px)] min-h-[390px] w-full max-w-md overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
     >
       {profile.photo ? (
         <img
@@ -88,7 +88,7 @@ export function SwipeCard({
           type="button"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={onView}
-          className="pointer-events-auto mt-5 w-full rounded-full bg-white px-5 py-3.5 text-sm font-extrabold text-[#171719] transition hover:bg-[#ffe15a]"
+          className="pointer-events-auto mt-5 w-full rounded-full bg-primary px-5 py-3.5 text-sm font-extrabold text-primary-foreground transition hover:brightness-95"
         >
           View Profile
         </button>
