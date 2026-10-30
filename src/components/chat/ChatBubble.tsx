@@ -10,11 +10,15 @@ export function ChatBubble({
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[82%] rounded-3xl px-4 py-3 text-sm leading-6 ${mine ? "rounded-br-md bg-[#ff4a6e] text-white" : "rounded-bl-md bg-[#242427] text-white"}`}
+        className={`max-w-[82%] rounded-3xl px-4 py-3 text-sm leading-6 ${mine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-secondary text-secondary-foreground"}`}
       >
         {message}
         {time && (
-          <p className={`mt-1 text-[10px] ${mine ? "text-white/70" : "text-[#8e8e93]"}`}>{time}</p>
+          <p
+            className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}
+          >
+            {time}
+          </p>
         )}
       </div>
     </div>

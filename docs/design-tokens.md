@@ -1,47 +1,43 @@
 # Mingleza design tokens
 
-Mingleza is a mobile-first dating and friendship app. The default experience is dark, with a complete light theme for users who prefer it. Use semantic CSS variables and Tailwind utilities from `src/styles.css`; avoid hard-coded surface colors in app components.
+Mingleza is a mobile-first dating and friendship app. Pink is the primary action color. White is the dominant light-mode surface; dark mode uses near-black backgrounds and elevated charcoal cards. Use semantic CSS variables and Tailwind utilities from `src/styles.css` rather than hard-coded surface colors.
 
 ## Core palette
 
-| Token / use             | Light theme                             | Dark theme                  |
-| ----------------------- | --------------------------------------- | --------------------------- |
-| Primary action / like   | `#FF4A6E` · `oklch(0.645 0.246 16.439)` | Same pink                   |
-| Accent yellow           | `#FFE15A` · `oklch(0.9 0.165 92.918)`   | Same yellow                 |
-| Online indicator        | `#34C759`                               | `#34C759`                   |
-| App background          | `#FFFFFF`                               | `#0A0A0A`                   |
-| Card / elevated surface | `#FFFFFF`                               | `#1C1C1E`                   |
-| Main text               | Near-black                              | `#FFFFFF`                   |
-| Muted text              | Neutral grey with accessible contrast   | Soft neutral grey           |
-| Border                  | Light neutral grey                      | Subtle white at 11% opacity |
-| Radius                  | `1.5rem` base                           | `1.5rem` base               |
+| Token / use                           | Light mode                                | Dark mode                                 |
+| ------------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| Primary action / likes / active state | `#FF4A6E` · `oklch(0.645 0.246 16.439)`   | `#FF5C7A` · `oklch(0.68 0.23 16.5)`       |
+| Background                            | `#FFFFFF` · `oklch(1 0 0)`                | `#0A0A0A` · `oklch(0.09 0 0)`             |
+| Card / popover                        | `#FFFFFF`                                 | `#1C1C1E`                                 |
+| Foreground                            | `#111113` · `oklch(0.145 0 0)`            | `#FFFFFF`                                 |
+| Border / input                        | `#E9E9EB` · `oklch(0.92 0.004 286.32)`    | `#27272A`                                 |
+| Secondary / muted                     | `#F4F4F5`                                 | `#26262A`                                 |
+| Accent                                | `#FFF1F2`                                 | Muted pink tint                           |
+| Online indicator                      | `#34C759` only for verified live presence | `#34C759` only for verified live presence |
+| Radius                                | `1.5rem` base                             | `1.5rem` base                             |
 
-The supplied primary OKLCH value is the canonical CSS token. Hex references are design-reference labels; render semantic `bg-primary`, `text-primary`, and `ring-primary` utilities instead of duplicating color values.
+## Interaction color rules
 
-## Wordmark
+- Buttons, hearts, active navigation, selected tabs and underlines, focus rings, and outgoing chat bubbles use the semantic pink primary token.
+- Light mode cards remain white; secondary and muted surfaces use soft neutral grey.
+- Dark mode cards use charcoal, with secondary surfaces slightly lighter than the background.
+- Swipe actions use a neutral grey pass action and pink like action. A message action is only shown when a valid conversation exists.
+- Likes avatars are 64px circular images. A green online dot is permitted only when presence data is real, current, and available; do not infer presence from profile activity.
+- Match-score badges may only be displayed when a trustworthy matching score is returned. Never fabricate a percentage.
+
+## Wordmark and typography
 
 - Use the exact lowercase wordmark `mingleza.` in the Sora/display face, bold weight, and tight tracking.
-- On white/light surfaces, render the letters near-black and the final dot pink.
-- On dark surfaces, render the letters white and the final dot purple.
-- Use `src/components/MinglezaLogo.tsx` rather than drawing alternate logos or using a generic heart icon as the primary wordmark.
-
-## Dating UI and interaction
-
-- Discover swipe cards: rounded, full-bleed profile photography with a bottom gradient scrim; like/primary actions use pink.
-- Matches: responsive profile grid. Only show match percentages when supplied by a trustworthy, real matching score; never fabricate values such as “95%”.
-- Likes rail: circular 64px profile images. Show a green online dot only when presence is real and current, with a text alternative for assistive technology.
-- Bottom navigation: fixed, rounded mobile navigation with safe-area padding; active navigation uses pink and must remain distinguishable beyond color alone.
-- Chat: outgoing messages use a pink bubble with a high-contrast foreground; incoming messages use a white/light or elevated card bubble with dark text in light mode, and a dark elevated bubble with light text in dark mode. Message ownership and timestamps must remain clear.
-- Theme toggle: place in the top bar near other activity/actions. It switches between light and dark; the initial default is dark. System preference is supported by the theme provider.
-- Keep the existing Manrope body font and Sora display font. Preserve mobile safe-area insets and reduced-motion behavior.
+- On white/light surfaces, render letters near-black and the final dot pink.
+- On dark surfaces, render letters white and the final dot purple.
+- Keep Manrope for body text and Sora for display headings.
 
 ## Accessibility and contrast
 
-- Maintain WCAG 2.2 AA contrast targets: 4.5:1 for normal text and 3:1 for large text and essential UI boundaries/icons. Pink backgrounds may require white bold text or a darker pink foreground depending on measured contrast; verify actual rendered pairs rather than relying on color names.
-- The yellow accent should use dark foreground text.
-- Never rely on pink, purple, or green alone to communicate state. Provide labels, icons, or accessible names for active, online, selected, and unread states.
-- Ensure visible keyboard focus, minimum 44px interactive targets, and accessible names for icon-only controls.
-- Test both themes across Discover, Matches, Likes, Messages, notifications, profile forms, dialogs, empty states, and loading states. Replace fixed white/black utility classes on application surfaces with semantic tokens when they prevent theme switching.
+- Target WCAG 2.2 AA: at least 4.5:1 for normal text and 3:1 for large text and essential UI boundaries/icons.
+- The supplied pink is the brand action color. Verify white-on-pink text in rendered UI; if a specific label does not meet contrast, use a darker pink treatment or dark foreground for that label without changing the brand token.
+- Muted text must remain readable against both white and charcoal surfaces. Never rely on color alone for active, online, selected, or unread states; add labels, icons, or accessible names.
+- Keep visible keyboard focus, minimum 44px interactive targets, accessible names for icon-only controls, mobile safe-area insets, and reduced-motion support.
 
 ## Data integrity
 

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
   to: "/" | "/explore" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
@@ -106,6 +107,7 @@ export function AppShell({
 
       <main className="min-w-0 flex-1 pb-28 lg:pb-0">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6 lg:px-8">
+          <ThemeToggle />
           <Link
             to="/notifications"
             aria-label="Notifications"
@@ -139,7 +141,7 @@ export function AppShell({
       {!hideTabs && (
         <nav
           aria-label="Mobile navigation"
-          className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full bg-ink p-2 shadow-card lg:hidden"
+          className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full border border-border bg-card p-2 shadow-card lg:hidden"
         >
           {main.map(({ to, label, icon: Icon, badge }) => (
             <Link
@@ -148,7 +150,7 @@ export function AppShell({
               aria-label={badge && badge > 0 ? `${label}, ${badge} unread` : label}
               title={label}
               activeOptions={{ exact: true }}
-              className="relative grid size-12 place-items-center rounded-full text-ink-foreground/60 transition"
+              className="relative grid size-12 place-items-center rounded-full text-muted-foreground transition hover:text-primary"
               activeProps={{ className: "!bg-primary !text-primary-foreground" }}
             >
               <Icon aria-hidden="true" className="size-5" />
@@ -166,7 +168,7 @@ export function AppShell({
             to="/profile-edit"
             aria-label="Settings and profile"
             title="Settings and profile"
-            className="grid size-12 place-items-center rounded-full text-ink-foreground/60"
+            className="grid size-12 place-items-center rounded-full text-muted-foreground hover:text-primary"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
             <Settings aria-hidden="true" className="size-5" />

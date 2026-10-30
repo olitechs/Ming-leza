@@ -22,7 +22,7 @@ export function ProfileActions({
         aria-label={passLabel}
         disabled={disabled}
         onClick={onPass}
-        className="grid size-14 place-items-center rounded-full border border-white/10 bg-[#1c1c1e] text-white shadow-xl transition hover:-translate-y-1 hover:text-[#ff5a5f] disabled:opacity-50"
+        className="grid size-14 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground shadow-xl transition hover:-translate-y-1 hover:text-primary disabled:opacity-50"
       >
         <X className="size-6" />
       </button>
@@ -31,7 +31,7 @@ export function ProfileActions({
         aria-label={likeLabel}
         disabled={disabled}
         onClick={onLike}
-        className="grid size-[4.25rem] place-items-center rounded-full bg-[#ff4a6e] text-white shadow-[0_10px_35px_-10px_#ff4a6e99] transition hover:-translate-y-1 hover:bg-[#ff5a5f] disabled:opacity-50"
+        className="grid size-[4.25rem] place-items-center rounded-full bg-primary text-primary-foreground shadow-card transition hover:-translate-y-1 hover:brightness-95 disabled:opacity-50"
       >
         <Heart className="size-8 fill-current" />
       </button>
@@ -39,7 +39,7 @@ export function ProfileActions({
         type="button"
         aria-label="Message profile"
         onClick={onMessage}
-        className="grid size-14 place-items-center rounded-full border border-white/10 bg-[#1c1c1e] text-white shadow-xl transition hover:-translate-y-1"
+        className="grid size-14 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground shadow-xl transition hover:-translate-y-1 hover:text-primary"
       >
         <MessageCircle className="size-6" />
       </button>
