@@ -28,7 +28,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Is Mingleza only for dating?",
         answer:
-          "Friendship requests and dating likes or passes are available. A mutual match appears when both members like each other; dating-specific messaging is not available yet.",
+          "Friendship requests and dating likes or passes are available. When both members like each other, Mingleza creates a mutual match and opens a private dating conversation for that match.",
       },
       {
         question: "Where is Mingleza available?",
@@ -198,7 +198,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How does the Dating intent work today?",
         answer:
-          "Members can opt in to Dating and browse profiles that have enabled it. Dating likes, mutual matches, and a dating-specific conversation flow are not available yet.",
+          "Members can opt in to Dating, like or pass profiles, and see mutual matches when both people like each other. Active mutual matches can use a private dating conversation. Match scores, paid boosts, and distance-based discovery are not available.",
       },
       {
         question: "Is Mingleza free?",
