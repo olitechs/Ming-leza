@@ -1,7 +1,7 @@
 type Props = { value: "for-you" | "nearby"; onChange: (value: "for-you" | "nearby") => void };
 export function ForYouNearbyTabs({ value, onChange }: Props) {
   return (
-    <div role="tablist" aria-label="Discovery feed" className="flex gap-7 border-b border-white/10">
+    <div role="tablist" aria-label="Discovery feed" className="flex gap-7 border-b border-border">
       {(
         [
           { value: "for-you", label: "For You" },
