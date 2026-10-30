@@ -5,7 +5,6 @@ import {
   Map,
   MessageCircle,
   UserPlus,
-  User,
   Bell,
   Crown,
   Settings,
