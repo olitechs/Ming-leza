@@ -27,10 +27,7 @@ const main: NavItem[] = [
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/notifications", label: "Notifications", icon: Bell },
 ];
-const soon: { label: string; icon: LucideIcon }[] = [
-  { label: "Premium", icon: Crown },
-  { label: "Settings", icon: Settings },
-];
+const soon: { label: string; icon: LucideIcon }[] = [{ label: "Premium", icon: Crown }];
 
 export function AppShell({
   children,
@@ -45,7 +42,7 @@ export function AppShell({
     <div className="min-h-dvh bg-background lg:flex">
       <nav
         aria-label="Primary navigation"
-        className="sticky top-0 hidden h-dvh w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5"
+        className="sticky top-0 hidden h-dvh w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5 lg:flex"
       >
         <Link
           to="/"
@@ -77,11 +74,13 @@ export function AppShell({
         ))}
         <Link
           to="/profile-edit"
-          title="Edit profile"
-          aria-label="Edit profile"
-          className="grid size-11 place-items-center rounded-2xl text-muted-foreground hover:bg-secondary"
+          title="Settings and profile"
+          aria-label="Settings and profile"
+          activeOptions={{ exact: true }}
+          className="grid size-11 place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+          activeProps={{ className: "!bg-primary !text-primary-foreground" }}
         >
-          <User aria-hidden="true" className="size-5" />
+          <Settings aria-hidden="true" className="size-5" />
         </Link>
         <div className="mt-auto flex flex-col gap-2">
           {soon.map(({ label, icon: Icon }) => (
@@ -105,7 +104,32 @@ export function AppShell({
         </div>
       </nav>
 
-      <main className="min-w-0 flex-1 pb-28 lg:pb-0">{children}</main>
+      <main className="min-w-0 flex-1 pb-28 lg:pb-0">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6 lg:px-8">
+          <Link
+            to="/notifications"
+            aria-label="Notifications"
+            title="Notifications"
+            activeOptions={{ exact: true }}
+            className="relative inline-flex size-10 items-center justify-center rounded-full border bg-card text-foreground transition hover:bg-secondary"
+            activeProps={{ className: "!border-primary !text-primary" }}
+          >
+            <Bell aria-hidden="true" className="size-5" />
+          </Link>
+          <Link
+            to="/profile-edit"
+            aria-label="Settings and profile"
+            title="Settings and profile"
+            activeOptions={{ exact: true }}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border bg-card px-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
+            activeProps={{ className: "!border-primary !text-primary" }}
+          >
+            <Settings aria-hidden="true" className="size-4" />
+            <span>Settings</span>
+          </Link>
+        </header>
+        {children}
+      </main>
       {aside && (
         <aside className="sticky top-0 hidden h-dvh w-[360px] overflow-y-auto border-l bg-card">
           {aside}
@@ -140,12 +164,12 @@ export function AppShell({
           ))}
           <Link
             to="/profile-edit"
-            aria-label="Edit profile"
-            title="Edit profile"
+            aria-label="Settings and profile"
+            title="Settings and profile"
             className="grid size-12 place-items-center rounded-full text-ink-foreground/60"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
-            <User aria-hidden="true" className="size-5" />
+            <Settings aria-hidden="true" className="size-5" />
           </Link>
         </nav>
       )}
