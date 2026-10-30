@@ -45,9 +45,7 @@ export function AppShell({
     try {
       const result = await listMyNotifications();
       if (result.ok) {
-        setUnreadCount(
-          result.notifications.filter((notification) => !notification.read_at).length,
-        );
+        setUnreadCount(result.notifications.filter((notification) => !notification.read_at).length);
       }
     } catch {
       // Keep navigation usable if the notification service is temporarily unavailable.
