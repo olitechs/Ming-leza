@@ -46,7 +46,7 @@ export function MotivationScreen() {
         <Link
           to="/welcome"
           search={{ authComplete: false, authError: "" }}
-          className="mt-8 flex w-full items-center justify-between rounded-full bg-[#ffe15a] py-2 pl-6 pr-2 text-sm font-extrabold text-[#171719] shadow-xl transition hover:brightness-95"
+          className="mt-8 flex w-full items-center justify-between rounded-full bg-primary py-2 pl-6 pr-2 text-sm font-extrabold text-primary-foreground shadow-xl transition hover:brightness-95"
         >
           Get started
           <span className="grid size-11 place-items-center rounded-full bg-primary-foreground text-primary">
