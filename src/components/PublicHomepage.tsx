@@ -312,8 +312,8 @@ export function PublicHomepage() {
                   <img src={previewProfiles[1]?.photo} alt="" className="size-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
-                    <p className="font-bold">Zuri, 25</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Watamu · Friendship</p>
+                    <p className="font-bold text-white">Zuri, 25</p>
+                    <p className="mt-1 text-xs text-white/70">Watamu · Friendship</p>
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export function PublicHomepage() {
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-semibold backdrop-blur">
                       <MapPin className="size-3" /> Mombasa, Kenya
                     </span>
-                    <h2 className="mt-3 font-display text-3xl font-extrabold">Amina, 26</h2>
+                    <h2 className="mt-3 font-display text-3xl font-extrabold text-white">Amina, 26</h2>
                     <p className="mt-2 text-sm leading-5 text-foreground">
                       Beach walks, good food, and genuine conversations.
                     </p>
