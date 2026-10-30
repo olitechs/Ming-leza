@@ -84,7 +84,7 @@ function HeaderLink({
     <a
       href={href}
       onClick={onClick}
-      className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground"
+      className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {children}
     </a>
@@ -177,7 +177,7 @@ export function PublicHomepage() {
     <div className="public-home min-h-dvh overflow-hidden bg-background text-foreground">
       <a
         href="#main-content"
-        className="sr-only fixed left-3 top-3 z-50 rounded-full bg-white px-5 py-3 font-semibold text-primary-foreground focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="sr-only fixed left-3 top-3 z-50 rounded-full bg-background px-5 py-3 font-semibold text-foreground focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         Skip to content
       </a>
@@ -345,7 +345,7 @@ export function PublicHomepage() {
                       <span className="grid size-12 place-items-center rounded-full border border-border bg-muted text-foreground">
                         <X className="size-5" />
                       </span>
-                      <span className="grid size-14 flex-1 place-items-center rounded-full bg-primary text-foreground shadow-lg shadow-[#ff4a6e]/25">
+                      <span className="grid size-14 flex-1 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-[#ff4a6e]/25">
                         <Heart className="size-6 fill-current" />
                       </span>
                       <span className="grid size-12 place-items-center rounded-full border border-border bg-muted text-foreground">
@@ -576,7 +576,7 @@ export function PublicHomepage() {
                 <li
                   key={city}
                   className={cn(
-                    "flex min-h-20 items-center gap-2 rounded-2xl border border-border bg-white/[0.03] px-4 text-sm font-bold",
+                    "flex min-h-20 items-center gap-2 rounded-2xl border border-border bg-muted px-4 text-sm font-bold",
                     index % 2 === 1 && "sm:translate-y-3",
                   )}
                 >
