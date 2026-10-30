@@ -29,8 +29,12 @@ import { listMySupportRequests, submitSupportRequest } from "@/lib/support/serve
 export const Route = createFileRoute("/profile-edit")({
   beforeLoad: async () => {
     const access = await getMyAccess();
-    if (!access.authenticated || !access.adultVerified)
+    if (!access.authenticated) {
       throw redirect({ to: "/login", search: { mode: "signin" } });
+    }
+    if (!access.adultVerified) {
+      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+    }
   },
   head: () => ({ meta: [{ title: "Edit profile · Mingleza" }] }),
   component: EditProfile,
