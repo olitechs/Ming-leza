@@ -4,9 +4,7 @@ import {
   Map,
   MessageCircle,
   UserPlus,
-  User,
   Bell,
-  Crown,
   Settings,
   LogOut,
   type LucideIcon,
@@ -28,7 +26,6 @@ const main: NavItem[] = [
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/notifications", label: "Notifications", icon: Bell },
 ];
-const soon: { label: string; icon: LucideIcon }[] = [{ label: "Premium", icon: Crown }];
 
 export function AppShell({
   children,
@@ -84,15 +81,6 @@ export function AppShell({
           <Settings aria-hidden="true" className="size-5" />
         </Link>
         <div className="mt-auto flex flex-col gap-2">
-          {soon.map(({ label, icon: Icon }) => (
-            <span
-              key={label}
-              title={`${label} (coming soon)`}
-              className="grid size-11 place-items-center rounded-2xl text-muted-foreground/50"
-            >
-              <Icon aria-hidden="true" className="size-5" />
-            </span>
-          ))}
           <button
             type="button"
             aria-label="Sign out"
