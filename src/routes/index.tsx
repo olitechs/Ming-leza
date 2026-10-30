@@ -581,12 +581,12 @@ function Discover() {
   };
 
   return (
-    <main className="min-h-dvh bg-[#0a0a0a] pb-28 text-white">
+    <main className="min-h-dvh bg-background pb-28 text-foreground">
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
         <TopBar />
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff4a6e]">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
               Made for your next hello
             </p>
             <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
@@ -602,7 +602,7 @@ function Discover() {
           <ForYouNearbyTabs value={feed} onChange={setFeed} />
         </div>
         {requestError && (
-          <p role="alert" className="mt-4 rounded-xl bg-[#ff4a6e]/10 p-3 text-sm text-[#ff8da4]">
+          <p role="alert" className="mt-4 rounded-xl bg-accent p-3 text-sm text-accent-foreground">
             {requestError}
           </p>
         )}
@@ -616,17 +616,17 @@ function Discover() {
         )}
         {loading ? (
           <div
-            className="mx-auto mt-6 h-[min(60dvh,650px)] min-h-[390px] max-w-md animate-pulse rounded-[2rem] bg-[#1c1c1e]"
+            className="mx-auto mt-6 h-[min(60dvh,650px)] min-h-[390px] max-w-md animate-pulse rounded-[2rem] bg-card"
             aria-label="Loading profiles"
           />
         ) : error ? (
           <div
             role="alert"
-            className="mx-auto mt-8 max-w-md rounded-3xl border border-white/10 bg-[#1c1c1e] p-8 text-center"
+            className="mx-auto mt-8 max-w-md rounded-3xl border border-border bg-card p-8 text-center"
           >
-            <AlertCircle className="mx-auto size-8 text-[#ff4a6e]" />
+            <AlertCircle className="mx-auto size-8 text-primary" />
             <h2 className="mt-3 font-bold">Profiles couldn't load</h2>
-            <p className="mt-2 text-sm text-[#8e8e93]">
+            <p className="mt-2 text-sm text-muted-foreground">
               Your account and profile settings are unchanged. Please try again.
             </p>
             <Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}>
@@ -683,16 +683,16 @@ function Discover() {
               <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>
             )}
             {!profiles.length && (
-              <p className="mt-4 text-center text-[11px] text-white/40">
+              <p className="mt-4 text-center text-[11px] text-muted-foreground">
                 Fictional preview only · no real member choices are saved
               </p>
             )}
           </div>
         ) : (
-          <div className="mt-8 rounded-3xl border border-white/10 bg-[#1c1c1e] p-10 text-center">
-            <Users className="mx-auto size-8 text-[#ff4a6e]" />
+          <div className="mt-8 rounded-3xl border border-border bg-card p-10 text-center">
+            <Users className="mx-auto size-8 text-primary" />
             <h2 className="mt-3 font-bold">No profiles just yet</h2>
-            <p className="mt-2 text-sm text-[#8e8e93]">Try another discovery preference.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Try another discovery preference.</p>
           </div>
         )}
       </div>
@@ -706,7 +706,7 @@ function Discover() {
         type="button"
         onClick={() => setIntent(value)}
         aria-pressed={intent === value}
-        className={`rounded-full px-3 text-xs sm:px-4 sm:text-sm ${intent === value ? "bg-[#ff4a6e] text-white hover:bg-[#ff5a5f]" : "border border-white/10 bg-[#1c1c1e] text-white hover:bg-white/10"}`}
+        className={`rounded-full px-3 text-xs sm:px-4 sm:text-sm ${intent === value ? "bg-primary text-primary-foreground hover:brightness-95" : "border border-border bg-secondary text-secondary-foreground hover:bg-muted"}`}
       >
         {value === "dating" ? <Heart className="size-4" /> : <Users className="size-4" />}
         {label}
