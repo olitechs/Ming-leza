@@ -87,7 +87,7 @@ export function LikesRail() {
                   <Avatar
                     name={person.display_name}
                     avatarPath={person.avatar_path}
-                    className="size-full border-2 border-[#111113] bg-[#1c1c1e] text-sm text-foreground"
+                    className="size-full border-2 border-card bg-card text-sm text-card-foreground"
                   />
                 </span>
                 <span className="max-w-20 truncate text-xs font-semibold text-foreground">
