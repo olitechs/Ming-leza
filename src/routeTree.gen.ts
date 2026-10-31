@@ -15,6 +15,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LikesRouteImport } from './routes/likes'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -57,6 +58,11 @@ const FaqRoute = FaqRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LikesRoute = LikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchesRoute = MatchesRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/likes': typeof LikesRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/likes': typeof LikesRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/likes': typeof LikesRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/login'
+    | '/likes'
     | '/matches'
     | '/messages'
     | '/notifications'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/login'
+    | '/likes'
     | '/matches'
     | '/messages'
     | '/notifications'
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/login'
+    | '/likes'
     | '/matches'
     | '/messages'
     | '/notifications'
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/likes': {
+      id: '/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof LikesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matches': {
@@ -407,6 +426,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   FaqRoute: FaqRoute,
   LoginRoute: LoginRoute,
+  LikesRoute: LikesRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
   NotificationsRoute: NotificationsRoute,
