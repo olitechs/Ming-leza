@@ -17,7 +17,7 @@ import { getDiscoverableProfiles, getNearbyProfiles } from "@/lib/discovery/serv
 import { getMyProfile } from "@/lib/profile/server";
 import { sendFriendRequest, submitProfileSwipe } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
-import { getHomePageMode } from "@/lib/homepage-routing";
+import { getHomePageMode, isCompleteDiscoverProfile } from "@/lib/homepage-routing";
 import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
 import {
   Dialog,
@@ -41,9 +41,7 @@ export const Route = createFileRoute("/")({
       return { page: "discover" as const, profile: null };
     }
     if (profile.ok) {
-      const displayName = profile.profile.display_name?.trim() ?? "";
-      const city = profile.profile.city?.trim() ?? "";
-      if (!displayName || displayName.toLowerCase() === "new member" || !city) {
+      if (!isCompleteDiscoverProfile(profile.profile)) {
         throw redirect({
           to: "/welcome",
           search: { authComplete: true, authError: "", mode: "profile" },
@@ -572,7 +570,7 @@ function Discover() {
         {requestNotice && (
           <p
             role="status"
-            className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200"
+            className="mt-4 rounded-xl border border-success/30 bg-success/10 p-3 text-sm text-success-text"
           >
             {requestNotice}
           </p>
@@ -653,7 +651,7 @@ function Discover() {
               />
             </div>
             {current.source && requestedIds.includes(current.source.id) && (
-              <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>
+              <p className="mt-3 text-center text-xs text-success-text">Friend request sent</p>
             )}
           </div>
         ) : (
