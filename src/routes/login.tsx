@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import { z } from "zod";
 import { ArrowLeft, Eye, EyeOff, Heart, LockKeyhole } from "lucide-react";
 import {
   requestPasswordReset,
@@ -10,6 +11,8 @@ import {
 } from "@/lib/auth/server";
 
 type Mode = "signup" | "signin" | "forgot" | "reset";
+
+const emailInputSchema = z.string().trim().email("Enter a valid email address.").max(254);
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -73,6 +76,13 @@ function LoginPage() {
     setError("");
     setMessage("");
     const normalizedEmail = email.trim().toLowerCase();
+    if (mode !== "reset") {
+      const emailValidation = emailInputSchema.safeParse(normalizedEmail);
+      if (!emailValidation.success) {
+        setError(emailValidation.error.issues[0]?.message ?? "Enter a valid email address.");
+        return;
+      }
+    }
 
     if (mode === "signup") {
       if (fullName.trim().length < 2) {
