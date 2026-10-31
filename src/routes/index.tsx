@@ -495,10 +495,6 @@ function Discover() {
       source: profile,
     }));
   const current = shown.length ? shown[activeIndex % shown.length] : null;
-  const advance = () => {
-    setViewProfile(false);
-    setActiveIndex((index) => (index + 1) % Math.max(shown.length, 1));
-  };
   const decideCurrent = async (decision: "like" | "pass") => {
     if (!current) return;
     setRequestError("");
