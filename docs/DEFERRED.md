@@ -28,5 +28,6 @@ The Terms and Privacy pages are placeholders, not final legal text or legal advi
 - Real-time updates for both friend and dating conversations; current chat screens refresh on open and after sending rather than subscribing to live events.
 - External email/push notifications, notification preferences, and message-management controls.
 - Explore map and location/distance-based discovery.
+- Premium plans, paid entitlements, provider checkout/webhooks, and M-Pesa remain unimplemented pending approved pricing, plan limits, provider selection, and billing/refund policy. See [premium readiness audit](premium-readiness.md); do not add fake payment-success states or require subscriptions for existing member workflows.
 - Final Terms and Privacy text after legal review; privacy review for publicly retrievable profile-avatar assets.
 - Product decisions for availability outside Kenya, support and safety escalation, pricing, premium payments, and M-Pesa.
