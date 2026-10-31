@@ -481,51 +481,19 @@ function Discover() {
     }
   };
 
-  const demo = [
-    {
-      id: "demo-amina",
-      displayName: "Amina",
-      age: 26,
-      city: "Mombasa, Kenya",
-      bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine connection.",
-      photo:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=85",
-    },
-    {
-      id: "demo-zuri",
-      displayName: "Zuri",
-      age: 25,
-      city: "Watamu, Kenya",
-      bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
-      photo:
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85",
-    },
-    {
-      id: "demo-njeri",
-      displayName: "Njeri",
-      age: 27,
-      city: "Nairobi, Kenya",
-      bio: "Good music, spontaneous road trips and conversations that go past midnight.",
-      photo:
-        "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85",
-    },
-  ];
-  const shown = feed === "nearby" ? profiles
-    .filter((p) => !actedOnIds.includes(p.id))
-    .map((p) => ({ id: p.id, name: p.displayName, age: undefined, city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya", bio: p.bio || "Here to meet kind people and build genuine connections.", photo: p.avatarPath || "", source: p }))
-    : profiles.length
-    ? profiles
-        .filter((p) => !actedOnIds.includes(p.id))
-        .map((p, i) => ({
-          id: p.id,
-          name: p.displayName,
-          age: undefined,
-          city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
-          bio: p.bio || "Here to meet kind people and build genuine connections.",
-          photo: p.avatarPath || "",
-          source: p,
-        }))
-    : demo.map((p) => ({ ...p, name: p.displayName, source: null }));
+  // The authenticated Discover feed must contain only eligible member profiles returned
+  // by the server. Marketing previews remain on the public homepage and are never actionable.
+  const shown = profiles
+    .filter((profile) => !actedOnIds.includes(profile.id))
+    .map((profile) => ({
+      id: profile.id,
+      name: profile.displayName,
+      age: undefined,
+      city: [profile.city, profile.region, profile.countryCode].filter(Boolean).join(", ") || "Kenya",
+      bio: profile.bio || "Here to meet kind people and build genuine connections.",
+      photo: profile.avatarPath || "",
+      source: profile,
+    }));
   const current = shown.length ? shown[activeIndex % shown.length] : null;
   const advance = () => {
     setViewProfile(false);
@@ -535,13 +503,6 @@ function Discover() {
     if (!current) return;
     setRequestError("");
     setRequestNotice("");
-    if (!current.source) {
-      setRequestError(
-        "These are preview profiles. Real choices are only saved for available member profiles.",
-      );
-      advance();
-      return;
-    }
     if (intent === "dating") {
       setRequestingId(current.source.id);
       try {
@@ -656,7 +617,7 @@ function Discover() {
                 city: current.city,
                 bio: current.bio,
                 photo: current.photo,
-                preview: !profiles.length,
+                preview: false,
               }}
               onView={() => setViewProfile((value) => !value)}
               onSwipe={(direction) => {
@@ -682,9 +643,9 @@ function Discover() {
                 onLike={() => void decideCurrent("like")}
                 onMessage={() => {
                   if (intent === "friends") {
-                    void navigate({ to: "/messages" });
-                  } else {
                     void navigate({ to: "/matches" });
+                  } else {
+                    void navigate({ to: "/likes" });
                   }
                 }}
                 passLabel={intent === "friends" ? "Skip profile" : "Pass profile"}
@@ -697,11 +658,6 @@ function Discover() {
             </div>
             {current.source && requestedIds.includes(current.source.id) && (
               <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>
-            )}
-            {!profiles.length && (
-              <p className="mt-4 text-center text-[11px] text-muted-foreground">
-                Fictional preview only · no real member choices are saved
-              </p>
             )}
           </div>
         ) : (
