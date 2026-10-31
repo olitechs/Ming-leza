@@ -11,7 +11,24 @@ describe("supported country catalog", () => {
 
   it("keeps Kenya first and includes common European visitor countries", () => {
     expect(SUPPORTED_COUNTRIES[0]).toEqual({ code: "KE", name: "Kenya" });
-    for (const code of [\n      "IT",\n      "DE",\n      "FR",\n      "GB",\n      "NL",\n      "CH",\n      "AT",\n      "BE",\n      "ES",\n      "PT",\n      "IE",\n      "PL",\n      "SE",\n      "NO",\n      "DK",\n      "FI",\n    ]) {
+    for (const code of [
+      "IT",
+      "DE",
+      "FR",
+      "GB",
+      "NL",
+      "CH",
+      "AT",
+      "BE",
+      "ES",
+      "PT",
+      "IE",
+      "PL",
+      "SE",
+      "NO",
+      "DK",
+      "FI",
+    ]) {
       expect(SUPPORTED_COUNTRIES.some((country) => country.code === code)).toBe(true);
     }
   });
