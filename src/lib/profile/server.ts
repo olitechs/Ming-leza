@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseServerClient } from "../supabase/server";
+import { SUPPORTED_COUNTRIES } from "../countries";
 
 const profileInput = z.object({
   displayName: z.string().trim().min(2).max(40),
@@ -88,18 +89,17 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(async () =
 
 export const listSupportedCountries = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    const { supabase, user, message } = await getVerifiedUser();
+    const { user, message } = await getVerifiedUser();
     if (!user) return { ok: false as const, message, countries: [] };
-    const { data, error } = await supabase
-      .from("supported_countries")
-      .select("code,name")
-      .eq("is_active", true)
-      .order("name");
-    if (error)
-      return { ok: false as const, message: "Countries could not be loaded.", countries: [] };
-    return { ok: true as const, countries: data ?? [] };
+    // Country names are static reference data. Do not make profile editing depend on
+    // Supabase availability, RLS state, or a seeded reference table.
+    return { ok: true as const, countries: [...SUPPORTED_COUNTRIES] };
   } catch {
-    return { ok: false as const, message: "Countries could not be loaded.", countries: [] };
+    return {
+      ok: false as const,
+      message: "Your profile service is temporarily unavailable. Please retry.",
+      countries: [],
+    };
   }
 });
 
