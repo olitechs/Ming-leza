@@ -326,7 +326,7 @@ export function PublicHomepage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/5" />
                   <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
-                    <span className="rounded-full border border-border bg-black/35 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] backdrop-blur">
+                    <span className="rounded-full border border-white/25 bg-black/50 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] text-white backdrop-blur">
                       MINGLEZA
                     </span>
                     <span className="rounded-full bg-primary px-2.5 py-1.5 text-[10px] font-extrabold text-primary-foreground">
@@ -334,11 +334,11 @@ export function PublicHomepage() {
                     </span>
                   </div>
                   <div className="absolute bottom-5 left-5 right-5">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-semibold backdrop-blur">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
                       <MapPin className="size-3" /> Mombasa, Kenya
                     </span>
                     <h2 className="mt-3 font-display text-3xl font-extrabold text-white">Amina, 26</h2>
-                    <p className="mt-2 text-sm leading-5 text-foreground">
+                    <p className="mt-2 text-sm leading-5 text-white/90">
                       Beach walks, good food, and genuine conversations.
                     </p>
                     <div className="mt-4 flex items-center gap-2">
@@ -475,7 +475,7 @@ export function PublicHomepage() {
                       )}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <span className="absolute bottom-3 left-3 rounded-full border border-border bg-black/40 px-3 py-1.5 text-[10px] font-bold text-foreground backdrop-blur">
+                    <span className="absolute bottom-3 left-3 rounded-full border border-white/25 bg-black/60 px-3 py-1.5 text-[10px] font-bold text-white backdrop-blur">
                       Example profile
                     </span>
                   </div>
@@ -526,8 +526,8 @@ export function PublicHomepage() {
                   Make new friends, meet people with shared interests, and build a circle at your
                   own pace.
                 </p>
-                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-4 py-2 text-xs font-bold text-emerald-300">
-                  <span className="size-1.5 rounded-full bg-emerald-300" /> Friendship requests
+                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-xs font-bold text-success-text">
+                  <span className="size-1.5 rounded-full bg-success" /> Friendship requests
                   available
                 </p>
               </article>
