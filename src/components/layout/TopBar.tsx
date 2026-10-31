@@ -12,7 +12,7 @@ export function TopBar() {
           to="/likes"
           aria-label="Likes"
           title="Likes"
-          className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="hidden size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid"
         >
           <Heart aria-hidden="true" className="size-5" />
         </Link>
@@ -20,7 +20,7 @@ export function TopBar() {
           to="/notifications"
           aria-label="Notifications"
           title="Notifications"
-          className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="hidden size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid"
         >
           <Bell aria-hidden="true" className="size-5" />
         </Link>
