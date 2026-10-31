@@ -2,16 +2,28 @@
 -- Additive hardening: existing age_verifications remains the single server-controlled age source.
 -- Apply through the reviewed Supabase migration workflow; this file does not change production by itself.
 
-drop policy if exists profiles_read_self_or_discoverable on public.profiles;
-create policy profiles_read_self_or_discoverable on public.profiles
+-- Replace the deployed permissive policy by its actual name. PostgreSQL ORs
+-- permissive policies, so leaving the old policy in place would bypass this gate.
+drop policy if exists profiles_read_discoverable_adults on public.profiles;
+create policy profiles_read_discoverable_adults on public.profiles
 for select to authenticated using (
   id = (select auth.uid()) or (
-    is_discoverable = true
-    and nullif(btrim(display_name), '') is not null
-    and lower(btrim(display_name)) <> 'new member'
-    and nullif(btrim(city), '') is not null
-    and private.is_adult_verified(id)
+    private.is_adult_verified(id)
     and not private.is_blocked_between((select auth.uid()), id)
+    and (
+      (
+        is_discoverable = true
+        and nullif(btrim(display_name), '') is not null
+        and lower(btrim(display_name)) <> 'new member'
+        and nullif(btrim(city), '') is not null
+      )
+      or exists (
+        select 1 from public.friendships f
+        where f.status in ('pending', 'accepted')
+          and ((f.requester_id = (select auth.uid()) and f.addressee_id = profiles.id)
+            or (f.addressee_id = (select auth.uid()) and f.requester_id = profiles.id))
+      )
+    )
   )
 );
 
