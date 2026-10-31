@@ -8,11 +8,11 @@ values
  ('30000000-0000-4000-8000-000000000002','authenticated','authenticated','match-test-b@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now()),
  ('30000000-0000-4000-8000-000000000003','authenticated','authenticated','match-test-c@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now());
 
-insert into public.profiles (id, display_name, friends_enabled, dating_enabled, is_discoverable)
+insert into public.profiles (id, display_name, city, friends_enabled, dating_enabled, is_discoverable)
 values
- ('30000000-0000-4000-8000-000000000001','Match Tester A',true,true,true),
- ('30000000-0000-4000-8000-000000000002','Match Tester B',true,true,true),
- ('30000000-0000-4000-8000-000000000003','Match Tester C',true,true,true);
+ ('30000000-0000-4000-8000-000000000001','Match Tester A','Nairobi',true,true,true),
+ ('30000000-0000-4000-8000-000000000002','Match Tester B','Mombasa',true,true,true),
+ ('30000000-0000-4000-8000-000000000003','Match Tester C','Watamu',true,true,true);
 
 insert into public.age_verifications (user_id, is_18_plus)
 values
