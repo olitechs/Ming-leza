@@ -59,8 +59,6 @@ describe("discovery preference validation", () => {
         datingEnabled: true,
       }),
     ).toBeNull();
-    expect(
-      getDiscoveryPreferencesValidationMessage(profile, visibleWithFriendship),
-    ).toBeNull();
+    expect(getDiscoveryPreferencesValidationMessage(profile, visibleWithFriendship)).toBeNull();
   });
 });
