@@ -139,8 +139,8 @@ function DatingChatPage() {
       <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-3xl flex-col px-3 py-4 md:h-[calc(100dvh-2rem)] md:px-6 md:py-6">
         <header className="mb-4 flex items-center gap-3 rounded-2xl border bg-card p-4">
           <Link
-            to="/matches"
-            aria-label="Back to dating matches"
+            to="/likes"
+            aria-label="Back to dating likes and matches"
             className="grid size-10 shrink-0 place-items-center rounded-full hover:bg-muted"
           >
             <ArrowLeft className="size-5" />
