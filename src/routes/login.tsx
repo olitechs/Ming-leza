@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import { SUPPORTED_COUNTRIES } from "@/lib/countries";
 import { ArrowLeft, Eye, EyeOff, Heart, LockKeyhole } from "lucide-react";
 import {
   requestPasswordReset,
@@ -31,19 +32,6 @@ export const Route = createFileRoute("/login")({
   }),
   component: LoginPage,
 });
-
-const countries = [
-  ["KE", "Kenya"],
-  ["UG", "Uganda"],
-  ["TZ", "Tanzania"],
-  ["RW", "Rwanda"],
-  ["ET", "Ethiopia"],
-  ["NG", "Nigeria"],
-  ["GH", "Ghana"],
-  ["ZA", "South Africa"],
-  ["GB", "United Kingdom"],
-  ["US", "United States"],
-] as const;
 
 const ageBrackets = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] as const;
 
@@ -300,7 +288,7 @@ function LoginPage() {
                   required
                   className="mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-3 font-normal"
                 >
-                  {countries.map(([code, name]) => (
+                  {SUPPORTED_COUNTRIES.map(({ code, name }) => (
                     <option key={code} value={code}>
                       {name}
                     </option>
