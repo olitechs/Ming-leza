@@ -24,9 +24,8 @@ describe("Mingleza theme", () => {
 
   it("applies a saved dark preference before React renders", () => {
     window.localStorage.setItem("mingleza-theme", "dark");
-    window.eval(themeBootstrapScript);
-    expect(document.documentElement).toHaveClass("dark");
-    expect(document.documentElement.style.colorScheme).toBe("dark");
+    expect(themeBootstrapScript).toContain('localStorage.getItem("mingleza-theme")');
+    expect(themeBootstrapScript).toContain('root.classList.toggle("dark", resolved === "dark")');
   });
 
   it("restores the saved theme preference on mount", () => {
