@@ -15,7 +15,15 @@ import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
-  to: "/" | "/explore" | "/likes" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
+  to:
+    | "/"
+    | "/explore"
+    | "/likes"
+    | "/matches"
+    | "/messages"
+    | "/notifications"
+    | "/u/$id"
+    | "/profile-edit";
   label: string;
   icon: LucideIcon;
   badge?: number;

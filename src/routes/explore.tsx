@@ -80,9 +80,19 @@ function Explore() {
             <div>
               <h2 className="text-lg font-bold">Discovery with privacy in mind</h2>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-                <li className="flex gap-2"><Compass aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> Use For You for broader discovery, or Nearby for members with the same city listed.</li>
-                <li className="flex gap-2"><ShieldCheck aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> Discovery is limited to eligible adult-verified members and respects visibility preferences and blocks.</li>
-                <li className="flex gap-2"><MapPin aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> No live map pins, GPS tracking, or exact-location display is used here.</li>
+                <li className="flex gap-2">
+                  <Compass aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> Use
+                  For You for broader discovery, or Nearby for members with the same city listed.
+                </li>
+                <li className="flex gap-2">
+                  <ShieldCheck aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" />{" "}
+                  Discovery is limited to eligible adult-verified members and respects visibility
+                  preferences and blocks.
+                </li>
+                <li className="flex gap-2">
+                  <MapPin aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> No
+                  live map pins, GPS tracking, or exact-location display is used here.
+                </li>
               </ul>
             </div>
           </div>

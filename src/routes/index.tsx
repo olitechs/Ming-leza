@@ -403,7 +403,9 @@ function Discover() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [loadReason, setLoadReason] = useState<"city_required" | "age_verification_required" | "temporarily_unavailable" | null>(null);
+  const [loadReason, setLoadReason] = useState<
+    "city_required" | "age_verification_required" | "temporarily_unavailable" | null
+  >(null);
   const [refresh, setRefresh] = useState(0);
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
@@ -432,7 +434,10 @@ function Discover() {
           setIntent(profile.profile.friends_enabled ? "friends" : "dating");
           return;
         }
-        const result = feed === "nearby" ? await getNearbyProfiles({ data: { intent, limit: 30 } }) : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
+        const result =
+          feed === "nearby"
+            ? await getNearbyProfiles({ data: { intent, limit: 30 } })
+            : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
         if (result.ok) {
           setProfiles(result.profiles);
@@ -440,7 +445,11 @@ function Discover() {
           setActiveIndex(0);
         } else {
           setProfiles([]);
-          setLoadReason(result.reason === "city_required" || result.reason === "age_verification_required" ? result.reason : "temporarily_unavailable");
+          setLoadReason(
+            result.reason === "city_required" || result.reason === "age_verification_required"
+              ? result.reason
+              : "temporarily_unavailable",
+          );
           setError(result.reason !== "unauthenticated");
         }
       } catch {
@@ -487,7 +496,8 @@ function Discover() {
       id: profile.id,
       name: profile.displayName,
       age: undefined,
-      city: [profile.city, profile.region, profile.countryCode].filter(Boolean).join(", ") || "Kenya",
+      city:
+        [profile.city, profile.region, profile.countryCode].filter(Boolean).join(", ") || "Kenya",
       bio: profile.bio || "Here to meet kind people and build genuine connections.",
       photo: profile.avatarPath || "",
       source: profile,
@@ -579,7 +589,10 @@ function Discover() {
           <div className="mx-auto mt-8 max-w-md rounded-3xl border bg-card p-8 text-center">
             <MapPin className="mx-auto size-8 text-primary" />
             <h2 className="mt-3 font-bold">No nearby profiles yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Nearby shows eligible members who share your city. Your exact location is never requested or shown. Try For You to discover members from other places.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nearby shows eligible members who share your city. Your exact location is never
+              requested or shown. Try For You to discover members from other places.
+            </p>
           </div>
         ) : loading ? (
           <div
@@ -592,11 +605,30 @@ function Discover() {
             className="mx-auto mt-8 max-w-md rounded-3xl border border-border bg-card p-8 text-center"
           >
             <AlertCircle className="mx-auto size-8 text-primary" />
-            <h2 className="mt-3 font-bold">{loadReason === "city_required" ? "Add your city to use Nearby" : loadReason === "age_verification_required" ? "Adult verification required" : "Profiles couldn't load"}</h2>
+            <h2 className="mt-3 font-bold">
+              {loadReason === "city_required"
+                ? "Add your city to use Nearby"
+                : loadReason === "age_verification_required"
+                  ? "Adult verification required"
+                  : "Profiles couldn't load"}
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {loadReason === "city_required" ? "Nearby compares city names only. Add a city in your profile settings, then return to discover eligible members in the same city." : loadReason === "age_verification_required" ? "Complete adult verification to discover member profiles. Your existing profile data is unchanged." : "Your account and profile settings are unchanged. Please try again."}
+              {loadReason === "city_required"
+                ? "Nearby compares city names only. Add a city in your profile settings, then return to discover eligible members in the same city."
+                : loadReason === "age_verification_required"
+                  ? "Complete adult verification to discover member profiles. Your existing profile data is unchanged."
+                  : "Your account and profile settings are unchanged. Please try again."}
             </p>
-            {loadReason === "city_required" && <Button type="button" variant="outline" className="mt-3 rounded-full" onClick={() => void navigate({ to: "/profile-edit" })}>Update profile city</Button>}
+            {loadReason === "city_required" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3 rounded-full"
+                onClick={() => void navigate({ to: "/profile-edit" })}
+              >
+                Update profile city
+              </Button>
+            )}
             <Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}>
               <RotateCcw className="size-4" /> Try again
             </Button>

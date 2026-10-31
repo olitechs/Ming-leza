@@ -9,8 +9,12 @@ function ThemeProbe() {
     <div>
       <output data-testid="theme">{theme}</output>
       <output data-testid="resolved-theme">{resolvedTheme}</output>
-      <button type="button" onClick={() => setTheme("dark")}>Use dark theme</button>
-      <button type="button" onClick={() => setTheme("light")}>Use light theme</button>
+      <button type="button" onClick={() => setTheme("dark")}>
+        Use dark theme
+      </button>
+      <button type="button" onClick={() => setTheme("light")}>
+        Use light theme
+      </button>
     </div>
   );
 }
@@ -30,13 +34,21 @@ describe("Mingleza theme", () => {
 
   it("restores the saved theme preference on mount", () => {
     window.localStorage.setItem("mingleza-theme", "dark");
-    render(<ThemeProvider><ThemeProbe /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeProbe />
+      </ThemeProvider>,
+    );
     expect(screen.getByTestId("theme")).toHaveTextContent("dark");
     expect(document.documentElement).toHaveClass("dark");
   });
 
   it("persists a theme change and updates the document theme", () => {
-    render(<ThemeProvider><ThemeProbe /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeProbe />
+      </ThemeProvider>,
+    );
     act(() => fireEvent.click(screen.getByRole("button", { name: "Use dark theme" })));
     expect(window.localStorage.getItem("mingleza-theme")).toBe("dark");
     expect(document.documentElement).toHaveClass("dark");

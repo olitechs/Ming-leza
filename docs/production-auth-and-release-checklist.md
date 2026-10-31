@@ -6,8 +6,8 @@ This repository change cannot edit Vercel project settings or the Supabase Dashb
 
 In the Vercel project serving `https://mingleza-peach.vercel.app`, add the following variable for **Production** (and Preview only if previews should use the production canonical domain):
 
-| Name | Value |
-| --- | --- |
+| Name       | Value                               |
+| ---------- | ----------------------------------- |
 | `SITE_URL` | `https://mingleza-peach.vercel.app` |
 
 Redeploy the production deployment after saving the variable. The server-side auth helper already falls back to the current request origin when `SITE_URL` is absent; setting this variable explicitly makes reset/sign-up redirect targets and canonical SEO metadata deterministic. Never set it to localhost in production.
@@ -21,6 +21,7 @@ In Supabase Dashboard → Authentication → URL Configuration, add this exact p
 Keep the configured Site URL set to the production origin if this project uses it for default email links. Add localhost and preview URLs only for the environments actually used; do not use a wildcard redirect to compensate for missing configuration.
 
 After the change, test:
+
 - Existing password login and sign-up confirmation.
 - Forgot-password email, opening the link in the same browser, and saving the new password.
 - Expired/used links return the user to sign-in without exposing auth tokens.

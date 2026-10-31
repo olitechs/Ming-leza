@@ -10,7 +10,6 @@ export function getHomePageMode(access: HomePageAccess): HomePageMode {
   return access.adultVerified ? "discover" : "onboarding";
 }
 
-
 export type DiscoverProfileBasics = {
   display_name?: string | null;
   city?: string | null;
