@@ -17,7 +17,7 @@ import { getDiscoverableProfiles, getNearbyProfiles } from "@/lib/discovery/serv
 import { getMyProfile } from "@/lib/profile/server";
 import { sendFriendRequest, submitProfileSwipe } from "@/lib/social/server";
 import { PublicHomepage } from "@/components/PublicHomepage";
-import { getHomePageMode } from "@/lib/homepage-routing";
+import { getHomePageMode, isCompleteDiscoverProfile } from "@/lib/homepage-routing";
 import { getHomeHead, getPublicSiteUrl } from "@/lib/seo";
 import {
   Dialog,
@@ -41,9 +41,7 @@ export const Route = createFileRoute("/")({
       return { page: "discover" as const, profile: null };
     }
     if (profile.ok) {
-      const displayName = profile.profile.display_name?.trim() ?? "";
-      const city = profile.profile.city?.trim() ?? "";
-      if (!displayName || displayName.toLowerCase() === "new member" || !city) {
+      if (!isCompleteDiscoverProfile(profile.profile)) {
         throw redirect({
           to: "/welcome",
           search: { authComplete: true, authError: "", mode: "profile" },
@@ -405,7 +403,9 @@ function Discover() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [loadReason, setLoadReason] = useState<"city_required" | "age_verification_required" | "temporarily_unavailable" | null>(null);
+  const [loadReason, setLoadReason] = useState<
+    "city_required" | "age_verification_required" | "temporarily_unavailable" | null
+  >(null);
   const [refresh, setRefresh] = useState(0);
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
@@ -434,7 +434,10 @@ function Discover() {
           setIntent(profile.profile.friends_enabled ? "friends" : "dating");
           return;
         }
-        const result = feed === "nearby" ? await getNearbyProfiles({ data: { intent, limit: 30 } }) : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
+        const result =
+          feed === "nearby"
+            ? await getNearbyProfiles({ data: { intent, limit: 30 } })
+            : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
         if (result.ok) {
           setProfiles(result.profiles);
@@ -442,7 +445,11 @@ function Discover() {
           setActiveIndex(0);
         } else {
           setProfiles([]);
-          setLoadReason(result.reason === "city_required" || result.reason === "age_verification_required" ? result.reason : "temporarily_unavailable");
+          setLoadReason(
+            result.reason === "city_required" || result.reason === "age_verification_required"
+              ? result.reason
+              : "temporarily_unavailable",
+          );
           setError(result.reason !== "unauthenticated");
         }
       } catch {
@@ -481,67 +488,25 @@ function Discover() {
     }
   };
 
-  const demo = [
-    {
-      id: "demo-amina",
-      displayName: "Amina",
-      age: 26,
-      city: "Mombasa, Kenya",
-      bio: "Beach walks, Swahili food, and discovering new cafés. Here for kind conversations and genuine connection.",
-      photo:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=85",
-    },
-    {
-      id: "demo-zuri",
-      displayName: "Zuri",
-      age: 25,
-      city: "Watamu, Kenya",
-      bio: "Ocean sunsets, books, and slow mornings. Looking to make new friends and share local adventures.",
-      photo:
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85",
-    },
-    {
-      id: "demo-njeri",
-      displayName: "Njeri",
-      age: 27,
-      city: "Nairobi, Kenya",
-      bio: "Good music, spontaneous road trips and conversations that go past midnight.",
-      photo:
-        "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=85",
-    },
-  ];
-  const shown = feed === "nearby" ? profiles
-    .filter((p) => !actedOnIds.includes(p.id))
-    .map((p) => ({ id: p.id, name: p.displayName, age: undefined, city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya", bio: p.bio || "Here to meet kind people and build genuine connections.", photo: p.avatarPath || "", source: p }))
-    : profiles.length
-    ? profiles
-        .filter((p) => !actedOnIds.includes(p.id))
-        .map((p, i) => ({
-          id: p.id,
-          name: p.displayName,
-          age: undefined,
-          city: [p.city, p.region, p.countryCode].filter(Boolean).join(", ") || "Kenya",
-          bio: p.bio || "Here to meet kind people and build genuine connections.",
-          photo: p.avatarPath || "",
-          source: p,
-        }))
-    : demo.map((p) => ({ ...p, name: p.displayName, source: null }));
+  // The authenticated Discover feed must contain only eligible member profiles returned
+  // by the server. Marketing previews remain on the public homepage and are never actionable.
+  const shown = profiles
+    .filter((profile) => !actedOnIds.includes(profile.id))
+    .map((profile) => ({
+      id: profile.id,
+      name: profile.displayName,
+      age: undefined,
+      city:
+        [profile.city, profile.region, profile.countryCode].filter(Boolean).join(", ") || "Kenya",
+      bio: profile.bio || "Here to meet kind people and build genuine connections.",
+      photo: profile.avatarPath || "",
+      source: profile,
+    }));
   const current = shown.length ? shown[activeIndex % shown.length] : null;
-  const advance = () => {
-    setViewProfile(false);
-    setActiveIndex((index) => (index + 1) % Math.max(shown.length, 1));
-  };
   const decideCurrent = async (decision: "like" | "pass") => {
     if (!current) return;
     setRequestError("");
     setRequestNotice("");
-    if (!current.source) {
-      setRequestError(
-        "These are preview profiles. Real choices are only saved for available member profiles.",
-      );
-      advance();
-      return;
-    }
     if (intent === "dating") {
       setRequestingId(current.source.id);
       try {
@@ -615,7 +580,7 @@ function Discover() {
         {requestNotice && (
           <p
             role="status"
-            className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200"
+            className="mt-4 rounded-xl border border-success/30 bg-success/10 p-3 text-sm text-success-text"
           >
             {requestNotice}
           </p>
@@ -624,7 +589,10 @@ function Discover() {
           <div className="mx-auto mt-8 max-w-md rounded-3xl border bg-card p-8 text-center">
             <MapPin className="mx-auto size-8 text-primary" />
             <h2 className="mt-3 font-bold">No nearby profiles yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Nearby shows eligible members who share your city. Your exact location is never requested or shown. Try For You to discover members from other places.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nearby shows eligible members who share your city. Your exact location is never
+              requested or shown. Try For You to discover members from other places.
+            </p>
           </div>
         ) : loading ? (
           <div
@@ -637,11 +605,30 @@ function Discover() {
             className="mx-auto mt-8 max-w-md rounded-3xl border border-border bg-card p-8 text-center"
           >
             <AlertCircle className="mx-auto size-8 text-primary" />
-            <h2 className="mt-3 font-bold">{loadReason === "city_required" ? "Add your city to use Nearby" : loadReason === "age_verification_required" ? "Adult verification required" : "Profiles couldn't load"}</h2>
+            <h2 className="mt-3 font-bold">
+              {loadReason === "city_required"
+                ? "Add your city to use Nearby"
+                : loadReason === "age_verification_required"
+                  ? "Adult verification required"
+                  : "Profiles couldn't load"}
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {loadReason === "city_required" ? "Nearby compares city names only. Add a city in your profile settings, then return to discover eligible members in the same city." : loadReason === "age_verification_required" ? "Complete adult verification to discover member profiles. Your existing profile data is unchanged." : "Your account and profile settings are unchanged. Please try again."}
+              {loadReason === "city_required"
+                ? "Nearby compares city names only. Add a city in your profile settings, then return to discover eligible members in the same city."
+                : loadReason === "age_verification_required"
+                  ? "Complete adult verification to discover member profiles. Your existing profile data is unchanged."
+                  : "Your account and profile settings are unchanged. Please try again."}
             </p>
-            {loadReason === "city_required" && <Button type="button" variant="outline" className="mt-3 rounded-full" onClick={() => void navigate({ to: "/profile-edit" })}>Update profile city</Button>}
+            {loadReason === "city_required" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3 rounded-full"
+                onClick={() => void navigate({ to: "/profile-edit" })}
+              >
+                Update profile city
+              </Button>
+            )}
             <Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}>
               <RotateCcw className="size-4" /> Try again
             </Button>
@@ -656,7 +643,7 @@ function Discover() {
                 city: current.city,
                 bio: current.bio,
                 photo: current.photo,
-                preview: !profiles.length,
+                preview: false,
               }}
               onView={() => setViewProfile((value) => !value)}
               onSwipe={(direction) => {
@@ -682,9 +669,9 @@ function Discover() {
                 onLike={() => void decideCurrent("like")}
                 onMessage={() => {
                   if (intent === "friends") {
-                    void navigate({ to: "/messages" });
-                  } else {
                     void navigate({ to: "/matches" });
+                  } else {
+                    void navigate({ to: "/likes" });
                   }
                 }}
                 passLabel={intent === "friends" ? "Skip profile" : "Pass profile"}
@@ -696,12 +683,7 @@ function Discover() {
               />
             </div>
             {current.source && requestedIds.includes(current.source.id) && (
-              <p className="mt-3 text-center text-xs text-emerald-400">Friend request sent</p>
-            )}
-            {!profiles.length && (
-              <p className="mt-4 text-center text-[11px] text-muted-foreground">
-                Fictional preview only · no real member choices are saved
-              </p>
+              <p className="mt-3 text-center text-xs text-success-text">Friend request sent</p>
             )}
           </div>
         ) : (

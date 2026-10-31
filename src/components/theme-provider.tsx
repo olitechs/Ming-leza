@@ -11,8 +11,9 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [systemTheme, setSystemTheme] = useState<"dark" | "light">("dark");
+  // White is the product default; a saved member preference still takes precedence.
+  const [theme, setTheme] = useState<Theme>("light");
+  const [systemTheme, setSystemTheme] = useState<"dark" | "light">("light");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

@@ -14,6 +14,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
+import { themeBootstrapScript } from "../lib/theme-bootstrap";
 
 function NotFoundComponent() {
   return (
@@ -96,8 +97,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <HeadContent />
       </head>
       <body>

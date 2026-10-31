@@ -198,23 +198,23 @@ export function PublicHomepage() {
               <SignUpLink />
             </div>
             <div className="flex items-center gap-2 sm:hidden">
-            <ThemeToggle />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="min-h-11 min-w-11 rounded-full border-border bg-card text-foreground"
-              aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-navigation"
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              {menuOpen ? (
-                <X aria-hidden="true" className="size-5" />
-              ) : (
-                <Menu aria-hidden="true" className="size-5" />
-              )}
-            </Button>
+              <ThemeToggle />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="min-h-11 min-w-11 rounded-full border-border bg-card text-foreground"
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-navigation"
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                {menuOpen ? (
+                  <X aria-hidden="true" className="size-5" />
+                ) : (
+                  <Menu aria-hidden="true" className="size-5" />
+                )}
+              </Button>
             </div>
           </div>
           <nav
@@ -279,8 +279,7 @@ export function PublicHomepage() {
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-primary" aria-hidden="true" /> Adults 18+
-                  only
+                  <ShieldCheck className="size-4 text-primary" aria-hidden="true" /> Adults 18+ only
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <MapPin className="size-4 text-primary" aria-hidden="true" /> Made with Kenya in
@@ -326,7 +325,7 @@ export function PublicHomepage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/5" />
                   <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
-                    <span className="rounded-full border border-border bg-black/35 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] backdrop-blur">
+                    <span className="rounded-full border border-white/25 bg-black/50 px-3 py-1.5 text-[10px] font-extrabold tracking-[0.14em] text-white backdrop-blur">
                       MINGLEZA
                     </span>
                     <span className="rounded-full bg-primary px-2.5 py-1.5 text-[10px] font-extrabold text-primary-foreground">
@@ -334,11 +333,13 @@ export function PublicHomepage() {
                     </span>
                   </div>
                   <div className="absolute bottom-5 left-5 right-5">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-semibold backdrop-blur">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
                       <MapPin className="size-3" /> Mombasa, Kenya
                     </span>
-                    <h2 className="mt-3 font-display text-3xl font-extrabold text-white">Amina, 26</h2>
-                    <p className="mt-2 text-sm leading-5 text-foreground">
+                    <h2 className="mt-3 font-display text-3xl font-extrabold text-white">
+                      Amina, 26
+                    </h2>
+                    <p className="mt-2 text-sm leading-5 text-white/90">
                       Beach walks, good food, and genuine conversations.
                     </p>
                     <div className="mt-4 flex items-center gap-2">
@@ -361,7 +362,9 @@ export function PublicHomepage() {
                 </span>
                 <span>
                   <span className="block text-sm font-extrabold">Your kind of connection</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">Friendship or dating</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Friendship or dating
+                  </span>
                 </span>
               </div>
               <p className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center text-[10px] text-muted-foreground">
@@ -371,10 +374,7 @@ export function PublicHomepage() {
           </div>
         </section>
 
-        <section
-          aria-label="Mingleza at a glance"
-          className="border-y border-border bg-muted/40"
-        >
+        <section aria-label="Mingleza at a glance" className="border-y border-border bg-muted/40">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-7 sm:px-6 md:grid-cols-4 lg:px-8">
             {[
               { icon: ShieldCheck, title: "18+ community", copy: "Adults-only access" },
@@ -388,7 +388,9 @@ export function PublicHomepage() {
                 </span>
                 <span>
                   <span className="block text-sm font-extrabold text-foreground">{item.title}</span>
-                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">{item.copy}</span>
+                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                    {item.copy}
+                  </span>
                 </span>
               </div>
             ))}
@@ -475,7 +477,7 @@ export function PublicHomepage() {
                       )}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <span className="absolute bottom-3 left-3 rounded-full border border-border bg-black/40 px-3 py-1.5 text-[10px] font-bold text-foreground backdrop-blur">
+                    <span className="absolute bottom-3 left-3 rounded-full border border-white/25 bg-black/60 px-3 py-1.5 text-[10px] font-bold text-white backdrop-blur">
                       Example profile
                     </span>
                   </div>
@@ -526,8 +528,8 @@ export function PublicHomepage() {
                   Make new friends, meet people with shared interests, and build a circle at your
                   own pace.
                 </p>
-                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-4 py-2 text-xs font-bold text-emerald-300">
-                  <span className="size-1.5 rounded-full bg-emerald-300" /> Friendship requests
+                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-xs font-bold text-success-text">
+                  <span className="size-1.5 rounded-full bg-success" /> Friendship requests
                   available
                 </p>
               </article>
@@ -537,8 +539,9 @@ export function PublicHomepage() {
                 </span>
                 <h3 className="mt-5 font-display text-2xl font-extrabold">Explore dating</h3>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  Let people know you’re open to dating, like profiles, and build a mutual match before starting
-                  a private conversation. Match scores and paid boosts are not available.
+                  Let people know you’re open to dating, like profiles, and build a mutual match
+                  before starting a private conversation. Match scores and paid boosts are not
+                  available.
                 </p>
                 <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-bold text-muted-foreground">
                   <Sparkles aria-hidden="true" className="size-3.5" /> More discovery tools planned
@@ -565,7 +568,8 @@ export function PublicHomepage() {
               </h2>
               <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
                 Add the town or city you call home and discover members by the connection intent
-                they have enabled. Map-based and distance-filtered discovery are still in development.
+                they have enabled. Map-based and distance-filtered discovery are still in
+                development.
               </p>
             </div>
             <ul
@@ -662,11 +666,7 @@ export function PublicHomepage() {
               className="rounded-3xl border border-border bg-card px-5 sm:px-7"
             >
               {faqs.map((faq, index) => (
-                <AccordionItem
-                  key={faq.question}
-                  value={"faq-" + index}
-                  className="border-border"
-                >
+                <AccordionItem key={faq.question} value={"faq-" + index} className="border-border">
                   <AccordionTrigger className="min-h-14 py-4 text-left text-base font-bold text-foreground hover:no-underline">
                     {faq.question}
                   </AccordionTrigger>

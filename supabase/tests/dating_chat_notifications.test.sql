@@ -8,11 +8,11 @@ values
  ('40000000-0000-4000-8000-000000000002','authenticated','authenticated','dating-chat-b@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now()),
  ('40000000-0000-4000-8000-000000000003','authenticated','authenticated','dating-chat-c@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now());
 
-insert into public.profiles (id, display_name, friends_enabled, dating_enabled, is_discoverable)
+insert into public.profiles (id, display_name, city, friends_enabled, dating_enabled, is_discoverable)
 values
- ('40000000-0000-4000-8000-000000000001','Dating Chat A',true,true,true),
- ('40000000-0000-4000-8000-000000000002','Dating Chat B',true,true,true),
- ('40000000-0000-4000-8000-000000000003','Dating Chat C',true,true,true);
+ ('40000000-0000-4000-8000-000000000001','Dating Chat A','Nairobi',true,true,true),
+ ('40000000-0000-4000-8000-000000000002','Dating Chat B','Mombasa',true,true,true),
+ ('40000000-0000-4000-8000-000000000003','Dating Chat C','Watamu',true,true,true);
 
 insert into public.age_verifications (user_id, is_18_plus)
 values
