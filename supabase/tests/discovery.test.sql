@@ -9,12 +9,12 @@ values
  ('10000000-0000-4000-8000-000000000003','authenticated','authenticated','mingleza-test-c@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now()),
  ('10000000-0000-4000-8000-000000000004','authenticated','authenticated','mingleza-test-d@example.invalid','{}'::jsonb,'{}'::jsonb,now(),now());
 
-insert into public.profiles (id,display_name,friends_enabled,dating_enabled,is_discoverable)
+insert into public.profiles (id,display_name,city,friends_enabled,dating_enabled,is_discoverable)
 values
- ('10000000-0000-4000-8000-000000000001','Test Adult A',true,true,true),
- ('10000000-0000-4000-8000-000000000002','Test Adult B',true,true,true),
- ('10000000-0000-4000-8000-000000000003','Test Adult C',true,false,true),
- ('10000000-0000-4000-8000-000000000004','Test NonAdult D',true,true,true);
+ ('10000000-0000-4000-8000-000000000001','Test Adult A','Nairobi',true,true,true),
+ ('10000000-0000-4000-8000-000000000002','Test Adult B','Mombasa',true,true,true),
+ ('10000000-0000-4000-8000-000000000003','Test Adult C','Watamu',true,false,true),
+ ('10000000-0000-4000-8000-000000000004','Test NonAdult D','Kisumu',true,true,true);
 insert into public.age_verifications (user_id,is_18_plus)
 values
  ('10000000-0000-4000-8000-000000000001',true),
