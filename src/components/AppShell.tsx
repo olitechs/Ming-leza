@@ -14,7 +14,7 @@ import { signOutAndLeave } from "@/lib/auth/sign-out";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
-  to: "/" | "/explore" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
+  to: "/" | "/explore" | "/likes" | "/matches" | "/messages" | "/notifications" | "/u/$id" | "/profile-edit";
   label: string;
   icon: LucideIcon;
   badge?: number;
@@ -22,6 +22,7 @@ type NavItem = {
 const main: NavItem[] = [
   { to: "/", label: "Discover", icon: Flame },
   { to: "/explore", label: "Explore", icon: Map },
+  { to: "/likes", label: "Likes", icon: Heart },
   { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/notifications", label: "Notifications", icon: Bell },
@@ -96,16 +97,6 @@ export function AppShell({
       <main className="min-w-0 flex-1 pb-28 lg:pb-0">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6 lg:px-8">
           <ThemeToggle />
-          <Link
-            to="/notifications"
-            aria-label="Notifications"
-            title="Notifications"
-            activeOptions={{ exact: true }}
-            className="relative inline-flex size-10 items-center justify-center rounded-full border bg-card text-foreground transition hover:bg-secondary"
-            activeProps={{ className: "!border-primary !text-primary" }}
-          >
-            <Bell aria-hidden="true" className="size-5" />
-          </Link>
           <Link
             to="/profile-edit"
             aria-label="Settings and profile"
