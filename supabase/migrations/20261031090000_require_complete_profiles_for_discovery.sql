@@ -71,6 +71,10 @@ begin
     and case when p_intent = 'friends' then p.friends_enabled else p.dating_enabled end
     and not private.is_blocked_between(v_user, p.id)
     and not exists (
+      select 1 from public.profile_swipes s
+      where s.swiper_id = v_user and s.target_id = p.id
+    )
+    and not exists (
       select 1 from public.friendships f
       where f.status in ('pending', 'accepted')
         and ((f.requester_id = v_user and f.addressee_id = p.id)
