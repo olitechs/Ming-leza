@@ -1,8 +1,17 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PublicHomepage } from "@/components/PublicHomepage";
+import { ThemeProvider } from "@/components/theme-provider";
 import { getHomePageMode } from "@/lib/homepage-routing";
 import { buildRobotsTxt, buildSitemapXml, normalizeSiteUrl } from "@/lib/seo";
+
+function renderPublicHomepage() {
+  return render(
+    <ThemeProvider>
+      <PublicHomepage />
+    </ThemeProvider>,
+  );
+}
 
 describe("public homepage", () => {
   it("selects the marketing experience for logged-out visitors and preserves Discover for verified members", () => {
@@ -13,7 +22,7 @@ describe("public homepage", () => {
 
   it("renders the public landing page without collecting sign-in details", () => {
     expect(getHomePageMode({ authenticated: false, adultVerified: false })).toBe("marketing");
-    render(<PublicHomepage />);
+    renderPublicHomepage();
 
     expect(
       screen.getByRole("heading", { level: 1, name: /real people\. meaningful connections\./i }),
@@ -23,7 +32,7 @@ describe("public homepage", () => {
   });
 
   it("routes all sign-up and log-in calls to password-based authentication", () => {
-    render(<PublicHomepage />);
+    renderPublicHomepage();
 
     const signUpLinks = screen.getAllByRole("link", { name: "Join Mingleza" });
     expect(signUpLinks.length).toBeGreaterThanOrEqual(2);
@@ -41,7 +50,7 @@ describe("public homepage", () => {
   });
 
   it("exposes a labeled, keyboard-operable mobile navigation toggle", () => {
-    render(<PublicHomepage />);
+    renderPublicHomepage();
     const openButton = screen.getByRole("button", { name: "Open navigation menu" });
     expect(openButton).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(openButton);
