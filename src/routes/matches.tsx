@@ -2,8 +2,6 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Clock3, MessageCircle, UserRound, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { LikesRail } from "@/components/matches/LikesRail";
-import { MatchGrid } from "@/components/matches/MatchGrid";
 import { TopBar } from "@/components/layout/TopBar";
 import { Avatar } from "@/components/Avatar";
 import { Button, PageHeader } from "@/components/brand";
@@ -104,8 +102,6 @@ function Matches() {
     <AppShell>
       <div className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
         <TopBar />
-        <LikesRail />
-        <MatchGrid />
         <div className="mt-8 border-t border-white/10 pt-6">
           <PageHeader
             title="Friend requests"
