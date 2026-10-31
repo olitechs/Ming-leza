@@ -5,14 +5,14 @@ import {
   Heart,
   MessageCircle,
   Settings,
-  UserRoundPlus,
+  UserPlus,
 } from "lucide-react";
 
 const items = [
   { to: "/", label: "Discover", Icon: Compass },
   { to: "/explore", label: "Explore", Icon: Compass },
   { to: "/likes", label: "Likes", Icon: Heart },
-  { to: "/matches", label: "Friend requests", Icon: UserRoundPlus },
+  { to: "/matches", label: "Friend requests", Icon: UserPlus },
   { to: "/messages", label: "Messages", Icon: MessageCircle },
   { to: "/notifications", label: "Notifications", Icon: Bell },
   { to: "/profile-edit", label: "Settings", Icon: Settings },
