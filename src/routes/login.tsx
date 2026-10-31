@@ -288,7 +288,7 @@ function LoginPage() {
                   required
                   className="mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-3 font-normal"
                 >
-                  {countries.map(([code, name]) => (
+                  {SUPPORTED_COUNTRIES.map(({ code, name }) => (
                     <option key={code} value={code}>
                       {name}
                     </option>
