@@ -14,7 +14,13 @@ async function discover(intent: "friends" | "dating", limit: number, nearby: boo
       if (nearby && error.code === "22023" && error.message.toLowerCase().includes("city")) return { ok: false as const, reason: "city_required" as const, profiles: [] };
       return { ok: false as const, reason: "temporarily_unavailable" as const, profiles: [] };
     }
-    const profiles = (rows ?? []) as DiscoverableProfile[];
+    const profiles = ((rows ?? []) as DiscoverableProfile[]).filter((profile) =>
+      Boolean(
+        profile.display_name?.trim() &&
+          profile.display_name.trim().toLowerCase() !== "new member" &&
+          profile.city?.trim(),
+      ),
+    );
     return { ok: true as const, profiles: profiles.map((p) => ({ id: p.id, displayName: p.display_name, bio: p.bio, avatarPath: p.avatar_path, countryCode: p.country_code, region: p.region, city: p.city, friendsEnabled: p.friends_enabled, datingEnabled: p.dating_enabled })) };
   } catch { return { ok: false as const, reason: "temporarily_unavailable" as const, profiles: [] }; }
 }
