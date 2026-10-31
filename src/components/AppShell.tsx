@@ -4,6 +4,7 @@ import {
   Map,
   MessageCircle,
   UserPlus,
+  Heart,
   Bell,
   Settings,
   LogOut,
