@@ -118,7 +118,7 @@ export function getHomeHead(page: "marketing" | "discover", siteUrl: string | nu
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Meet your people in Kenya | Mingleza" },
       { name: "twitter:description", content: description },
-      ...(imageUrl ? [{ name: "twitter:image", content: imageUrl } : []),
+      ...(imageUrl ? [{ name: "twitter:image", content: imageUrl }] : []),
     ],
     links: homeUrl ? [{ rel: "canonical", href: homeUrl }] : [],
     scripts: [{ type: "application/ld+json", children: JSON.stringify(websiteData) }],
