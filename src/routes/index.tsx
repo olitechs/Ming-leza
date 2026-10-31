@@ -405,6 +405,7 @@ function Discover() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [loadReason, setLoadReason] = useState<"city_required" | "age_verification_required" | "temporarily_unavailable" | null>(null);
   const [refresh, setRefresh] = useState(0);
   const [requestingId, setRequestingId] = useState("");
   const [requestedIds, setRequestedIds] = useState<string[]>([]);
@@ -420,6 +421,7 @@ function Discover() {
     const load = async () => {
       setLoading(true);
       setError(false);
+      setLoadReason(null);
       try {
         if (!intent) {
           const profile = await getMyProfile();
@@ -440,6 +442,7 @@ function Discover() {
           setActiveIndex(0);
         } else {
           setProfiles([]);
+          setLoadReason(result.reason === "city_required" || result.reason === "age_verification_required" ? result.reason : "temporarily_unavailable");
           setError(result.reason !== "unauthenticated");
         }
       } catch {
@@ -634,10 +637,11 @@ function Discover() {
             className="mx-auto mt-8 max-w-md rounded-3xl border border-border bg-card p-8 text-center"
           >
             <AlertCircle className="mx-auto size-8 text-primary" />
-            <h2 className="mt-3 font-bold">Profiles couldn't load</h2>
+            <h2 className="mt-3 font-bold">{loadReason === "city_required" ? "Add your city to use Nearby" : loadReason === "age_verification_required" ? "Adult verification required" : "Profiles couldn't load"}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Your account and profile settings are unchanged. Please try again.
+              {loadReason === "city_required" ? "Nearby compares city names only. Add a city in your profile settings, then return to discover eligible members in the same city." : loadReason === "age_verification_required" ? "Complete adult verification to discover member profiles. Your existing profile data is unchanged." : "Your account and profile settings are unchanged. Please try again."}
             </p>
+            {loadReason === "city_required" && <Button type="button" variant="outline" className="mt-3 rounded-full" onClick={() => void navigate({ to: "/profile-edit" })}>Update profile city</Button>}
             <Button className="mt-5 rounded-full" onClick={() => setRefresh((value) => value + 1)}>
               <RotateCcw className="size-4" /> Try again
             </Button>
