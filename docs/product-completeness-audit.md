@@ -4,7 +4,7 @@
 
 ## Product and technical findings
 
-Mingleza is a Kenya-first, adults-only social application for friendship and opt-in dating. The implemented member journey includes passwordless SMS or email-link sign-in, self-attested 18+ verification, profile setup, intent selection, adult-verified profile discovery, friendship requests, friend messaging, reciprocal dating likes, mutual matches, match-gated dating chat, and an in-app notification inbox.
+Mingleza is a Kenya-first, adults-only social application for friendship and opt-in dating. The implemented member journey includes email/password sign-in and sign-up with password recovery, self-attested 18+ verification, profile setup, intent selection, adult-verified profile discovery, friendship requests, friend messaging, reciprocal dating likes, mutual matches, match-gated dating chat, and an in-app notification inbox.
 
 The repository uses TanStack Start/Router, React 19, TypeScript, Vite, Tailwind CSS 4, Radix/shadcn UI, TanStack Query, Vitest, Supabase Auth/Postgres/Storage, and Nitro for Vercel deployment. File-based routes and server functions are used throughout. Database migrations and RLS integration tests are part of the repository.
 
