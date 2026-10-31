@@ -8,8 +8,22 @@ export function TopBar() {
     <header className="flex items-center justify-between gap-3 py-3">
       <MinglezaLogo className="text-2xl" />
       <div className="flex items-center gap-2">
-        <Link to="/likes" aria-label="Likes" title="Likes" className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Heart aria-hidden="true" className="size-5" /></Link>
-        <Link to="/notifications" aria-label="Notifications" title="Notifications" className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Bell aria-hidden="true" className="size-5" /></Link>
+        <Link
+          to="/likes"
+          aria-label="Likes"
+          title="Likes"
+          className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Heart aria-hidden="true" className="size-5" />
+        </Link>
+        <Link
+          to="/notifications"
+          aria-label="Notifications"
+          title="Notifications"
+          className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground transition hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Bell aria-hidden="true" className="size-5" />
+        </Link>
         <ThemeToggle />
         <Link
           to="/explore"
