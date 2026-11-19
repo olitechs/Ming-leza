@@ -8,6 +8,7 @@ import {
   Share2,
   Video,
   Check,
+  Phone,
 } from "lucide-react";
 import { AppShell, Chip } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
@@ -18,6 +19,7 @@ import {
   sendMessageRequest,
   setFollow,
 } from "@/lib/social/server";
+import { getMyPremiumStatus, getPremiumVisiblePhone } from "@/lib/premium/server";
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -68,6 +70,9 @@ function Profile() {
   const [following, setFollowing] = useState(false);
   const [friendRequested, setFriendRequested] = useState(false);
   const [messageRequested, setMessageRequested] = useState(false);
+  const [premiumAccess, setPremiumAccess] = useState(false);
+  const [premiumChecked, setPremiumChecked] = useState(false);
+  const [visiblePhone, setVisiblePhone] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -79,15 +84,35 @@ function Profile() {
 
   useEffect(() => {
     let active = true;
-    void getFollowStatus({ data: { userId: profile.id } })
-      .then((result) => {
-        if (active && result.ok) setFollowing(result.following);
+    void Promise.all([getFollowStatus({ data: { userId: profile.id } }), getMyPremiumStatus()])
+      .then(([followResult, premiumResult]) => {
+        if (!active) return;
+        if (followResult.ok) setFollowing(followResult.following);
+        setPremiumAccess(Boolean(premiumResult.ok && premiumResult.tier));
+        setPremiumChecked(true);
       })
       .catch(() => undefined);
     return () => {
       active = false;
     };
   }, [profile.id]);
+
+  const revealPhone = async () => {
+    setBusy("phone");
+    setError("");
+    try {
+      const result = await getPremiumVisiblePhone({ data: { ownerId: profile.id } });
+      if (!result.ok) setError(result.message);
+      else {
+        setVisiblePhone(result.phone);
+        setNotice("This member has chosen to share their phone number with Premium members.");
+      }
+    } catch {
+      setError("This number is private or unavailable.");
+    } finally {
+      setBusy("");
+    }
+  };
 
   const follow = async () => {
     setBusy("follow");
@@ -294,6 +319,40 @@ function Profile() {
           <p className="mt-3 text-xs text-muted-foreground">
             Phone number and registration details are private and are not shared on your profile.
           </p>
+
+          <section className="mt-6 rounded-2xl border bg-secondary/30 p-4">
+            <h2 className="font-semibold">Phone contact</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A number appears only when the member opts in and you have an active Premium or VIP
+              membership.
+            </p>
+            {visiblePhone ? (
+              <a
+                href={`tel:${visiblePhone}`}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                <Phone className="size-4" /> {visiblePhone}
+              </a>
+            ) : premiumChecked && premiumAccess ? (
+              <button
+                type="button"
+                onClick={() => void revealPhone()}
+                disabled={busy === "phone"}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              >
+                <Phone className="size-4" />
+                {busy === "phone" ? "Checking privacy…" : "View shared phone number"}
+              </button>
+            ) : premiumChecked ? (
+              <Link
+                to="/premium"
+                search={{ transactionId: "", txRef: "", paymentStatus: "", checkout: "" }}
+                className="mt-3 inline-flex min-h-11 items-center rounded-full border bg-card px-4 py-2 text-sm font-semibold"
+              >
+                Compare Premium and VIP
+              </Link>
+            ) : null}
+          </section>
 
           {profile.bio?.trim() && (
             <div className="mt-7 border-t pt-6">

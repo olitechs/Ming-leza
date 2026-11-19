@@ -11,6 +11,7 @@
     { "path": "/matches", "title": "Friend requests" },
     { "path": "/messages", "title": "Messages" },
     { "path": "/profile-edit", "title": "Edit profile" },
+    { "path": "/premium", "title": "Mingleza Premium" },
     { "path": "/u/:id", "title": "Member profile" }
   ]
 }

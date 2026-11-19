@@ -16,6 +16,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -23,6 +24,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as UIdRouteImport } from './routes/u.$id'
+import { Route as ApiWebhooksFlutterwaveRouteImport } from './routes/api.webhooks.flutterwave'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -57,6 +59,11 @@ const MatchesRoute = MatchesRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -94,6 +101,11 @@ const UIdRoute = UIdRouteImport.update({
   path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksFlutterwaveRoute = ApiWebhooksFlutterwaveRouteImport.update({
+  id: '/api/webhooks/flutterwave',
+  path: '/api/webhooks/flutterwave',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -110,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
+  '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -119,6 +133,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -126,6 +141,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
+  '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -136,6 +152,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -143,6 +160,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/u/$id': typeof UIdRoute
+  '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,6 +172,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/premium'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -161,6 +180,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/u/$id'
+    | '/api/webhooks/flutterwave'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,6 +190,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/premium'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -177,6 +198,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/u/$id'
+    | '/api/webhooks/flutterwave'
   id:
     | '__root__'
     | '/'
@@ -186,6 +208,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/messages'
+    | '/premium'
     | '/privacy'
     | '/profile-edit'
     | '/robots.txt'
@@ -193,6 +216,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/u/$id'
+    | '/api/webhooks/flutterwave'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -203,6 +227,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
+  PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileEditRoute: typeof ProfileEditRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -210,6 +235,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WelcomeRoute: typeof WelcomeRoute
   UIdRoute: typeof UIdRoute
+  ApiWebhooksFlutterwaveRoute: typeof ApiWebhooksFlutterwaveRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -263,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -312,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/flutterwave': {
+      id: '/api/webhooks/flutterwave'
+      path: '/api/webhooks/flutterwave'
+      fullPath: '/api/webhooks/flutterwave'
+      preLoaderRoute: typeof ApiWebhooksFlutterwaveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -323,6 +363,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
+  PremiumRoute: PremiumRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileEditRoute: ProfileEditRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -330,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
   UIdRoute: UIdRoute,
+  ApiWebhooksFlutterwaveRoute: ApiWebhooksFlutterwaveRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

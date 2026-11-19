@@ -12,6 +12,7 @@ import {
   updateMyProfile,
 } from "@/lib/profile/server";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getMyPremiumStatus, setPhoneVisibilityConsent } from "@/lib/premium/server";
 
 export const Route = createFileRoute("/profile-edit")({
   beforeLoad: async () => {
@@ -51,11 +52,12 @@ function EditProfile() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [phoneVisibilityOptIn, setPhoneVisibilityOptIn] = useState(false);
 
   useEffect(() => {
     let active = true;
-    void Promise.all([getMyProfile(), listSupportedCountries()])
-      .then(async ([result, countryResult]) => {
+    void Promise.all([getMyProfile(), listSupportedCountries(), getMyPremiumStatus()])
+      .then(async ([result, countryResult, premiumResult]) => {
         if (!active) return;
         if (!countryResult.ok) {
           setError(countryResult.message);
@@ -63,6 +65,7 @@ function EditProfile() {
           return;
         }
         setCountries(countryResult.countries as Country[]);
+        if (premiumResult.ok) setPhoneVisibilityOptIn(premiumResult.phoneVisibilityOptIn);
         if (!result.ok) {
           setError(result.message);
           setLoading(false);
@@ -108,8 +111,13 @@ function EditProfile() {
     setNotice("");
     try {
       const result = await updateMyProfile({ data: form });
-      if (!result.ok) setError(result.message);
-      else setNotice("Your profile has been saved.");
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      const consent = await setPhoneVisibilityConsent({ data: { enabled: phoneVisibilityOptIn } });
+      if (!consent.ok) setError(consent.message);
+      else setNotice("Your profile and phone privacy settings have been saved.");
     } catch {
       setError("Profile could not be saved. Please retry.");
     } finally {
@@ -278,6 +286,30 @@ function EditProfile() {
                     ))}
                   </select>
                 </BrandField>
+                <section className="rounded-2xl border bg-secondary/40 p-4">
+                  <h2 className="font-semibold">Phone number visibility</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Your registration phone number is private by default and is never shown in your
+                    public profile. If you opt in, active Premium and VIP members can view it. You
+                    can turn sharing off at any time.
+                  </p>
+                  <label className="mt-3 flex min-h-11 items-center gap-3 text-sm font-medium">
+                    <input
+                      type="checkbox"
+                      checked={phoneVisibilityOptIn}
+                      onChange={(event) => setPhoneVisibilityOptIn(event.target.checked)}
+                      className="size-5 accent-primary"
+                    />
+                    Allow active Premium/VIP members to view my phone number
+                  </label>
+                  <Link
+                    to="/premium"
+                    search={{ transactionId: "", txRef: "", paymentStatus: "", checkout: "" }}
+                    className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-primary"
+                  >
+                    Compare Premium and VIP plans
+                  </Link>
+                </section>
                 {error && (
                   <p
                     id="profile-form-error"
