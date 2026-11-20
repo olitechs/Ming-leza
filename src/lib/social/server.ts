@@ -29,6 +29,12 @@ const groupSchema = z.object({
   title: z.string().trim().min(1).max(80),
   friendIds: z.array(userIdSchema).min(2).max(19),
 });
+const safetyReasonSchema = z.enum(["spam", "harassment", "underage", "impersonation", "other"]);
+const reportSchema = z.object({
+  userId: userIdSchema,
+  reason: safetyReasonSchema,
+  details: z.string().trim().max(2000).default(""),
+});
 
 async function authenticatedClient() {
   const supabase = getSupabaseServerClient();
@@ -312,4 +318,263 @@ export const sendConversationMessage = createServerFn({ method: "POST" })
         message: "This message could not be sent. Check the conversation and try again.",
       };
     return { ok: true as const, message: { ...message, mine: true } };
+  });
+
+export const getMemberBlockStatus = createServerFn({ method: "GET" })
+  .validator(requestSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to use safety controls." };
+    if (user.id === data.userId) {
+      return {
+        ok: false as const,
+        message: "You cannot apply safety actions to your own profile.",
+      };
+    }
+    const { data: row, error } = await supabase
+      .from("blocks")
+      .select("blocked_id")
+      .eq("blocker_id", user.id)
+      .eq("blocked_id", data.userId)
+      .maybeSingle();
+    if (error) {
+      return {
+        ok: false as const,
+        message: "Safety controls are temporarily unavailable.",
+      };
+    }
+    return { ok: true as const, blocked: Boolean(row) };
+  });
+
+export const blockMember = createServerFn({ method: "POST" })
+  .validator(requestSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to block a member." };
+    if (user.id === data.userId) {
+      return { ok: false as const, message: "You cannot block your own profile." };
+    }
+    const { error } = await supabase.from("blocks").insert({
+      blocker_id: user.id,
+      blocked_id: data.userId,
+    });
+    if (error && error.code !== "23505") {
+      return {
+        ok: false as const,
+        message: "This member could not be blocked. Please retry.",
+      };
+    }
+    return { ok: true as const };
+  });
+
+export const unblockMember = createServerFn({ method: "POST" })
+  .validator(requestSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to unblock a member." };
+    const { error } = await supabase
+      .from("blocks")
+      .delete()
+      .eq("blocker_id", user.id)
+      .eq("blocked_id", data.userId);
+    if (error) {
+      return {
+        ok: false as const,
+        message: "This member could not be unblocked. Please retry.",
+      };
+    }
+    return { ok: true as const };
+  });
+
+export const reportMember = createServerFn({ method: "POST" })
+  .validator(reportSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to report a member." };
+    if (user.id === data.userId) {
+      return { ok: false as const, message: "You cannot report your own profile." };
+    }
+    const { data: target, error: targetError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (targetError || !target) {
+      return {
+        ok: false as const,
+        message: "This profile is no longer available to report.",
+      };
+    }
+    const { error } = await supabase.from("moderation_reports").insert({
+      reporter_id: user.id,
+      reported_user_id: data.userId,
+      reason: data.reason,
+      details: data.details.trim() || null,
+    });
+    if (error) {
+      return {
+        ok: false as const,
+        message: "Your report could not be submitted. Please retry.",
+      };
+    }
+    return { ok: true as const };
+  });
+
+const swipeSchema = z.object({
+  userId: userIdSchema,
+  decision: z.enum(["like", "pass"]),
+});
+
+/** Persist a dating decision through the database's authenticated, policy-checked RPC. */
+export const submitProfileSwipe = createServerFn({ method: "POST" })
+  .validator(swipeSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to save your dating choices." };
+    if (user.id === data.userId) {
+      return { ok: false as const, message: "You cannot swipe on your own profile." };
+    }
+    const { data: matchId, error } = await supabase.rpc("submit_profile_swipe", {
+      p_target_id: data.userId,
+      p_decision: data.decision,
+    });
+    if (error) {
+      const message =
+        error.code === "42501"
+          ? "This profile is no longer available."
+          : "Your choice could not be saved. Please try again.";
+      return { ok: false as const, message };
+    }
+    return { ok: true as const, matchId: matchId ?? null };
+  });
+
+const unmatchSchema = z.object({ matchId: userIdSchema });
+
+export const listIncomingDatingLikes = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase, user } = await authenticatedClient();
+  if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+  const { data, error } = await supabase.rpc("list_incoming_dating_likes");
+  if (error) return { ok: false as const, reason: "unavailable" as const };
+  return { ok: true as const, likes: data ?? [] };
+});
+
+export const listMyDatingMatches = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase, user } = await authenticatedClient();
+  if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+  const { data, error } = await supabase.rpc("list_my_dating_matches");
+  if (error) return { ok: false as const, reason: "unavailable" as const };
+  return { ok: true as const, matches: data ?? [] };
+});
+
+export const unmatchDatingProfile = createServerFn({ method: "POST" })
+  .validator(unmatchSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to manage your matches." };
+    const { error } = await supabase.rpc("unmatch_dating_profile", {
+      p_match_id: data.matchId,
+    });
+    if (error) {
+      return { ok: false as const, message: "That match is no longer available." };
+    }
+    return { ok: true as const };
+  });
+
+const datingMatchSchema = z.object({ matchId: userIdSchema });
+const datingConversationSchema = z.object({ conversationId: userIdSchema });
+const datingMessageSchema = z.object({
+  conversationId: userIdSchema,
+  body: z.string().trim().min(1).max(2000),
+});
+const notificationSchema = z.object({ notificationId: userIdSchema });
+
+/** Open or create a conversation only for the caller's active mutual dating match. */
+export const openDatingConversation = createServerFn({ method: "POST" })
+  .validator(datingMatchSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to message your match." };
+    const { data: conversationId, error } = await supabase.rpc("open_dating_conversation", {
+      p_match_id: data.matchId,
+    });
+    if (error || !conversationId) {
+      return {
+        ok: false as const,
+        message: "Dating chat is available only while your mutual match is active.",
+      };
+    }
+    return { ok: true as const, conversationId: conversationId as string };
+  });
+
+export const listDatingMessages = createServerFn({ method: "GET" })
+  .validator(datingConversationSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+    const { data: messages, error } = await supabase
+      .from("dating_messages")
+      .select("id, conversation_id, sender_id, body, created_at")
+      .eq("conversation_id", data.conversationId)
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .limit(100);
+    if (error) return { ok: false as const, reason: "unavailable" as const };
+    return {
+      ok: true as const,
+      messages: (messages ?? []).map((message) => ({
+        ...message,
+        mine: message.sender_id === user.id,
+      })),
+    };
+  });
+
+export const sendDatingMessage = createServerFn({ method: "POST" })
+  .validator(datingMessageSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to send messages." };
+    const { data: messageId, error } = await supabase.rpc("send_dating_message", {
+      p_conversation_id: data.conversationId,
+      p_body: data.body,
+    });
+    if (error || !messageId) {
+      return {
+        ok: false as const,
+        message: "This message could not be sent. Your match may no longer be active.",
+      };
+    }
+    const { data: message, error: readError } = await supabase
+      .from("dating_messages")
+      .select("id, conversation_id, sender_id, body, created_at")
+      .eq("id", messageId)
+      .single();
+    if (readError || !message) {
+      return { ok: false as const, message: "Your message was sent but could not be refreshed." };
+    }
+    return { ok: true as const, message: { ...message, mine: true } };
+  });
+
+export const listMyNotifications = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase, user } = await authenticatedClient();
+  if (!user) return { ok: false as const, reason: "unauthenticated" as const };
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id, notification_type, actor_id, match_id, message_id, created_at, read_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) return { ok: false as const, reason: "unavailable" as const };
+  return { ok: true as const, notifications: data ?? [] };
+});
+
+export const markNotificationRead = createServerFn({ method: "POST" })
+  .validator(notificationSchema)
+  .handler(async ({ data }) => {
+    const { supabase, user } = await authenticatedClient();
+    if (!user) return { ok: false as const, message: "Sign in to manage notifications." };
+    const { error } = await supabase.rpc("mark_notification_read", {
+      p_notification_id: data.notificationId,
+    });
+    if (error) return { ok: false as const, message: "This notification could not be updated." };
+    return { ok: true as const };
   });

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/matches")({
   beforeLoad: async () => {
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
-      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+      throw redirect({ to: "/login", search: { mode: "signin" } });
   },
   head: () => ({
     meta: [
@@ -134,17 +134,19 @@ function Matches() {
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl px-4 py-7 lg:px-8 lg:py-10">
-        <PageHeader
-          title="Friend requests"
-          description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
-          actions={
-            <Button asChild variant="outline" className="rounded-full">
-              <Link to="/messages">
-                <MessageCircle aria-hidden="true" className="size-4" /> Messages
-              </Link>
-            </Button>
-          }
-        />
+        <div className="mt-2 border-t border-white/10 pt-6">
+          <PageHeader
+            title="Friend requests"
+            description="Accept requests to unlock private messaging. You can decline or cancel requests at any time."
+            actions={
+              <Button asChild variant="outline" className="rounded-full">
+                <Link to="/messages">
+                  <MessageCircle aria-hidden="true" className="size-4" /> Messages
+                </Link>
+              </Button>
+            }
+          />
+        </div>
 
         {chatRequests.length > 0 && (
           <section className="mt-6 rounded-3xl border bg-card p-5 shadow-soft">

@@ -28,7 +28,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Is Mingleza only for dating?",
         answer:
-          "No. Friendship is an available way to connect. Dating is also available as a profile intent, but dating likes and matches are not implemented yet.",
+          "Friendship requests and dating likes or passes are available. When both members like each other, Mingleza creates a mutual match and opens a private dating conversation for that match.",
       },
       {
         question: "Where is Mingleza available?",
@@ -49,7 +49,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How do I get started?",
         answer:
-          "Choose Sign up, confirm that you are 18 or older, and register with your name, email, password, phone, country and age bracket. Then complete your profile and choose your intent.",
+          "Choose Sign up, create an account with your email and password, complete the 18+ verification, then add a display name and town or city and choose your intent.",
       },
       {
         question: "Do I need an account to browse members?",
@@ -59,7 +59,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What information do I need to create an account?",
         answer:
-          "Registration requires your full name, email, password, phone number, country and age bracket. Your date of birth is used only for the adults-only eligibility check and is not stored. A profile photo is optional.",
+          "You need your full name, email address, password, phone number, country, and age bracket. You must also provide your date of birth for the separate 18+ eligibility check and complete a display name and town or city. A profile photo is optional.",
       },
       {
         question: "What should I do after signing in?",
@@ -80,22 +80,22 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Do I need a password?",
         answer:
-          "Yes. Create an account with an email address and password. Email confirmation may be required by the authentication provider.",
+          "Mingleza uses email and password. You can request a password-reset email if you forget your password.",
       },
       {
         question: "Can I sign in with my phone number?",
         answer:
-          "No. Sign in with the email address and password registered to your account. Your phone number is private account information.",
+          "Enter the email address and password you registered with. Phone number is collected as account information, not as a sign-in method.",
       },
       {
         question: "How do I sign in with email?",
         answer:
-          "Enter your registered email address and password on the sign-in screen. If you cannot remember your password, choose Forgot password?",
+          "Enter the email address and password you registered with. If you cannot remember the password, use Forgot password to request a reset email.",
       },
       {
         question: "What if I forget my password?",
         answer:
-          "Choose Forgot password? and enter your email address. We show the same response whether or not an account can be recovered. Use the secure reset link to choose a new password.",
+          "Choose Forgot password on the sign-in screen and request a reset email. If the address belongs to an account, a reset message will be sent.",
       },
       {
         question: "How does the 18+ check work?",
@@ -108,9 +108,9 @@ const faqCategories: FAQCategory[] = [
           "The date of birth is used for the check and is not stored as a date or shown on your profile. The app records an adult-verification result and its check time. Mingleza does not display members’ ages.",
       },
       {
-        question: "What if my sign-in code or link does not work?",
+        question: "What if my email confirmation or password-reset link does not work?",
         answer:
-          "Check that you entered the correct phone number or email address. Codes and links can expire or be used once; request a new one after the resend timer. If the problem continues, the app currently has no published support contact, so help from the Mingleza team is not yet available through a listed channel.",
+          "Check that you entered the correct email address. Confirmation and reset links can expire or be used once; request a fresh email if needed. If the problem continues, the app currently has no published external support contact.",
       },
     ],
   },
@@ -121,7 +121,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "What goes on my profile?",
         answer:
-          "A profile can include your display name, bio, profile photo, town or city, region, country, and the connection intents you enable. Members can follow profiles and share a profile link. The member-facing app does not display age or account phone numbers.",
+          "A profile can include your display name, bio, profile photo, town or city, region, country, and the connection intents you enable. Members can follow profiles and share a profile link. Age is not displayed, and phone numbers are private by default; an owner may opt in to show a number to active Premium or VIP members.",
       },
       {
         question: "Is a profile photo required?",
@@ -131,7 +131,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Are my profile photos private?",
         answer:
-          "Not completely. The current profile-avatar storage bucket allows public reads, so an image may be accessible through its direct URL even when someone is not browsing your profile in Discover. There is no photo-visibility toggle yet. Upload only a photo you are comfortable sharing publicly, and do not upload a sensitive image. The owner still needs to decide whether to move to private, signed access.",
+          "Profile avatars are stored in a private bucket and delivered using short-lived signed URLs. Access is still subject to the app’s profile-visibility rules; avoid sharing an avatar URL because it may remain usable until it expires.",
       },
       {
         question: "Who can see my profile?",
@@ -203,7 +203,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How does the Dating intent work today?",
         answer:
-          "Members can opt in to Dating and browse profiles that have enabled it. Dating likes, mutual matches, and a dating-specific conversation flow are not available yet.",
+          "Members can opt in to Dating, like or pass profiles, and see mutual matches when both people like each other. Active mutual matches can use a private dating conversation. Match scores, paid boosts, and distance-based discovery are not available.",
       },
       {
         question: "Is Mingleza free?",
@@ -229,17 +229,17 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Does Mingleza show my phone number to other members?",
         answer:
-          "The profile data returned to Discover does not include your phone number. Your phone number is used for SMS sign-in, not displayed as a profile field.",
+          "Phone numbers are private by default and are not part of the public Discover profile. If the owner explicitly opts in, only members with active Premium or VIP can view the number.",
       },
       {
         question: "Can I block or report a member in the app?",
         answer:
-          "Member-facing report and block controls are not available yet. Although the database includes some related foundations, there is no completed in-app workflow or published moderation-support contact. This is an important unfinished safety feature.",
+          "You can report or block a member from Discover or their profile. Reports are recorded in the app for moderator review, but a staffed moderation service and response-time commitment are not yet configured. If you are in immediate danger, contact local emergency services.",
       },
       {
         question: "Can I delete my account or request data deletion?",
         answer:
-          "A self-service account deletion flow and a published data-deletion request channel are not available in the current app. The owner needs to provide an approved process and support contact before this can be answered as an available service.",
+          "Open Edit profile, then Account & privacy to download a copy of your data or permanently delete your account. The deletion action removes your account and associated app records under the current database deletion rules; final legal retention terms are still pending review.",
       },
       {
         question: "Where can I read the Privacy Policy and Terms?",
@@ -254,7 +254,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "How do I contact Mingleza support or report a bug?",
         answer:
-          "A public support email, contact form, operating hours, and bug-report channel have not been provided in the repository. The owner needs to publish a verified contact route before support requests can be directed reliably.",
+          "Signed-in members can submit a private in-app support request from Edit profile. Requests are stored for staff review, but the owner has not yet published a verified external support email or response-time commitment.",
       },
       {
         question: "What should I do if something does not load or save?",
@@ -418,7 +418,7 @@ export function PublicFAQPage() {
             Create a profile, choose friendship or dating, and explore Mingleza. Adults 18+ only.
           </p>
           <a
-            href="/welcome"
+            href="/login"
             className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-5 py-3 text-sm font-bold text-primary hover:bg-secondary"
           >
             Get started <ArrowRight aria-hidden="true" className="size-4" />

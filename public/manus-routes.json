@@ -4,15 +4,22 @@
     { "path": "/welcome", "title": "Sign up or log in" },
     { "path": "/login", "title": "Log in" },
     { "path": "/auth-callback", "title": "Authentication callback" },
-    { "path": "/faq", "title": "Frequently asked questions" },
-    { "path": "/terms", "title": "Terms of Service" },
-    { "path": "/privacy", "title": "Privacy Policy" },
+    { "path": "/home", "title": "Home" },
     { "path": "/explore", "title": "Explore" },
-    { "path": "/matches", "title": "Friend requests" },
+    { "path": "/onboarding", "title": "Member onboarding" },
+    { "path": "/likes", "title": "Likes" },
+    { "path": "/matches", "title": "Friend requests and matches" },
     { "path": "/messages", "title": "Messages" },
+    { "path": "/chat/:matchId", "title": "Chat conversation" },
+    { "path": "/notifications", "title": "Notifications" },
+    { "path": "/moderation", "title": "Moderation" },
     { "path": "/profile-edit", "title": "Edit profile" },
     { "path": "/premium", "title": "Mingleza Premium" },
     { "path": "/gifts", "title": "Gift diamonds and redemptions" },
-    { "path": "/u/:id", "title": "Member profile" }
+    { "path": "/gifts/admin", "title": "Gift redemption administration" },
+    { "path": "/u/:id", "title": "Member profile" },
+    { "path": "/faq", "title": "Frequently asked questions" },
+    { "path": "/terms", "title": "Terms of Service" },
+    { "path": "/privacy", "title": "Privacy Policy" }
   ]
 }

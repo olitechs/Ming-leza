@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseServerClient } from "../supabase/server";
+import { getDiscoveryPreferencesValidationMessage } from "./discovery-preferences";
 
 const profileInput = z.object({
   displayName: z.string().trim().min(2).max(40),
@@ -32,6 +33,12 @@ const profileSetupInput = z.object({
 });
 
 const publicProfileInput = z.object({ id: z.string().uuid() });
+
+const discoveryPreferencesInput = z.object({
+  isDiscoverable: z.boolean(),
+  friendsEnabled: z.boolean(),
+  datingEnabled: z.boolean(),
+});
 
 async function getVerifiedUser() {
   const supabase = getSupabaseServerClient();
@@ -197,6 +204,59 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         message: "Profile service is temporarily unavailable.",
+      };
+    }
+  });
+
+export const updateMyDiscoveryPreferences = createServerFn({ method: "POST" })
+  .validator(discoveryPreferencesInput)
+  .handler(async ({ data }) => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message };
+      // The deployed Supabase project may not yet have the preferences RPC migration.
+      // Read the caller's own profile, enforce the same rules in this server function,
+      // then update only the three preference columns through the existing self-row RLS policy.
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("display_name,city")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profileError || !profile) {
+        return {
+          ok: false as const,
+          message: "Your profile could not be checked. Please reload and retry.",
+        };
+      }
+
+      const validationMessage = getDiscoveryPreferencesValidationMessage(profile, data);
+      if (validationMessage) {
+        return { ok: false as const, message: validationMessage };
+      }
+
+      const { data: updatedProfile, error } = await supabase
+        .from("profiles")
+        .update({
+          is_discoverable: data.isDiscoverable,
+          friends_enabled: data.friendsEnabled,
+          dating_enabled: data.datingEnabled,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id)
+        .select("id")
+        .maybeSingle();
+
+      if (error || !updatedProfile) {
+        return {
+          ok: false as const,
+          message: "Your discovery preferences could not be saved. Please retry.",
+        };
+      }
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "Profile preferences are temporarily unavailable.",
       };
     }
   });

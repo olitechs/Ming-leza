@@ -19,7 +19,7 @@ export const Route = createFileRoute("/messages")({
   beforeLoad: async () => {
     const access = await getMyAccess();
     if (!access.authenticated || !access.adultVerified)
-      throw redirect({ to: "/welcome", search: { authComplete: false, authError: "" } });
+      throw redirect({ to: "/login", search: { mode: "signin" } });
   },
   head: () => ({
     meta: [
@@ -298,7 +298,11 @@ function Messages() {
         setError(result.message);
         return;
       }
-      setMessages((current) => [...current, result.message as Message]);
+      setMessages((current) =>
+        current.some((item) => item.id === (result.message as Message).id)
+          ? current
+          : [...current, result.message as Message],
+      );
       setDraft("");
     } catch {
       setError("Your message could not be sent. Please try again.");

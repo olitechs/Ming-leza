@@ -14,9 +14,14 @@ import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GiftsRouteImport } from './routes/gifts'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as LikesRouteImport } from './routes/likes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ModerationRouteImport } from './routes/moderation'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileEditRouteImport } from './routes/profile-edit'
@@ -24,6 +29,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as ChatMatchIdRouteImport } from './routes/chat/$matchId'
 import { Route as GiftsAdminRouteImport } from './routes/gifts.admin'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ApiWebhooksFlutterwaveRouteImport } from './routes/api.webhooks.flutterwave'
@@ -53,6 +59,16 @@ const GiftsRoute = GiftsRouteImport.update({
   path: '/gifts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LikesRoute = LikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -66,6 +82,21 @@ const MatchesRoute = MatchesRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModerationRoute = ModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -103,6 +134,11 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatMatchIdRoute = ChatMatchIdRouteImport.update({
+  id: '/chat/$matchId',
+  path: '/chat/$matchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GiftsAdminRoute = GiftsAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -125,9 +161,14 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/gifts': typeof GiftsRouteWithChildren
+  '/home': typeof HomeRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
@@ -135,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
@@ -145,9 +187,14 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/gifts': typeof GiftsRouteWithChildren
+  '/home': typeof HomeRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
@@ -155,6 +202,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
@@ -166,9 +214,14 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
   '/gifts': typeof GiftsRouteWithChildren
+  '/home': typeof HomeRoute
+  '/likes': typeof LikesRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
+  '/moderation': typeof ModerationRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/profile-edit': typeof ProfileEditRoute
@@ -176,6 +229,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/chat/$matchId': typeof ChatMatchIdRoute
   '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
@@ -188,9 +242,14 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/gifts'
+    | '/home'
+    | '/likes'
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
+    | '/notifications'
+    | '/onboarding'
     | '/premium'
     | '/privacy'
     | '/profile-edit'
@@ -198,6 +257,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/chat/$matchId'
     | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
@@ -208,9 +268,14 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/gifts'
+    | '/home'
+    | '/likes'
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
+    | '/notifications'
+    | '/onboarding'
     | '/premium'
     | '/privacy'
     | '/profile-edit'
@@ -218,6 +283,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/chat/$matchId'
     | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
@@ -228,9 +294,14 @@ export interface FileRouteTypes {
     | '/explore'
     | '/faq'
     | '/gifts'
+    | '/home'
+    | '/likes'
     | '/login'
     | '/matches'
     | '/messages'
+    | '/moderation'
+    | '/notifications'
+    | '/onboarding'
     | '/premium'
     | '/privacy'
     | '/profile-edit'
@@ -238,6 +309,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/chat/$matchId'
     | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
@@ -249,9 +321,14 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   FaqRoute: typeof FaqRoute
   GiftsRoute: typeof GiftsRouteWithChildren
+  HomeRoute: typeof HomeRoute
+  LikesRoute: typeof LikesRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
+  ModerationRoute: typeof ModerationRoute
+  NotificationsRoute: typeof NotificationsRoute
+  OnboardingRoute: typeof OnboardingRoute
   PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileEditRoute: typeof ProfileEditRoute
@@ -259,6 +336,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   WelcomeRoute: typeof WelcomeRoute
+  ChatMatchIdRoute: typeof ChatMatchIdRoute
   UIdRoute: typeof UIdRoute
   ApiWebhooksFlutterwaveRoute: typeof ApiWebhooksFlutterwaveRoute
 }
@@ -300,6 +378,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/likes': {
+      id: '/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof LikesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -319,6 +411,27 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -370,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$matchId': {
+      id: '/chat/$matchId'
+      path: '/chat/$matchId'
+      fullPath: '/chat/$matchId'
+      preLoaderRoute: typeof ChatMatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gifts/admin': {
       id: '/gifts/admin'
       path: '/admin'
@@ -410,9 +530,14 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   FaqRoute: FaqRoute,
   GiftsRoute: GiftsRouteWithChildren,
+  HomeRoute: HomeRoute,
+  LikesRoute: LikesRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,
+  ModerationRoute: ModerationRoute,
+  NotificationsRoute: NotificationsRoute,
+  OnboardingRoute: OnboardingRoute,
   PremiumRoute: PremiumRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileEditRoute: ProfileEditRoute,
@@ -420,6 +545,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
+  ChatMatchIdRoute: ChatMatchIdRoute,
   UIdRoute: UIdRoute,
   ApiWebhooksFlutterwaveRoute: ApiWebhooksFlutterwaveRoute,
 }

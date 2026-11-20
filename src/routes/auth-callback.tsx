@@ -13,6 +13,7 @@ export const Route = createFileRoute("/auth-callback")({
     flow: ["signup", "recovery", "upgrade"].includes(String(search["flow"]))
       ? (search["flow"] as "signup" | "recovery" | "upgrade")
       : undefined,
+    next: search["next"] === "reset-password" ? "reset-password" : "",
     error:
       typeof search["error_description"] === "string"
         ? search["error_description"]
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/auth-callback")({
 });
 
 function AuthCallback() {
-  const { code, tokenHash, type, flow, error: callbackError } = Route.useSearch();
+  const { code, tokenHash, type, flow, next, error: callbackError } = Route.useSearch();
   const nav = useNavigate();
   const [message, setMessage] = useState("Confirming your secure link…");
   const [password, setPassword] = useState("");
@@ -45,8 +46,14 @@ function AuthCallback() {
         active = false;
       };
     }
+    const callbackFlow = next === "reset-password" ? "recovery" : flow;
     void completeAuthCallback({
-      data: { code: code || undefined, tokenHash: tokenHash || undefined, type, flow },
+      data: {
+        code: code || undefined,
+        tokenHash: tokenHash || undefined,
+        type,
+        flow: callbackFlow,
+      },
     })
       .then(async (result) => {
         if (!active) return;
@@ -71,31 +78,20 @@ function AuthCallback() {
     return () => {
       active = false;
     };
-  }, [code, tokenHash, type, flow, callbackError, nav]);
+  }, [code, tokenHash, type, flow, next, callbackError, nav]);
 
   const savePassword = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFailure("");
-    if (password.length < 6) {
-      setFailure("Use a password with at least 6 characters.");
-      return;
-    }
-    if (password !== confirm) {
-      setFailure("The passwords do not match.");
-      return;
-    }
+    if (password.length < 6) return setFailure("Use a password with at least 6 characters.");
+    if (password !== confirm) return setFailure("The passwords do not match.");
     setBusy(true);
     try {
       const result = await updatePassword({ data: { password } });
-      if (!result.ok) {
-        setFailure(result.message);
-        return;
-      }
+      if (!result.ok) return setFailure(result.message);
       setMessage("Your password has been updated. You can now sign in with it.");
       setResetMode(false);
-      setTimeout(() => {
-        window.location.replace("/welcome?mode=signin");
-      }, 900);
+      setTimeout(() => window.location.replace("/login?mode=signin"), 900);
     } catch {
       setFailure("We could not update your password. Request a new reset email and try again.");
     } finally {
@@ -166,13 +162,13 @@ function AuthCallback() {
         )}
         {failure && !resetMode && (
           <a
-            href="/welcome?mode=signin"
+            href="/login?mode=signin"
             className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 font-semibold text-primary-foreground"
           >
             Return to sign in
           </a>
         )}
-        {!resetMode && !failure && !message.startsWith("Your password") && (
+        {!resetMode && !failure && (
           <p className="mt-4 text-sm text-muted-foreground">
             Please wait while we securely verify your link.
           </p>

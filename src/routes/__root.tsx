@@ -10,9 +10,11 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Button, ErrorBanner } from "@/components/brand";
+import { ThemeProvider } from "@/components/theme-provider";
 
 import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
+import { themeBootstrapScript } from "../lib/theme-bootstrap";
 
 function NotFoundComponent() {
   return (
@@ -97,6 +99,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <HeadContent />
       </head>
       <body>
@@ -111,9 +114,11 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

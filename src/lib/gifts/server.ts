@@ -419,10 +419,14 @@ export const cancelGiftRedemption = createServerFn({ method: "POST" })
     try {
       const member = await getAdultMember();
       if (!member) return { ok: false as const, message: "Sign in to update this request." };
-      const { error } = await member.supabase.rpc("cancel_gift_diamond_redemption", {
-        p_request_id: data.redemptionId,
-      });
-      if (error) return { ok: false as const, message: "Only pending requests can be canceled." };
+      const { data: canceled, error } = await member.supabase.rpc(
+        "cancel_gift_diamond_redemption",
+        {
+          p_request_id: data.redemptionId,
+        },
+      );
+      if (error || canceled !== true)
+        return { ok: false as const, message: "Only your pending requests can be canceled." };
       return { ok: true as const };
     } catch {
       return { ok: false as const, message: "Redemption request could not be canceled." };

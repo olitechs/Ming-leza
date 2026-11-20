@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PasswordAuthFlow } from "@/components/PasswordAuthFlow";
 import { verifyAdult, getMyAccess, setMyIntent } from "@/lib/auth/server";
@@ -6,6 +6,15 @@ import { completeMyProfileSetup, getMyProfile, setMyAvatarPath } from "@/lib/pro
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export const Route = createFileRoute("/welcome")({
+  beforeLoad: async ({ search }) => {
+    const access = await getMyAccess();
+    if (!access.authenticated) {
+      throw redirect({
+        to: "/login",
+        search: { mode: search.mode === "signin" ? "signin" : "signup" },
+      });
+    }
+  },
   validateSearch: (search: Record<string, unknown>) => ({
     authComplete: search["authComplete"] === true || search["authComplete"] === "true",
     authError: typeof search["authError"] === "string" ? search["authError"] : "",

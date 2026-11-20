@@ -4,16 +4,17 @@ import {
   Map,
   MessageCircle,
   UserPlus,
-  User,
+  Heart,
   Bell,
-  Crown,
   Settings,
   LogOut,
   Gift,
+  Crown,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
   to:
@@ -21,6 +22,8 @@ type NavItem = {
     | "/explore"
     | "/matches"
     | "/messages"
+    | "/likes"
+    | "/notifications"
     | "/gifts"
     | "/premium"
     | "/u/$id"
@@ -32,10 +35,12 @@ type NavItem = {
 const main: NavItem[] = [
   { to: "/", label: "Discover", icon: Flame },
   { to: "/explore", label: "Explore", icon: Map },
+  { to: "/likes", label: "Likes", icon: Heart },
   { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/gifts", label: "Gifts", icon: Gift },
   { to: "/premium", label: "Premium", icon: Crown },
+  { to: "/notifications", label: "Notifications", icon: Bell },
 ];
 const soon: { label: string; icon: LucideIcon }[] = [
   { label: "Notifications", icon: Bell },
@@ -55,7 +60,7 @@ export function AppShell({
     <div className="min-h-dvh bg-background lg:flex">
       <nav
         aria-label="Primary navigation"
-        className="sticky top-0 hidden h-dvh w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5"
+        className="sticky top-0 hidden h-dvh w-[72px] flex-col items-center gap-2 border-r bg-sidebar py-5 lg:flex"
       >
         <Link
           to="/"
@@ -87,22 +92,15 @@ export function AppShell({
         ))}
         <Link
           to="/profile-edit"
-          title="Edit profile"
-          aria-label="Edit profile"
-          className="grid size-11 place-items-center rounded-2xl text-muted-foreground hover:bg-secondary"
+          title="Settings and profile"
+          aria-label="Settings and profile"
+          activeOptions={{ exact: true }}
+          className="grid size-11 place-items-center rounded-2xl text-muted-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+          activeProps={{ className: "!bg-primary !text-primary-foreground" }}
         >
-          <User aria-hidden="true" className="size-5" />
+          <Settings aria-hidden="true" className="size-5" />
         </Link>
         <div className="mt-auto flex flex-col gap-2">
-          {soon.map(({ label, icon: Icon }) => (
-            <span
-              key={label}
-              title={`${label} (coming soon)`}
-              className="grid size-11 place-items-center rounded-2xl text-muted-foreground/50"
-            >
-              <Icon aria-hidden="true" className="size-5" />
-            </span>
-          ))}
           <button
             type="button"
             aria-label="Sign out"
@@ -115,7 +113,23 @@ export function AppShell({
         </div>
       </nav>
 
-      <main className="min-w-0 flex-1 pb-28 lg:pb-0">{children}</main>
+      <main className="min-w-0 flex-1 pb-28 lg:pb-0">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-2 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6 lg:px-8">
+          <ThemeToggle />
+          <Link
+            to="/profile-edit"
+            aria-label="Settings and profile"
+            title="Settings and profile"
+            activeOptions={{ exact: true }}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border bg-card px-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
+            activeProps={{ className: "!border-primary !text-primary" }}
+          >
+            <Settings aria-hidden="true" className="size-4" />
+            <span>Settings</span>
+          </Link>
+        </header>
+        {children}
+      </main>
       {aside && (
         <aside className="sticky top-0 hidden h-dvh w-[360px] overflow-y-auto border-l bg-card">
           {aside}
@@ -125,7 +139,7 @@ export function AppShell({
       {!hideTabs && (
         <nav
           aria-label="Mobile navigation"
-          className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full bg-ink p-2 shadow-card lg:hidden"
+          className="safe-area-bottom fixed inset-x-4 bottom-0 z-20 mx-auto flex max-w-sm items-center justify-between rounded-full border border-border bg-card p-2 shadow-card lg:hidden"
         >
           {main.map(({ to, label, icon: Icon, badge }) => (
             <Link
@@ -134,7 +148,7 @@ export function AppShell({
               aria-label={badge && badge > 0 ? `${label}, ${badge} unread` : label}
               title={label}
               activeOptions={{ exact: true }}
-              className="relative grid size-12 place-items-center rounded-full text-ink-foreground/60 transition"
+              className="relative grid size-12 place-items-center rounded-full text-muted-foreground transition hover:text-primary"
               activeProps={{ className: "!bg-primary !text-primary-foreground" }}
             >
               <Icon aria-hidden="true" className="size-5" />
@@ -150,12 +164,12 @@ export function AppShell({
           ))}
           <Link
             to="/profile-edit"
-            aria-label="Edit profile"
-            title="Edit profile"
-            className="grid size-12 place-items-center rounded-full text-ink-foreground/60"
+            aria-label="Settings and profile"
+            title="Settings and profile"
+            className="grid size-12 place-items-center rounded-full text-muted-foreground hover:text-primary"
             activeProps={{ className: "!bg-primary !text-primary-foreground" }}
           >
-            <User aria-hidden="true" className="size-5" />
+            <Settings aria-hidden="true" className="size-5" />
           </Link>
         </nav>
       )}

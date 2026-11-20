@@ -1,8 +1,17 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PublicHomepage } from "@/components/PublicHomepage";
+import { ThemeProvider } from "@/components/theme-provider";
 import { getHomePageMode } from "@/lib/homepage-routing";
 import { buildRobotsTxt, buildSitemapXml, normalizeSiteUrl } from "@/lib/seo";
+
+function renderPublicHomepage() {
+  return render(
+    <ThemeProvider>
+      <PublicHomepage />
+    </ThemeProvider>,
+  );
+}
 
 describe("public homepage", () => {
   it("selects the marketing experience for logged-out visitors and preserves Discover for verified members", () => {
@@ -13,37 +22,35 @@ describe("public homepage", () => {
 
   it("renders the public landing page without collecting sign-in details", () => {
     expect(getHomePageMode({ authenticated: false, adultVerified: false })).toBe("marketing");
-    render(<PublicHomepage />);
+    renderPublicHomepage();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: /meet your people in kenya/i }),
+      screen.getByRole("heading", { level: 1, name: /real people\. meaningful connections\./i }),
     ).toBeInTheDocument();
     expect(document.querySelectorAll("main")).toHaveLength(1);
     expect(screen.queryByLabelText(/phone number|email address/i)).not.toBeInTheDocument();
   });
 
-  it("routes all sign-up and log-in calls to the password authentication flow", () => {
-    render(<PublicHomepage />);
+  it("routes all sign-up and log-in calls to password-based authentication", () => {
+    renderPublicHomepage();
 
-    const signUpLinks = screen.getAllByRole("link", { name: "Sign up free" });
+    const signUpLinks = screen.getAllByRole("link", { name: "Join Mingleza" });
     expect(signUpLinks.length).toBeGreaterThanOrEqual(2);
-    expect(signUpLinks.every((link) => link.getAttribute("href") === "/welcome")).toBe(true);
+    expect(signUpLinks.every((link) => link.getAttribute("href") === "/login")).toBe(true);
 
-    const logInLinks = screen.getAllByRole("link", { name: "Log in" });
+    const logInLinks = screen.getAllByRole("link", { name: "Sign in" });
     expect(logInLinks.length).toBeGreaterThanOrEqual(2);
-    expect(logInLinks.every((link) => link.getAttribute("href") === "/welcome?mode=signin")).toBe(
+    expect(logInLinks.every((link) => link.getAttribute("href") === "/login?mode=signin")).toBe(
       true,
     );
-    expect(
-      screen.getByRole("link", { name: "Create your free account" }).getAttribute("href"),
-    ).toBe("/welcome");
-    expect(
-      screen.getByRole("link", { name: "Read all frequently asked questions" }),
-    ).toHaveAttribute("href", "/faq");
+    expect(screen.getAllByRole("link", { name: "Join Mingleza" })[0]?.getAttribute("href")).toBe(
+      "/login",
+    );
+    expect(screen.getByRole("link", { name: "Read more FAQs" })).toHaveAttribute("href", "/faq");
   });
 
   it("exposes a labeled, keyboard-operable mobile navigation toggle", () => {
-    render(<PublicHomepage />);
+    renderPublicHomepage();
     const openButton = screen.getByRole("button", { name: "Open navigation menu" });
     expect(openButton).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(openButton);

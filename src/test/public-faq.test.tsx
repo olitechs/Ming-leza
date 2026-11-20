@@ -13,7 +13,7 @@ describe("public FAQ page", () => {
     expect(screen.getByRole("heading", { name: "About Mingleza" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Privacy, safety, and help" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Are my profile photos private?" })).toBeVisible();
-    expect(screen.getByRole("link", { name: /get started/i })).toHaveAttribute("href", "/welcome");
+    expect(screen.getByRole("link", { name: /get started/i })).toHaveAttribute("href", "/login");
     expect(
       screen
         .getAllByRole("link", { name: "Privacy" })
@@ -37,6 +37,27 @@ describe("public FAQ page", () => {
 
     fireEvent.change(search, { target: { value: "no-such-feature" } });
     expect(screen.getByRole("status")).toHaveTextContent("No matching questions");
+  });
+
+  it("documents password auth, consent-gated phone visibility, and gift diamond terms", () => {
+    render(<PublicFAQPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Do I need a password?" }));
+    expect(screen.getByText(/Mingleza uses email and password/i)).toBeVisible();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Can I make a video call or see another member/i,
+      }),
+    );
+    expect(screen.getByText(/only when its owner has explicitly opted in/i)).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "Is Mingleza free?" }));
+    expect(
+      screen.getByText(
+        /Gift diamonds cost KES 1 each to purchase.*KES 0\.80 per diamond.*200-diamond minimum/i,
+      ),
+    ).toBeVisible();
   });
 
   it("uses an accessible accordion control to reveal the full answer", () => {

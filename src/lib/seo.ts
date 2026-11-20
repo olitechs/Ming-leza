@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 
 export function normalizeSiteUrl(value: string | null | undefined): string | null {
   if (!value?.trim()) return null;
@@ -13,9 +14,19 @@ export function normalizeSiteUrl(value: string | null | undefined): string | nul
   }
 }
 
-export const getPublicSiteUrl = createServerFn({ method: "GET" }).handler(() =>
-  normalizeSiteUrl(process.env["SITE_URL"]),
-);
+/**
+ * SITE_URL is the canonical production origin. When it is not configured (such as in a preview),
+ * derive metadata URLs from the current request rather than silently omitting canonical URLs.
+ */
+export const getPublicSiteUrl = createServerFn({ method: "GET" }).handler(() => {
+  const configured = normalizeSiteUrl(process.env["SITE_URL"]);
+  if (configured) return configured;
+  try {
+    return normalizeSiteUrl(new URL(getRequest().url).origin);
+  } catch {
+    return null;
+  }
+});
 
 const publicPaths = ["/", "/terms", "/privacy", "/faq"] as const;
 
@@ -75,7 +86,7 @@ export function getHomeHead(page: "marketing" | "discover", siteUrl: string | nu
 
   const title = "Mingleza | Meet friends and dates across Kenya";
   const description =
-    "Find friendship or dating in Kenya with Mingleza. Email and password sign-in, adult verification, and profiles for people 18+.";
+    "Find friendship or dating in Kenya with Mingleza. Email-and-password sign-in, adult verification, and profiles for people 18+.";
   const homeUrl = siteUrl ? `${siteUrl}/` : undefined;
   const imageUrl = siteUrl ? `${siteUrl}/og-mingleza.png` : undefined;
   const websiteData = {
@@ -91,7 +102,7 @@ export function getHomeHead(page: "marketing" | "discover", siteUrl: string | nu
     meta: [
       { title },
       { name: "description", content: description },
-      { name: "theme-color", content: "#6C47FF" },
+      { name: "theme-color", content: "#FF4A6E" },
       { name: "robots", content: "index,follow" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Meet your people in Kenya | Mingleza" },
@@ -130,7 +141,7 @@ export function getLegalPageHead({
     meta: [
       { title },
       { name: "description", content: description },
-      { name: "theme-color", content: "#6C47FF" },
+      { name: "theme-color", content: "#FF4A6E" },
       { name: "robots", content: "index,follow" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: title },
