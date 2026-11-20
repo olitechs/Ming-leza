@@ -9,13 +9,22 @@ import {
   Crown,
   Settings,
   LogOut,
+  Gift,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
 
 type NavItem = {
-  to: "/" | "/explore" | "/matches" | "/messages" | "/u/$id" | "/profile-edit";
+  to:
+    | "/"
+    | "/explore"
+    | "/matches"
+    | "/messages"
+    | "/gifts"
+    | "/premium"
+    | "/u/$id"
+    | "/profile-edit";
   label: string;
   icon: LucideIcon;
   badge?: number;
@@ -25,10 +34,11 @@ const main: NavItem[] = [
   { to: "/explore", label: "Explore", icon: Map },
   { to: "/matches", label: "Friend requests", icon: UserPlus },
   { to: "/messages", label: "Messages", icon: MessageCircle },
+  { to: "/gifts", label: "Gifts", icon: Gift },
+  { to: "/premium", label: "Premium", icon: Crown },
 ];
 const soon: { label: string; icon: LucideIcon }[] = [
   { label: "Notifications", icon: Bell },
-  { label: "Premium", icon: Crown },
   { label: "Settings", icon: Settings },
 ];
 

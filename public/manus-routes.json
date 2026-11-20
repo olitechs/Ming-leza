@@ -12,6 +12,7 @@
     { "path": "/messages", "title": "Messages" },
     { "path": "/profile-edit", "title": "Edit profile" },
     { "path": "/premium", "title": "Mingleza Premium" },
+    { "path": "/gifts", "title": "Gift diamonds and redemptions" },
     { "path": "/u/:id", "title": "Member profile" }
   ]
 }

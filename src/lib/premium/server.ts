@@ -355,6 +355,35 @@ async function verifyAndApplyFlutterwavePayment(transactionId: string, fallbackT
   const { getSupabaseAdminClient } = await import("@/lib/supabase/admin.server");
   const admin = getSupabaseAdminClient();
 
+  const { data: giftIntent, error: giftIntentLookupError } = await admin
+    .from("gift_diamond_payment_intents")
+    .select("tx_ref,user_id,diamonds,billing_method,amount_kes,status,expires_at")
+    .eq("tx_ref", txRef)
+    .maybeSingle();
+  if (!giftIntentLookupError && giftIntent) {
+    if (
+      giftIntent.amount_kes !== amount ||
+      giftIntent.diamonds !== amount ||
+      giftIntent.billing_method !== method ||
+      !["pending", "paid"].includes(giftIntent.status) ||
+      (giftIntent.status === "pending" && Date.parse(giftIntent.expires_at) <= Date.now())
+    )
+      return false;
+    const { data: account, error: accountError } = await admin.auth.admin.getUserById(
+      giftIntent.user_id,
+    );
+    if (accountError || account.user?.email?.trim().toLowerCase() !== email) return false;
+    const { error: applyError } = await admin.rpc("apply_verified_gift_diamond_purchase", {
+      p_provider_transaction_id: paymentId,
+      p_tx_ref: txRef,
+      p_user_id: giftIntent.user_id,
+      p_diamonds: giftIntent.diamonds,
+      p_billing_method: method,
+      p_customer_email: email,
+    });
+    return !applyError;
+  }
+
   const { data: intent } = await admin
     .from("premium_payment_intents")
     .select("tx_ref,user_id,tier,billing_method,amount_kes,status,expires_at")

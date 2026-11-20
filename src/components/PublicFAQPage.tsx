@@ -192,7 +192,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Can I make a video call or see another member’s phone number?",
         answer:
-          "A member can send a video-chat invitation, but Mingleza does not currently provide live video calling. Phone numbers are private account details and are never shown to other members. There are no premium subscriptions or paid phone-visibility features.",
+          "A member can send a video-chat invitation, but Mingleza does not currently provide live video calling. Phone numbers are private by default. Active Premium and VIP members can see a number only when its owner has explicitly opted in. Gift diamonds can also be purchased and redeemed through the Gifts page.",
       },
     ],
   },
@@ -208,7 +208,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: "Is Mingleza free?",
         answer:
-          "The current application has no paid plans, checkout, or payment flow. Pricing or future payment terms have not been announced.",
+          "Mingleza offers optional Premium and VIP memberships, and members can buy gift diamonds. Gift diamonds cost KES 1 each to purchase; redemption requests convert at KES 0.80 per diamond, with a 200-diamond minimum. Redemptions are reviewed and fulfilled manually, so a request is not an automatic payment. See the Premium and Gifts pages for current options.",
       },
       {
         question: "Can I use a map or filter by distance?",

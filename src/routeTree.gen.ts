@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -23,6 +24,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as GiftsAdminRouteImport } from './routes/gifts.admin'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ApiWebhooksFlutterwaveRouteImport } from './routes/api.webhooks.flutterwave'
 
@@ -44,6 +46,11 @@ const ExploreRoute = ExploreRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftsRoute = GiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -96,6 +103,11 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GiftsAdminRoute = GiftsAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => GiftsRoute,
+} as any)
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
@@ -112,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
+  '/gifts': typeof GiftsRouteWithChildren
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
@@ -122,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
@@ -130,6 +144,7 @@ export interface FileRoutesByTo {
   '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
+  '/gifts': typeof GiftsRouteWithChildren
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
@@ -140,6 +155,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
@@ -149,6 +165,7 @@ export interface FileRoutesById {
   '/auth-callback': typeof AuthCallbackRoute
   '/explore': typeof ExploreRoute
   '/faq': typeof FaqRoute
+  '/gifts': typeof GiftsRouteWithChildren
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRoute
@@ -159,6 +176,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
+  '/gifts/admin': typeof GiftsAdminRoute
   '/u/$id': typeof UIdRoute
   '/api/webhooks/flutterwave': typeof ApiWebhooksFlutterwaveRoute
 }
@@ -169,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth-callback'
     | '/explore'
     | '/faq'
+    | '/gifts'
     | '/login'
     | '/matches'
     | '/messages'
@@ -179,6 +198,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
   fileRoutesByTo: FileRoutesByTo
@@ -187,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth-callback'
     | '/explore'
     | '/faq'
+    | '/gifts'
     | '/login'
     | '/matches'
     | '/messages'
@@ -197,6 +218,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
   id:
@@ -205,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth-callback'
     | '/explore'
     | '/faq'
+    | '/gifts'
     | '/login'
     | '/matches'
     | '/messages'
@@ -215,6 +238,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/welcome'
+    | '/gifts/admin'
     | '/u/$id'
     | '/api/webhooks/flutterwave'
   fileRoutesById: FileRoutesById
@@ -224,6 +248,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   ExploreRoute: typeof ExploreRoute
   FaqRoute: typeof FaqRoute
+  GiftsRoute: typeof GiftsRouteWithChildren
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRoute
@@ -266,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gifts': {
+      id: '/gifts'
+      path: '/gifts'
+      fullPath: '/gifts'
+      preLoaderRoute: typeof GiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -338,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gifts/admin': {
+      id: '/gifts/admin'
+      path: '/admin'
+      fullPath: '/gifts/admin'
+      preLoaderRoute: typeof GiftsAdminRouteImport
+      parentRoute: typeof GiftsRoute
+    }
     '/u/$id': {
       id: '/u/$id'
       path: '/u/$id'
@@ -355,11 +394,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface GiftsRouteChildren {
+  GiftsAdminRoute: typeof GiftsAdminRoute
+}
+
+const GiftsRouteChildren: GiftsRouteChildren = {
+  GiftsAdminRoute: GiftsAdminRoute,
+}
+
+const GiftsRouteWithChildren = GiftsRoute._addFileChildren(GiftsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   ExploreRoute: ExploreRoute,
   FaqRoute: FaqRoute,
+  GiftsRoute: GiftsRouteWithChildren,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRoute,

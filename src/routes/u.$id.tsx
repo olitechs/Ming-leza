@@ -234,6 +234,13 @@ function Profile() {
           )}
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
+            <Link
+              to="/gifts"
+              search={{ transactionId: "", txRef: "", paymentStatus: "", to: profile.id }}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+            >
+              Send a gift
+            </Link>
             <button
               type="button"
               onClick={() => void follow()}
