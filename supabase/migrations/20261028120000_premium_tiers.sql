@@ -79,7 +79,7 @@ begin
      or p_billing_method is null
      or p_billing_method not in ('card','mpesa')
      or p_amount_kes is null
-     or p_amount_kes <> case when p_tier='premium' then 200 else 1000 end
+     or p_amount_kes <> (case when p_tier='premium' then 200 else 1000 end)
      or p_customer_email is null or lower(trim(p_customer_email)) = ''
      or (p_billing_method='card' and (p_plan_id is null or p_plan_id !~ '^[0-9]+$'))
      or (p_billing_method='mpesa' and p_plan_id is not null) then
