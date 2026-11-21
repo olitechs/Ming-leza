@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(32);
+select plan(31);
 
 select has_table('public','gift_catalog_items','gift catalog exists');
 select has_table('public','gift_diamond_wallets','wallet table exists');
@@ -35,7 +35,13 @@ select ok(has_function_privilege('service_role','public.apply_verified_gift_diam
 select ok(not has_function_privilege('authenticated','public.resolve_gift_diamond_redemption(uuid,uuid,text,text)','execute'),'redemption admin RPC is not authenticated-callable');
 
 select ok(exists(select 1 from pg_indexes where schemaname='public' and indexname='gift_diamond_one_pending_intent_per_user' and indexdef ilike '%where (status = ''pending''::text)%'),'one pending intent per user is enforced by a partial unique index');
-select ok(exists(select 1 from information_schema.check_constraints where constraint_schema='public' and constraint_name like '%payout_amount_kes%'),'redemption conversion has a database check');
+select ok(exists(
+  select 1 from pg_catalog.pg_constraint c
+  where c.conrelid='public.gift_diamond_redemptions'::regclass
+    and c.contype='c'
+    and pg_catalog.pg_get_constraintdef(c.oid) ilike '%payout_amount_kes%'
+    and pg_catalog.pg_get_constraintdef(c.oid) ilike '%diamonds%'
+),'redemption conversion has a database check');
 
 select * from finish();
 rollback;
