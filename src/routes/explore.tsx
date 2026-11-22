@@ -1,9 +1,13 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowRight, Compass, MapPin, ShieldCheck, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getMyAccess } from "@/lib/auth/server";
 import { getLiveCityPresence, getMyOnlinePresencePreferences } from "@/lib/profile/server";
+
+const LiveCityMap = lazy(() =>
+  import("@/components/LiveCityMap").then((module) => ({ default: module.LiveCityMap })),
+);
 
 export const Route = createFileRoute("/explore")({
   beforeLoad: async () => {
@@ -162,9 +166,9 @@ function Explore() {
                 Online city mini-map
               </h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                This privacy-first map shows city clusters, not people or pins. A city appears only
-                when at least three eligible adults opt in. It uses the city on each profile and
-                never requests GPS.
+                This privacy-first map shows city-centre markers for anonymous clusters, never
+                individual people. A city appears only when at least three eligible adults opt in.
+                Markers use published city-centre coordinates and never request GPS.
               </p>
             </div>
           </div>
@@ -194,30 +198,41 @@ function Explore() {
               No city currently has enough opted-in members to show a cluster.
             </p>
           ) : (
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {clusters.map((cluster) => (
-                <article
-                  key={`${cluster.country_code}:${cluster.region ?? ""}:${cluster.city}`}
-                  className="flex min-h-20 items-center gap-3 rounded-2xl border bg-secondary/30 p-4"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"
+            <>
+              <Suspense
+                fallback={
+                  <p role="status" className="mt-5 text-sm text-muted-foreground">
+                    Loading interactive map…
+                  </p>
+                }
+              >
+                <LiveCityMap clusters={clusters} />
+              </Suspense>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {clusters.map((cluster) => (
+                  <article
+                    key={`${cluster.country_code}:${cluster.region ?? ""}:${cluster.city}`}
+                    className="flex min-h-20 items-center gap-3 rounded-2xl border bg-secondary/30 p-4"
                   >
-                    <Users className="size-5" />
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="truncate font-semibold">{cluster.city}</h3>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {[cluster.region, cluster.country_code].filter(Boolean).join(", ")}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-primary">
-                      {cluster.online_count}+ members online
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <span
+                      aria-hidden="true"
+                      className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"
+                    >
+                      <Users className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold">{cluster.city}</h3>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {[cluster.region, cluster.country_code].filter(Boolean).join(", ")}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-primary">
+                        {cluster.online_count}+ members online
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
           )}
         </section>
 
@@ -239,8 +254,8 @@ function Explore() {
                   preferences and blocks.
                 </li>
                 <li className="flex gap-2">
-                  <MapPin aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> No
-                  live map pins, GPS tracking, or exact-location display is used here.
+                  <MapPin aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" /> Map
+                  points show city centres only—never member pins, GPS tracking, or exact locations.
                 </li>
               </ul>
             </div>

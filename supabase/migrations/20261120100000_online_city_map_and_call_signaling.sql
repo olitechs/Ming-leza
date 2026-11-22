@@ -1,18 +1,85 @@
--- Opt-in online city clusters and conversation-scoped WebRTC signaling.
--- No precise location is collected; call signals are ephemeral Realtime Broadcasts.
+-- Compatible opt-in online city clusters and conversation-scoped WebRTC signaling.
+-- Presence is maintained through security-definer RPCs; no location column is used.
 
-create table public.user_presence (
+-- The target project already has a presence table with additional legacy columns.
+-- IF NOT EXISTS preserves that table and all existing rows and columns.
+create table if not exists public.user_presence (
   user_id uuid primary key references auth.users(id) on delete cascade,
   last_seen_at timestamptz not null default now()
 );
-create index user_presence_last_seen_idx on public.user_presence(last_seen_at desc);
+alter table public.user_presence
+  add column if not exists last_seen_at timestamptz not null default now();
+alter table public.user_presence
+  add column if not exists is_online boolean not null default false;
+alter table public.user_presence
+  add column if not exists map_opt_in boolean not null default false;
 alter table public.user_presence enable row level security;
-revoke all on public.user_presence from anon, authenticated;
-grant select, insert, update, delete on public.user_presence to authenticated;
-create policy user_presence_self_only on public.user_presence
+create index if not exists user_presence_last_seen_idx
+  on public.user_presence(last_seen_at desc);
+create index if not exists user_presence_online_last_seen_idx
+  on public.user_presence(last_seen_at desc)
+  where is_online = true;
+
+-- Preserve a stricter pre-existing deny-all policy when present. Fresh installations
+-- retain the original self-only access pattern used by the local regression tests.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'user_presence'
+      and policyname = 'user_presence_no_client_access'
+  ) then
+    execute 'grant select, insert, update, delete on public.user_presence to authenticated';
+    if not exists (
+      select 1 from pg_policies
+      where schemaname = 'public'
+        and tablename = 'user_presence'
+        and policyname = 'user_presence_self_only'
+    ) then
+      execute $policy$
+        create policy user_presence_self_only on public.user_presence
+          for all to authenticated
+          using (user_id = (select auth.uid()))
+          with check (user_id = (select auth.uid()))
+      $policy$;
+    end if;
+  end if;
+end;
+$$;
+
+-- Online and map participation are separate, explicit opt-ins; existing users stay opted out.
+create table if not exists public.user_preferences (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  show_online_status boolean not null default false,
+  map_discovery_enabled boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.user_preferences
+  add column if not exists show_online_status boolean not null default false;
+alter table public.user_preferences
+  add column if not exists map_discovery_enabled boolean not null default false;
+alter table public.user_preferences enable row level security;
+revoke all on public.user_preferences from public, anon;
+grant select, insert, update, delete on public.user_preferences to authenticated;
+drop policy if exists preferences_self_all on public.user_preferences;
+create policy preferences_self_all on public.user_preferences
   for all to authenticated
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
+
+-- Ensure legacy conversations can be safely checked for one-to-one call topics.
+-- Existing records with more than two members are classified as groups; all other
+-- existing records retain the direct default because this schema had no kind field.
+alter table public.conversations
+  add column if not exists kind text not null default 'direct'
+  check (kind in ('direct', 'group'));
+update public.conversations c
+set kind = 'group'
+where c.kind = 'direct'
+  and (select count(*) from public.conversation_members cm
+       where cm.conversation_id = c.id) > 2;
 
 create or replace function public.heartbeat_my_presence()
 returns void
@@ -22,22 +89,42 @@ set search_path = ''
 as $$
 declare
   v_user uuid := auth.uid();
+  v_show_online boolean := false;
+  v_map_discovery boolean := false;
 begin
   if v_user is null then
     raise exception 'authentication required' using errcode = '28000';
   end if;
 
-  if not public.is_adult_verified(v_user) or not exists (
-    select 1 from public.user_preferences p
-    where p.user_id = v_user and p.show_online_status = true
-  ) then
-    delete from public.user_presence where user_id = v_user;
+  if not public.is_adult_verified(v_user) then
+    update public.user_presence
+       set is_online = false,
+           map_opt_in = false
+     where user_id = v_user;
     return;
   end if;
 
-  insert into public.user_presence (user_id, last_seen_at)
-  values (v_user, now())
-  on conflict (user_id) do update set last_seen_at = excluded.last_seen_at;
+  select coalesce(p.show_online_status, false),
+         coalesce(p.map_discovery_enabled, false)
+    into v_show_online, v_map_discovery
+  from public.user_preferences p
+  where p.user_id = v_user;
+
+  if not found or not v_show_online then
+    -- Keep the row and any unrelated legacy data; only deactivate presence flags.
+    update public.user_presence
+       set is_online = false,
+           map_opt_in = false
+     where user_id = v_user;
+    return;
+  end if;
+
+  insert into public.user_presence (user_id, last_seen_at, is_online, map_opt_in)
+  values (v_user, now(), true, v_map_discovery)
+  on conflict (user_id) do update
+    set last_seen_at = excluded.last_seen_at,
+        is_online = true,
+        map_opt_in = excluded.map_opt_in;
 end;
 $$;
 revoke all on function public.heartbeat_my_presence() from public, anon;
@@ -65,9 +152,11 @@ as $$
     from public.user_presence presence
     join public.profiles p on p.id = presence.user_id
     join public.user_preferences prefs on prefs.user_id = p.id
-    join public.age_verifications age on age.user_id = p.id and age.is_18_plus = true
+    join public.age_verifications age
+      on age.user_id = p.id and age.is_18_plus = true
     cross join viewer
-    where presence.last_seen_at >= now() - interval '90 seconds'
+    where presence.is_online = true
+      and presence.last_seen_at >= now() - interval '90 seconds'
       and p.is_discoverable = true
       and (p.friends_enabled = true or p.dating_enabled = true)
       and prefs.show_online_status = true
@@ -84,7 +173,9 @@ as $$
          eligible.country_code,
          count(*)::integer as online_count
   from eligible
-  group by lower(btrim(eligible.city)), lower(coalesce(btrim(eligible.region), '')), eligible.country_code
+  group by lower(btrim(eligible.city)),
+           lower(coalesce(btrim(eligible.region), '')),
+           eligible.country_code
   having count(*) >= 3
   order by count(*) desc, min(btrim(eligible.city))
   limit 30;
@@ -92,8 +183,8 @@ $$;
 revoke all on function public.get_live_city_presence() from public, anon;
 grant execute on function public.get_live_city_presence() to authenticated;
 
--- Realtime call channels accept signals only for a two-person conversation between
--- verified adult members who still have an accepted friendship and no mutual block.
+-- Call signaling is limited to two verified adult members in an accepted friendship,
+-- with mutual blocks checked before access. Signals remain ephemeral Realtime Broadcasts.
 create or replace function public.can_access_call_topic(p_topic text)
 returns boolean
 language plpgsql
@@ -134,8 +225,13 @@ begin
   end if;
 
   v_other := case when v_members[1] = v_user then v_members[2] else v_members[1] end;
-  if not public.is_adult_verified(v_user) or not public.is_adult_verified(v_other)
-     or private.is_blocked_between(v_user, v_other)
+  if not public.is_adult_verified(v_user)
+     or not public.is_adult_verified(v_other)
+     or exists (
+       select 1 from public.blocks b
+       where (b.blocker_id = v_user and b.blocked_id = v_other)
+          or (b.blocker_id = v_other and b.blocked_id = v_user)
+     )
      or not exists (
        select 1 from public.friendships f
        where f.status = 'accepted'
@@ -151,7 +247,7 @@ $$;
 revoke all on function public.can_access_call_topic(text) from public, anon;
 grant execute on function public.can_access_call_topic(text) to authenticated;
 
--- Supabase keeps RLS enabled on realtime.messages; do not ALTER TABLE here.
+-- Supabase keeps RLS enabled on realtime.messages; do not alter the table itself.
 drop policy if exists call_channel_receive on realtime.messages;
 drop policy if exists call_channel_send on realtime.messages;
 create policy call_channel_receive on realtime.messages
