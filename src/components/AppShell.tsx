@@ -13,7 +13,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { signOutAndLeave } from "@/lib/auth/sign-out";
+import { heartbeatMyOnlinePresence } from "@/lib/profile/server";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type NavItem = {
@@ -56,6 +58,29 @@ export function AppShell({
   aside?: ReactNode;
   hideTabs?: boolean;
 }) {
+  useEffect(() => {
+    let active = true;
+    let inFlight = false;
+    const refresh = () => {
+      if (!active || inFlight || document.visibilityState !== "visible") return;
+      inFlight = true;
+      void heartbeatMyOnlinePresence()
+        .catch(() => undefined)
+        .finally(() => {
+          inFlight = false;
+        });
+    };
+    const onVisibilityChange = () => refresh();
+    refresh();
+    const timer = window.setInterval(refresh, 45_000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
   return (
     <div className="min-h-dvh bg-background lg:flex">
       <nav

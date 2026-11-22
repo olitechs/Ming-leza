@@ -29,40 +29,41 @@ export function useRealtimeConversationMessages({ conversationId, table, onMessa
     let disposed = false;
     let userId: string | null = null;
     const supabase = getSupabaseBrowserClient();
-    const channel = supabase
-      .channel(`conversation-messages:${table}:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table,
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload: { new: Record<string, unknown> }) => {
-          if (disposed) return;
-          const row = payload.new as unknown as RealtimeMessageRow;
-          if (
-            !row ||
-            typeof row.id !== "string" ||
-            row.conversation_id !== conversationId ||
-            typeof row.sender_id !== "string" ||
-            typeof row.body !== "string" ||
-            typeof row.created_at !== "string"
-          )
-            return;
-          onMessage({ ...row, mine: row.sender_id === userId });
-        },
-      )
-      .subscribe();
-
+    let channel: ReturnType<typeof supabase.channel> | null = null;
     void supabase.auth.getUser().then((result: { data: { user: { id: string } | null } }) => {
-      if (!disposed) userId = result.data.user?.id ?? null;
+      if (disposed) return;
+      userId = result.data.user?.id ?? null;
+      channel = supabase
+        .channel(`conversation-messages:${table}:${conversationId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table,
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload: { new: Record<string, unknown> }) => {
+            if (disposed) return;
+            const row = payload.new as unknown as RealtimeMessageRow;
+            if (
+              !row ||
+              typeof row.id !== "string" ||
+              row.conversation_id !== conversationId ||
+              typeof row.sender_id !== "string" ||
+              typeof row.body !== "string" ||
+              typeof row.created_at !== "string"
+            )
+              return;
+            onMessage({ ...row, mine: row.sender_id === userId });
+          },
+        )
+        .subscribe();
     });
 
     return () => {
       disposed = true;
-      void supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [conversationId, table, onMessage]);
 }

@@ -40,6 +40,11 @@ const discoveryPreferencesInput = z.object({
   datingEnabled: z.boolean(),
 });
 
+const onlinePresencePreferencesInput = z.object({
+  showOnlineStatus: z.boolean(),
+  mapDiscoveryEnabled: z.boolean(),
+});
+
 async function getVerifiedUser() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
@@ -260,6 +265,119 @@ export const updateMyDiscoveryPreferences = createServerFn({ method: "POST" })
       };
     }
   });
+
+export const getMyOnlinePresencePreferences = createServerFn({ method: "GET" }).handler(
+  async () => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message, preferences: null };
+      const { data, error } = await supabase
+        .from("user_preferences")
+        .select("show_online_status,map_discovery_enabled")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error)
+        return { ok: false as const, message: "Online privacy settings could not be loaded." };
+      return {
+        ok: true as const,
+        preferences: {
+          showOnlineStatus: data?.show_online_status === true,
+          mapDiscoveryEnabled: data?.map_discovery_enabled === true,
+        },
+      };
+    } catch {
+      return {
+        ok: false as const,
+        message: "Online privacy settings are temporarily unavailable.",
+      };
+    }
+  },
+);
+
+export const saveMyOnlinePresencePreferences = createServerFn({ method: "POST" })
+  .validator(onlinePresencePreferencesInput)
+  .handler(async ({ data }) => {
+    try {
+      const { supabase, user, message } = await getVerifiedUser();
+      if (!user) return { ok: false as const, message };
+      if (data.mapDiscoveryEnabled && !data.showOnlineStatus) {
+        return {
+          ok: false as const,
+          message: "Enable online status before opting in to the city map.",
+        };
+      }
+      if (data.mapDiscoveryEnabled) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("city,is_discoverable,friends_enabled,dating_enabled")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (
+          profileError ||
+          !profile?.city?.trim() ||
+          !profile.is_discoverable ||
+          (!profile.friends_enabled && !profile.dating_enabled)
+        ) {
+          return {
+            ok: false as const,
+            message: "Add a city and enable profile discovery before joining the city map.",
+          };
+        }
+      }
+      const { error } = await supabase.from("user_preferences").upsert(
+        {
+          user_id: user.id,
+          show_online_status: data.showOnlineStatus,
+          map_discovery_enabled: data.mapDiscoveryEnabled,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+      if (error)
+        return { ok: false as const, message: "Online privacy settings could not be saved." };
+      await supabase.rpc("heartbeat_my_presence");
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        message: "Online privacy settings are temporarily unavailable.",
+      };
+    }
+  });
+
+export const heartbeatMyOnlinePresence = createServerFn({ method: "POST" }).handler(async () => {
+  try {
+    const { supabase, user, message } = await getVerifiedUser();
+    if (!user) return { ok: false as const, message };
+    const { error } = await supabase.rpc("heartbeat_my_presence");
+    return error
+      ? { ok: false as const, message: "Online status could not be refreshed." }
+      : { ok: true as const };
+  } catch {
+    return { ok: false as const, message: "Online status is temporarily unavailable." };
+  }
+});
+
+export const getLiveCityPresence = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { supabase, user, message } = await getVerifiedUser();
+    if (!user) return { ok: false as const, message, clusters: [] };
+    const { data, error } = await supabase.rpc("get_live_city_presence");
+    if (error)
+      return {
+        ok: false as const,
+        message: "Live city clusters could not be loaded.",
+        clusters: [],
+      };
+    return { ok: true as const, clusters: data ?? [] };
+  } catch {
+    return {
+      ok: false as const,
+      message: "Live city clusters are temporarily unavailable.",
+      clusters: [],
+    };
+  }
+});
 
 export const setMyAvatarPath = createServerFn({ method: "POST" })
   .validator(avatarPathInput)

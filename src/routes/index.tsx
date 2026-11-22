@@ -5,7 +5,7 @@ import { SwipeCard } from "@/components/discover/SwipeCard";
 import { ForYouNearbyTabs } from "@/components/discover/ForYouNearbyTabs";
 import { ProfileActions } from "@/components/discover/ProfileActions";
 import { ViewProfileSheet } from "@/components/discover/ViewProfileSheet";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, Heart, MapPin, RotateCcw, Users, UserPlus } from "lucide-react";
 import { Chip } from "@/components/AppShell";
 import { SafetyActions } from "@/components/SafetyActions";
@@ -414,11 +414,19 @@ function Discover() {
   const [feed, setFeed] = useState<"for-you" | "nearby">("for-you");
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewProfile, setViewProfile] = useState(false);
+  const profileCache = useRef(new Map<string, Profile[]>());
 
   useEffect(() => {
     let active = true;
-    const load = async () => {
+    const cacheKey = intent ? `${intent}:${feed}` : null;
+    const cached = cacheKey ? profileCache.current.get(cacheKey) : undefined;
+    if (cached) {
+      setProfiles(cached);
+      setLoading(false);
+    } else {
       setLoading(true);
+    }
+    const load = async () => {
       setError(false);
       setLoadReason(null);
       try {
@@ -439,6 +447,7 @@ function Discover() {
             : await getDiscoverableProfiles({ data: { intent, limit: 30 } });
         if (!active) return;
         if (result.ok) {
+          if (cacheKey) profileCache.current.set(cacheKey, result.profiles);
           setProfiles(result.profiles);
           setActedOnIds([]);
           setActiveIndex(0);

@@ -20,6 +20,8 @@ import {
   getMyProfile,
   listSupportedCountries,
   setMyAvatarPath,
+  getMyOnlinePresencePreferences,
+  saveMyOnlinePresencePreferences,
   updateMyDiscoveryPreferences,
   updateMyProfile,
 } from "@/lib/profile/server";
@@ -79,6 +81,13 @@ function EditProfile() {
   const [savingPreferences, setSavingPreferences] = useState(false);
   const [preferencesError, setPreferencesError] = useState("");
   const [preferencesNotice, setPreferencesNotice] = useState("");
+  const [onlinePreferences, setOnlinePreferences] = useState({
+    showOnlineStatus: false,
+    mapDiscoveryEnabled: false,
+  });
+  const [savingOnlinePreferences, setSavingOnlinePreferences] = useState(false);
+  const [onlinePreferencesError, setOnlinePreferencesError] = useState("");
+  const [onlinePreferencesNotice, setOnlinePreferencesNotice] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -220,8 +229,13 @@ function EditProfile() {
 
   useEffect(() => {
     let active = true;
-    void Promise.all([getMyProfile(), listSupportedCountries(), getMyPremiumStatus()])
-      .then(async ([result, countryResult, premiumResult]) => {
+    void Promise.all([
+      getMyProfile(),
+      listSupportedCountries(),
+      getMyPremiumStatus(),
+      getMyOnlinePresencePreferences(),
+    ])
+      .then(async ([result, countryResult, premiumResult, onlineResult]) => {
         if (!active) return;
         if (!countryResult.ok) {
           setError(countryResult.message);
@@ -230,6 +244,9 @@ function EditProfile() {
         }
         setCountries(countryResult.countries as Country[]);
         if (premiumResult.ok) setPhoneVisibilityOptIn(premiumResult.phoneVisibilityOptIn);
+        if (onlineResult.ok && onlineResult.preferences) {
+          setOnlinePreferences(onlineResult.preferences);
+        }
         if (!result.ok) {
           setError(result.message);
           setLoading(false);
@@ -300,6 +317,21 @@ function EditProfile() {
       setPreferencesError("Discovery preferences could not be saved. Please retry.");
     } finally {
       setSavingPreferences(false);
+    }
+  };
+
+  const saveOnlinePreferences = async () => {
+    setSavingOnlinePreferences(true);
+    setOnlinePreferencesError("");
+    setOnlinePreferencesNotice("");
+    try {
+      const result = await saveMyOnlinePresencePreferences({ data: onlinePreferences });
+      if (!result.ok) setOnlinePreferencesError(result.message);
+      else setOnlinePreferencesNotice("Your online status and city-map choices have been saved.");
+    } catch {
+      setOnlinePreferencesError("Online privacy settings could not be saved. Please retry.");
+    } finally {
+      setSavingOnlinePreferences(false);
     }
   };
 
@@ -611,6 +643,75 @@ function EditProfile() {
                   <Save className="size-4" />
                   {savingPreferences ? "Saving preferences…" : "Save preferences"}
                 </button>
+                <div className="mt-6 rounded-2xl border bg-secondary/30 p-4">
+                  <h3 className="font-semibold">Online status and city map</h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    Both choices are off by default. The map shows only city clusters with at least
+                    three opted-in, eligible members. It never uses GPS or shows individual pins.
+                  </p>
+                  <label className="mt-3 flex min-h-11 items-start gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={onlinePreferences.showOnlineStatus}
+                      onChange={(event) =>
+                        setOnlinePreferences({
+                          showOnlineStatus: event.target.checked,
+                          mapDiscoveryEnabled: event.target.checked
+                            ? onlinePreferences.mapDiscoveryEnabled
+                            : false,
+                        })
+                      }
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block font-semibold">Share my online status</span>
+                      <span className="block text-muted-foreground">
+                        Your status is private unless you opt in. Stale status expires
+                        automatically.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="mt-2 flex min-h-11 items-start gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={onlinePreferences.mapDiscoveryEnabled}
+                      disabled={!onlinePreferences.showOnlineStatus}
+                      onChange={(event) =>
+                        setOnlinePreferences({
+                          ...onlinePreferences,
+                          mapDiscoveryEnabled: event.target.checked,
+                        })
+                      }
+                      className="mt-1 size-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block font-semibold">Include my city in the mini-map</span>
+                      <span className="block text-muted-foreground">
+                        Only your profile city, region, and country are used to form an anonymous
+                        count.
+                      </span>
+                    </span>
+                  </label>
+                  {onlinePreferencesError && (
+                    <p role="alert" className="mt-3 text-sm text-destructive-text">
+                      {onlinePreferencesError}
+                    </p>
+                  )}
+                  {onlinePreferencesNotice && (
+                    <p role="status" className="mt-3 text-sm text-success-text">
+                      {onlinePreferencesNotice}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void saveOnlinePreferences()}
+                    disabled={savingOnlinePreferences || saving || uploading}
+                    className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border bg-background px-5 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Save className="size-4" />
+                    {savingOnlinePreferences ? "Saving online settings…" : "Save online settings"}
+                  </button>
+                </div>
               </div>
             </>
           )}

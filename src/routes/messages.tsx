@@ -1,12 +1,13 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, MessageCircle, Send, Users, Plus } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft, MessageCircle, Send, Users, Plus, Phone, Video, PhoneOff } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Input as BrandInput } from "@/components/brand";
 import { getMyAccess } from "@/lib/auth/server";
 import { listAcceptedFriendProfiles } from "@/lib/social/friends";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useWebRtcCall } from "@/lib/social/use-webrtc-call";
 import {
   listConversationMessages,
   openFriendConversation,
@@ -57,6 +58,30 @@ type MessageCursor = {
   id: string;
 };
 
+const MESSAGE_PAGE_SIZE = 40;
+
+function mergeMessages(current: Message[], incoming: Message[]) {
+  const byId = new Map(current.map((message) => [message.id, message]));
+  for (const message of incoming) byId.set(message.id, message);
+  return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
+}
+
+function StreamPreview({ stream, muted = false }: { stream: MediaStream; muted?: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.srcObject = stream;
+  }, [stream]);
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted={muted}
+      className="max-h-56 w-full rounded-xl bg-black object-cover"
+    />
+  );
+}
+
 function Messages() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [activeFriend, setActiveFriend] = useState<Friend | null>(null);
@@ -78,6 +103,10 @@ function Messages() {
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [groupBusy, setGroupBusy] = useState(false);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const call = useWebRtcCall({
+    conversationId: activeFriend ? conversationId : null,
+    otherUserId: activeFriend?.id ?? null,
+  });
 
   const openFriend = useCallback(async (friend: Friend) => {
     setError("");
@@ -97,7 +126,7 @@ function Messages() {
       }
       setConversationId(opened.conversationId);
       const result = await listConversationMessages({
-        data: { conversationId: opened.conversationId, limit: 100 },
+        data: { conversationId: opened.conversationId, limit: MESSAGE_PAGE_SIZE },
       });
       if (!result.ok) {
         setError("We could not load this conversation. Please try again.");
@@ -125,7 +154,7 @@ function Messages() {
     setMessageCursor(null);
     try {
       const result = await listConversationMessages({
-        data: { conversationId: group.id, limit: 100 },
+        data: { conversationId: group.id, limit: MESSAGE_PAGE_SIZE },
       });
       if (!result.ok) setError("We could not load this group conversation.");
       else {
@@ -142,8 +171,8 @@ function Messages() {
 
   useEffect(() => {
     let active = true;
-    listAcceptedFriendProfiles()
-      .then(async (result) => {
+    Promise.all([listAcceptedFriendProfiles(), listMyGroupConversations()])
+      .then(async ([result, groupResult]) => {
         if (!active) return;
         if (!result.ok) {
           setError(
@@ -155,8 +184,7 @@ function Messages() {
         }
         const list = result.friends as Friend[];
         setFriends(list);
-        const groupResult = await listMyGroupConversations();
-        if (active && groupResult.ok) setGroups(groupResult.groups);
+        if (groupResult.ok) setGroups(groupResult.groups);
         const firstFriend = list[0];
         const isDesktop =
           typeof window !== "undefined" &&
@@ -180,58 +208,92 @@ function Messages() {
   useEffect(() => {
     if (!conversationId) return;
     let active = true;
-    const refreshMessages = async () => {
-      const result = await listConversationMessages({ data: { conversationId, limit: 100 } }).catch(
-        () => null,
-      );
-      if (!active || !result?.ok) return;
-      setMessages((current) => {
-        const byId = new Map(current.map((message) => [message.id, message]));
-        for (const message of result.messages as Message[]) byId.set(message.id, message);
-        return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
-      });
-    };
     const supabase = getSupabaseBrowserClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
     setRealtimeConnected(false);
-    const channel = supabase
-      .channel(`conversation:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        () => void refreshMessages(),
-      )
-      .subscribe((status: string) => {
-        if (active) setRealtimeConnected(status === "SUBSCRIBED");
-      });
+    void (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!active) return;
+      const userId = data.user?.id ?? null;
+      channel = supabase
+        .channel(`conversation:${conversationId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload: { new: Record<string, unknown> }) => {
+            const row = payload.new;
+            const id = row["id"];
+            const senderId = row["sender_id"];
+            const body = row["body"];
+            const createdAt = row["created_at"];
+            if (
+              typeof id !== "string" ||
+              row["conversation_id"] !== conversationId ||
+              typeof senderId !== "string" ||
+              typeof body !== "string" ||
+              typeof createdAt !== "string"
+            )
+              return;
+            const message: Message = {
+              id,
+              conversation_id: conversationId,
+              sender_id: senderId,
+              body,
+              created_at: createdAt,
+              mine: senderId === userId,
+              senderName: senderId === userId ? null : (activeFriend?.display_name ?? null),
+            };
+            setMessages((current) => mergeMessages(current, [message]));
+          },
+        )
+        .subscribe((status: string) => {
+          if (active) setRealtimeConnected(status === "SUBSCRIBED");
+        });
+    })();
     return () => {
       active = false;
-      void supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, activeFriend?.display_name]);
 
   useEffect(() => {
     if (!conversationId || realtimeConnected) return;
     let active = true;
+    let delay = 15_000;
+    let timer = 0;
     const refresh = async () => {
-      const result = await listConversationMessages({ data: { conversationId, limit: 100 } }).catch(
-        () => null,
-      );
-      if (!active || !result?.ok) return;
-      setMessages((current) => {
-        const byId = new Map(current.map((message) => [message.id, message]));
-        for (const message of result.messages as Message[]) byId.set(message.id, message);
-        return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
-      });
+      if (document.visibilityState === "visible") {
+        const result = await listConversationMessages({
+          data: { conversationId, limit: MESSAGE_PAGE_SIZE },
+        }).catch(() => null);
+        if (!active) return;
+        if (result?.ok) {
+          setMessages((current) => mergeMessages(current, result.messages as Message[]));
+          delay = 30_000;
+        } else {
+          delay = Math.min(delay * 2, 60_000);
+        }
+      }
+      if (active) timer = window.setTimeout(() => void refresh(), delay);
     };
-    const timer = window.setInterval(() => void refresh(), 5000);
+    const onVisibilityChange = () => {
+      window.clearTimeout(timer);
+      if (document.visibilityState === "visible") {
+        delay = 15_000;
+        void refresh();
+      }
+    };
+    timer = window.setTimeout(() => void refresh(), delay);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       active = false;
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [conversationId, realtimeConnected]);
 
@@ -269,7 +331,7 @@ function Messages() {
     setError("");
     try {
       const result = await listConversationMessages({
-        data: { conversationId, limit: 100, cursor: messageCursor },
+        data: { conversationId, limit: MESSAGE_PAGE_SIZE, cursor: messageCursor },
       });
       if (!result.ok) {
         setError("We could not load earlier messages. Please try again.");
@@ -458,10 +520,34 @@ function Messages() {
                   <p className="text-xs text-muted-foreground">
                     {realtimeConnected
                       ? "Live connection active"
-                      : "Reconnecting · checking for new messages every 5 seconds"}
+                      : "Reconnecting · message sync backs off when needed"}
                     {!activeFriend && " · Group members can see group messages"}
                   </p>
                 </div>
+                {activeFriend && (
+                  <div className="ml-auto flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label={`Start voice call with ${activeFriend.display_name}`}
+                      title={call.ready ? "Voice call" : "Connecting call service…"}
+                      disabled={!call.ready || call.status !== "idle" || loading}
+                      onClick={() => void call.startCall("audio")}
+                      className="grid size-10 place-items-center rounded-full border text-primary hover:bg-secondary disabled:opacity-50"
+                    >
+                      <Phone aria-hidden="true" className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Start video call with ${activeFriend.display_name}`}
+                      title={call.ready ? "Video call" : "Connecting call service…"}
+                      disabled={!call.ready || call.status !== "idle" || loading}
+                      onClick={() => void call.startCall("video")}
+                      className="grid size-10 place-items-center rounded-full border text-primary hover:bg-secondary disabled:opacity-50"
+                    >
+                      <Video aria-hidden="true" className="size-4" />
+                    </button>
+                  </div>
+                )}
               </header>
               <div className="flex-1 space-y-3 overflow-y-auto p-4 md:p-6">
                 {loading ? (
@@ -557,6 +643,78 @@ function Messages() {
           )}
         </section>
       </div>
+      {call.status !== "idle" && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="call-panel-title"
+            className="w-full max-w-md space-y-4 rounded-3xl border bg-card p-5 shadow-2xl"
+          >
+            <div>
+              <h2 id="call-panel-title" className="text-xl font-bold">
+                {call.status === "incoming"
+                  ? `Incoming ${call.media === "video" ? "video" : "voice"} call`
+                  : call.status === "connected"
+                    ? `${call.media === "video" ? "Video" : "Voice"} call connected`
+                    : call.status === "error"
+                      ? "Call could not connect"
+                      : `Calling ${activeFriend?.display_name ?? "your friend"}…`}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Calls are peer-to-peer. Some networks require a TURN relay, which is not configured
+                for this deployment, so connection success can vary by network.
+              </p>
+            </div>
+            {call.media === "video" && call.remoteStream && (
+              <StreamPreview stream={call.remoteStream} />
+            )}
+            {call.media === "video" && call.localStream && (
+              <div>
+                <p className="mb-1 text-xs font-semibold text-muted-foreground">Your camera</p>
+                <StreamPreview stream={call.localStream} muted />
+              </div>
+            )}
+            {call.error && (
+              <p
+                role="alert"
+                className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive-text"
+              >
+                {call.error}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {call.status === "incoming" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => void call.acceptCall()}
+                    className="min-h-11 flex-1 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+                  >
+                    Accept call
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void call.declineCall()}
+                    className="min-h-11 flex-1 rounded-full border px-4 font-semibold"
+                  >
+                    Decline
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void call.endCall()}
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-destructive px-4 font-semibold text-destructive-foreground"
+                >
+                  <PhoneOff aria-hidden="true" className="size-4" />
+                  {call.status === "error" ? "Close" : "End call"}
+                </button>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </AppShell>
   );
 }
