@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
+import { useEffect, useId, useRef, useState } from "react";
+import type {
+  Map as MapLibreMap,
+  Marker as MapLibreMarker,
+  Popup as MapLibrePopup,
+} from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   findCityCentroid,
@@ -7,15 +11,17 @@ import {
   type CityCentroidRecord,
   type CityCluster,
 } from "@/lib/maps/city-centroids";
-import { createCityPopupContent } from "@/lib/maps/city-popup-content";
+import { createCityPopupContent, createCityTooltipContent } from "@/lib/maps/city-popup-content";
 
 const OPENFREEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
 export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
+  const tooltipIdPrefix = useId().replace(/:/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const maplibreRef = useRef<typeof import("maplibre-gl") | null>(null);
   const markersRef = useRef<MapLibreMarker[]>([]);
+  const tooltipsRef = useRef<MapLibrePopup[]>([]);
   const [centroids, setCentroids] = useState<CityCentroidRecord[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState("");
@@ -62,6 +68,8 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
     void initializeMap();
     return () => {
       cancelled = true;
+      tooltipsRef.current.forEach((tooltip) => tooltip.remove());
+      tooltipsRef.current = [];
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
       map?.remove();
@@ -75,11 +83,13 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
     const maplibre = maplibreRef.current;
     if (!map || !maplibre || !mapReady || centroids.length === 0) return;
 
+    tooltipsRef.current.forEach((tooltip) => tooltip.remove());
+    tooltipsRef.current = [];
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
     const locations: [number, number][] = [];
-    for (const cluster of clusters) {
+    for (const [index, cluster] of clusters.entries()) {
       const point = findCityCentroid(cluster, centroids);
       if (!point) continue;
 
@@ -89,21 +99,42 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
       button.textContent = "3+";
       button.setAttribute(
         "aria-label",
-        `${cluster.city}: three or more opted-in adults online at city level`,
+        `${cluster.city}: ${cluster.online_count} opted-in adults online. Focus or click for city stats.`,
       );
-      button.title = `${cluster.city}: ${cluster.online_count}+ opted-in adults online`;
+      const tooltipId = `${tooltipIdPrefix}-cluster-tooltip-${index}`;
+      button.setAttribute("aria-describedby", tooltipId);
 
       const popupContent = createCityPopupContent(cluster);
-      const popup = new maplibre.Popup({
+      const clickPopup = new maplibre.Popup({
         closeButton: true,
         closeOnClick: false,
         maxWidth: "288px",
       }).setDOMContent(popupContent);
+      const tooltip = new maplibre.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        closeOnMove: false,
+        maxWidth: "240px",
+        offset: 14,
+      })
+        .setLngLat([point.longitude, point.latitude])
+        .setDOMContent(createCityTooltipContent(cluster, tooltipId));
+      const showTooltip = () => {
+        if (!clickPopup.isOpen()) tooltip.addTo(map);
+      };
+      const hideTooltip = () => tooltip.remove();
+      button.addEventListener("mouseenter", showTooltip);
+      button.addEventListener("mouseleave", hideTooltip);
+      button.addEventListener("focus", showTooltip);
+      button.addEventListener("blur", hideTooltip);
+      button.addEventListener("click", hideTooltip);
+
       const marker = new maplibre.Marker({ element: button, anchor: "center" })
         .setLngLat([point.longitude, point.latitude])
-        .setPopup(popup)
+        .setPopup(clickPopup)
         .addTo(map);
       markersRef.current.push(marker);
+      tooltipsRef.current.push(tooltip);
       locations.push([point.longitude, point.latitude]);
     }
 
@@ -116,7 +147,7 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
       locations.forEach((location) => bounds.extend(location));
       map.fitBounds(bounds, { padding: 52, maxZoom: 5, duration: 0 });
     }
-  }, [clusters, centroids, mapReady]);
+  }, [clusters, centroids, mapReady, tooltipIdPrefix]);
 
   return (
     <div className="mt-5">

@@ -367,6 +367,35 @@
   line-height: 1.45;
 }
 
+.mingleza-city-tooltip {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 12rem;
+  padding: 0.7rem 0.8rem;
+  color: var(--popover-foreground);
+  font-family: var(--font-sans);
+  text-align: left;
+}
+
+.mingleza-city-tooltip__city {
+  color: var(--popover-foreground);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 750;
+}
+
+.mingleza-city-tooltip__location {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+
+.mingleza-city-tooltip__count {
+  margin-top: 0.2rem;
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 750;
+}
+
 .mingleza-city-map .maplibregl-ctrl-attrib {
   max-width: min(85vw, 34rem);
   font-size: 0.625rem;

@@ -84,3 +84,36 @@ export function createCityPopupContent(
   popup.append(header, title, location, mainStat, details, privacy);
   return popup;
 }
+
+export function createCityTooltipContent(
+  cluster: CityCluster,
+  tooltipId: string,
+  documentRef: Document = document,
+): HTMLElement {
+  const tooltip = documentRef.createElement("div");
+  tooltip.className = "mingleza-city-tooltip";
+  tooltip.id = tooltipId;
+  tooltip.setAttribute("role", "tooltip");
+
+  const heading = createTextElement(
+    documentRef,
+    "strong",
+    "mingleza-city-tooltip__city",
+    cluster.city,
+  );
+  const location = createTextElement(
+    documentRef,
+    "span",
+    "mingleza-city-tooltip__location",
+    [cluster.region, cluster.country_code].filter(Boolean).join(", "),
+  );
+  const count = createTextElement(
+    documentRef,
+    "span",
+    "mingleza-city-tooltip__count",
+    `${new Intl.NumberFormat("en").format(cluster.online_count)} opted-in adults online`,
+  );
+
+  tooltip.append(heading, location, count);
+  return tooltip;
+}
