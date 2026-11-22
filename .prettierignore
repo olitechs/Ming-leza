@@ -7,3 +7,5 @@ package-lock.json
 bun.lock
 routeTree.gen.ts
 .claude
+# Generated compact GeoNames index; keep the offline data payload minified.
+public/data/city-centroids.json

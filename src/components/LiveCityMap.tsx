@@ -7,6 +7,7 @@ import {
   type CityCentroidRecord,
   type CityCluster,
 } from "@/lib/maps/city-centroids";
+import { createCityPopupContent } from "@/lib/maps/city-popup-content";
 
 const OPENFREEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
@@ -92,20 +93,11 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
       );
       button.title = `${cluster.city}: ${cluster.online_count}+ opted-in adults online`;
 
-      const popupContent = document.createElement("div");
-      popupContent.className = "mingleza-city-popup";
-      const title = document.createElement("strong");
-      title.textContent = cluster.city;
-      const region = document.createElement("p");
-      region.textContent = [cluster.region, cluster.country_code].filter(Boolean).join(", ");
-      const count = document.createElement("p");
-      count.textContent = `${cluster.online_count}+ opted-in adults online`;
-      popupContent.append(title, region, count);
-
+      const popupContent = createCityPopupContent(cluster);
       const popup = new maplibre.Popup({
         closeButton: true,
         closeOnClick: false,
-        maxWidth: "240px",
+        maxWidth: "288px",
       }).setDOMContent(popupContent);
       const marker = new maplibre.Marker({ element: button, anchor: "center" })
         .setLngLat([point.longitude, point.latitude])
