@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { TopBar } from "@/components/layout/TopBar";
 import { SwipeCard } from "@/components/discover/SwipeCard";
@@ -580,6 +580,24 @@ function Discover() {
         <div className="mt-5">
           <ForYouNearbyTabs value={feed} onChange={setFeed} />
         </div>
+        <Link
+          to="/explore"
+          className="mt-4 flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-soft transition hover:border-primary/40 hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-5"
+          aria-label="Open the live city map"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <MapPin aria-hidden="true" className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-bold">Explore the live city map</span>
+            <span className="mt-0.5 block text-sm text-muted-foreground">
+              See anonymous online clusters by city. No individual locations or GPS are shown.
+            </span>
+          </span>
+          <span aria-hidden="true" className="shrink-0 text-sm font-bold text-primary">
+            Open map →
+          </span>
+        </Link>
         {requestError && (
           <p role="alert" className="mt-4 rounded-xl bg-accent p-3 text-sm text-accent-foreground">
             {requestError}

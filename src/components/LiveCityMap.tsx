@@ -104,7 +104,10 @@ export function LiveCityMap({ clusters }: { clusters: CityCluster[] }) {
       const tooltipId = `${tooltipIdPrefix}-cluster-tooltip-${index}`;
       button.setAttribute("aria-describedby", tooltipId);
 
+      const mapHeight = map.getContainer().clientHeight;
       const popupContent = createCityPopupContent(cluster);
+      popupContent.style.maxHeight = `${Math.max(128, Math.floor(mapHeight / 2) - 12)}px`;
+      popupContent.style.overflowY = "auto";
       const clickPopup = new maplibre.Popup({
         closeButton: true,
         closeOnClick: false,
